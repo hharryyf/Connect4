@@ -1,2 +1,2 @@
 # Tic-Tac-Toe
-Learn C++ and Deep Reinforcement Learning by writing a Tic-Tac-Toe player. Although alpha-beta pruning can "solve" a game of this size, we want to use this game as an opportunity to learn how the AlphaZero algorithm works.
+Learn C++ and Deep Reinforcement Learning by writing a Tic-Tac-Toe player. Although alpha-beta pruning can "solve" a game of this size, we want to use this game as an opportunity to learn how the AlphaZero algorithm works. We would firstly learn how to code a Deep Reinforcement Learning Player in Python, because it's easier, then translate it to C++.

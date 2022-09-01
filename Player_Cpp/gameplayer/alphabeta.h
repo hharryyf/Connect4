@@ -1,6 +1,6 @@
 #pragma once 
 #include "gameplayer.h"
-#include "connect4_board.h"
+#include "alphabeta_board.h"
 
 class alphabeta_player : public gameplayer {
 public:
@@ -8,7 +8,7 @@ public:
     int play(int previous_move);
 private:
     int player = 0;
-    board brd;
+    alphabeta_board board;
     /*
         recursive function
         @return: (evaluation score, move)

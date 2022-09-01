@@ -2,7 +2,7 @@
 
 void alphabeta_player::init(int turn) {
     this->player = turn;
-    this->brd.init();
+    this->board.init();
 }
 
 std::pair<int, int> alphabeta_player::minimax(int current, int depth, int alpha, int beta) {

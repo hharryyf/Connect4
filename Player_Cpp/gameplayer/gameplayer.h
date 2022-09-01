@@ -22,9 +22,9 @@ class gameplayer {
     // turn: integer 1/-1 represents whether the player plays first or second
     virtual void init(int turn) = 0;
     /* 
-      @previous_move: integer between 1 and 7 represents the column the opponent moves, 
+      @previous_move: integer between 0 and max_col - 1 represents the column the opponent moves, 
                         -1 means the current move is the first move
-      @return: a number between 1 and 7 represents the column of the current player is playing
+      @return: a number between 0 and max_col - 1 represents the column of the current player is playing
     */ 
     virtual int play(int previous_move) = 0;
 };

@@ -34,15 +34,11 @@ public:
     */
     int get_status();
     /*
-        get how many 3-connected components like .XXX.
+        get how many 3-connected components like .XXX. or .XXX or XX.X
         @return (count for player -1, count for player 1)
     */
     std::pair<int, int> get_connect_3();
-   /*
-        get how many 3-connected components like .XXX
-        @return (count for player -1, count for player 1)
-   */
-    std::pair<int, int> get_connect_3_weak();
+
    /*
         get how many 2-connected components like .XX. or ..XX or ..XX
         @return (count for player -1, count for player 1)

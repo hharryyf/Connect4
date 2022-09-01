@@ -20,10 +20,6 @@ std::pair<int, int> board::get_connect_3() {
     return std::make_pair(0, 0);
 }
 
-std::pair<int, int> board::get_connect_3_weak() {
-    return std::make_pair(0, 0);
-}
-
 std::pair<int, int> board::get_connect_2() {
     return std::make_pair(0, 0);
 }

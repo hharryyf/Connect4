@@ -1,0 +1,5 @@
+Project Timeline:
+
+1/9/2022: Start the milestone 1 -- alphabeta pruning based connected 4 player with C++. We have set up all the files.
+TODO: 1) implement the board data structure, 
+      2) implement the alpha_beta pruning algorithm  

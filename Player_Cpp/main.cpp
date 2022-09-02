@@ -23,5 +23,9 @@ int main() {
     board.debug();
     board.update(4, 1);
     board.debug();
+    std::cout << board.killmove(5, 1) << std::endl;
+    std::cout << board.killmove(6, 1) << std::endl;
+    std::cout << board.killmove(2, 1) << std::endl;
+    std::cout << board.killmove(1, 1) << std::endl;
     return 0;
 }

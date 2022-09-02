@@ -19,17 +19,22 @@ void board::update(int c, int piece) {
     }
 }
 
-static bool check(int x, int y) {
-    return x >= 0 && x < 6 && y >= 0 && y < 7;
-}
-
 int board::get_status() {
     int i, j;
+    auto check = [](int x, int y) -> bool {
+        return x >= 0 && x < 6 && y >= 0 && y < 7;
+    };
+
     for (i = 0 ; i < 6; ++i) {
         for (j = 0 ; j < 7; ++j) {
             if (check(i, j) && check(i+1, j) && check(i+2, j) && check(i+3, j)
             && abs(a[i][j] + a[i+1][j] + a[i+2][j] + a[i+3][j]) == 4) {
                 return a[i][j] + a[i+1][j] + a[i+2][j] + a[i+3][j] > 0 ? 1 : -1;
+            }
+
+            if (check(i, j) && check(i, j+1) && check(i, j+2) && check(i, j+3)
+            && abs(a[i][j] + a[i][j+1] + a[i][j+2] + a[i][j+3]) == 4) {
+                return a[i][j] + a[i][j+1] + a[i][j+2] + a[i][j+3] > 0 ? 1 : -1;
             }
 
             if (check(i, j) && check(i+1, j+1) && check(i+2, j+2) && check(i+3, j+3)

@@ -47,9 +47,9 @@ public:
 
     bool killmove(int c, int piece) {
         assert(piece != 0);
-        update(c, piece);
-        bool ok = status() == piece;
-        update(c, 0);
+        check_move(c, piece);
+        bool ok = (status() == piece);
+        check_move(c, 0);
         return ok;
     }
 
@@ -120,6 +120,19 @@ public:
     }
 
 private:
+
+    void check_move(int c, int piece) {
+        int r = board.height[c];    
+        board.play(c, piece);
+        if (piece != 0) {
+            r++;
+        }
+
+        col.recalculate(c, board);
+        row.recalculate(r, board);
+        diag.recalculate(board.diag[r][c], board);
+        antidiag.recalculate(board.antidiag[r][c], board);
+    }
 
     struct gameboard {
         int a[6][7], height[7], move = 0;
@@ -281,6 +294,7 @@ private:
                             score[index] = score[index] - brd.pw[potential] * three;
                         } else if (o_count == 4) {
                              score[index] = score[index] - brd.pw[potential] * four;
+                             status[index]--;
                         } else if (o_count == 1) {
                              score[index] = score[index] - brd.pw[potential] * one;
                         }
@@ -291,6 +305,7 @@ private:
                             score[index] = score[index] + brd.pw[potential] * three;
                         } else if (x_count == 4) {
                             score[index] = score[index] + brd.pw[potential] * four;
+                            status[index]++;
                         } else if (x_count == 1) {
                             score[index] = score[index] + brd.pw[potential] * one;
                         }

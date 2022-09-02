@@ -1,7 +1,8 @@
 #include "alphabeta.h"
 
-void alphabeta_player::init(int turn) {
+void alphabeta_player::init(int turn, std::string n) {
     this->player = turn;
+    this->name = n;
     this->board.init();
 }
 

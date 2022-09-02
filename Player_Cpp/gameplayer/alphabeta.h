@@ -4,10 +4,14 @@
 
 class alphabeta_player : public gameplayer {
 public:
-    void init(int turn);
+    void init(int turn, std::string n="Alpha-Beta AI");
     int play(int previous_move);
+    std::string display_name() {
+        return this->name;
+    }
 private:
     int player = 0;
+    std::string name;
     alphabeta_board board;
     /*
         recursive function

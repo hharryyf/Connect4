@@ -7,6 +7,7 @@
 #include <vector>
 #include <array>
 #include <set>
+#include <iterator>
 #include <queue>
 #include <cassert>
 #include <cmath>
@@ -28,6 +29,10 @@ public:
         antidiag.init(DIAG, board);
     }
 
+    bool can_move(int c) {
+        return this->board.canplay(c);
+    }
+
     void update(int c, int piece) {
         // top-most row in column c that has a piece
         int r = board.height[c];    
@@ -43,6 +48,7 @@ public:
         }
 
         col.recalculate(c, board);
+        // debug();
     }
 
     bool killmove(int c, int piece) {
@@ -68,6 +74,10 @@ public:
         if (s == -1) return -four;
         if (s == 0) return 0;
         return diag.get_score() + antidiag.get_score() + row.get_score() + col.get_score();
+    }
+
+    int get_move() {
+        return this->board.move;
     }
 
     std::string print_board() {
@@ -187,7 +197,7 @@ private:
         }
 
         bool canplay(int column) {
-            return height[column] < 5 && column >= 0 && column < 7;
+            return column >= 0 && column < 7 && height[column] < 5;
         }
 
         void play(int column, int piece) {
@@ -268,7 +278,7 @@ private:
         }
 
         void recalculate(int index, gameboard &brd) {
-            if (index == -1) return;
+            if (index < 0) return;
             if (status[index] > 0) {
                 x_win -= status[index];
             } else {

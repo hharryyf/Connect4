@@ -10,6 +10,7 @@ public:
         return this->name;
     }
 private:
+    std::default_random_engine rng = std::default_random_engine {};
     int player = 0;
     std::string name;
     alphabeta_board board;
@@ -19,5 +20,5 @@ private:
         @depth: int, search depth
         @current_player: int, current player
     */
-    std::pair<int, int> minimax(int depth, int current_player, int alpha, int beta);
+    std::pair<double, int> minimax(int depth, int current_player, double alpha, double beta);
 };

@@ -16,6 +16,7 @@
 #include <unordered_set>
 #include <bitset>
 #include <string>
+#include <iterator>
 #include "config.h"
 
 class board {
@@ -33,6 +34,8 @@ public:
         2 means unknown 
     */
     int get_status();
+
+    int get_move();
   /*
     0000000
     0000000

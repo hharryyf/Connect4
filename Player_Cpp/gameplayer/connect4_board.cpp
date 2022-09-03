@@ -3,6 +3,11 @@
 void board::init() {
     this->move = 0;
     for (int i = 0 ; i < 7; ++i) col[i] = -1;
+    for (int i = 0 ; i < 6; ++i) {
+        for (int j = 0 ; j < 7; ++j) {
+            a[i][j] = 0;
+        }
+    }
 }
 
 bool board::canplay(int c) {
@@ -11,10 +16,11 @@ bool board::canplay(int c) {
 
 void board::update(int c, int piece) {
     if (piece == 0) {
-        a[c][col[c]] = piece;
+        a[col[c]][c] = piece;
+        col[c]--;
         --move;
     } else {
-        a[c][++col[c]] = piece;
+        a[++col[c]][c] = piece;
         ++move;
     }
 }
@@ -50,6 +56,10 @@ int board::get_status() {
     }
     if (move == 42) return 0;
     return 2;
+}
+
+int board::get_move() {
+    return this->move;
 }
 
 std::string board::print_board() {

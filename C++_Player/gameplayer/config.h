@@ -1,5 +1,8 @@
 #pragma once
 #include <iostream>
+/*
+    configuration for the alpha-beta player
+*/
 // discount means how many steps we need to fill this node
 const double discount = 0.9;
 // value for 4 in a row
@@ -12,3 +15,4 @@ const double two = 50000.0;
 const double one = 1000.0;
 // some "enum" values
 const int ROW = 0, COL = 1, DIAG = 2, ANTIDIAG = 3;
+const int max_depth = 9;

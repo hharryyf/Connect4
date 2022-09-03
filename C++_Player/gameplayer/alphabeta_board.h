@@ -21,6 +21,8 @@
 
 class alphabeta_board {
 public:
+
+    // initialize the data structure for alpha-beta player
     void init() {
         board.init();
         row.init(ROW, board);
@@ -29,10 +31,19 @@ public:
         antidiag.init(DIAG, board);
     }
 
+    // if we can take the current move
     bool can_move(int c) {
         return this->board.canplay(c);
     }
 
+    /* "piece" take a move in column c
+        if piece is 0, we remove the top move in column c 
+        otherwise, we place "piece" in clumn c
+        precondition: if piece is 0, height[c] cannot be -1
+                      &&
+                        0 <= c < 7
+                      && if piece is 1/-1, height[c] cannot be more than 5
+    */
     void update(int c, int piece) {
         // top-most row in column c that has a piece
         int r = board.height[c];    
@@ -51,6 +62,10 @@ public:
         // debug();
     }
 
+    /*
+        check if player "piece" can take a move in column c and win the game
+        precondition: the board status is still undetermine && piece \in {1, -1}
+    */
     bool killmove(int c, int piece) {
         assert(piece != 0);
         check_move(c, piece);
@@ -58,7 +73,11 @@ public:
         check_move(c, 0);
         return ok;
     }
-
+    
+    /*
+        check the status of the board
+        @return: 1 -- X win, -1 -- O win, 0 -- full board, 2 -- undetermine
+    */
     int status() {
         if (diag.get_status() != 0) return diag.get_status();
         if (antidiag.get_status() != 0) return antidiag.get_status();
@@ -68,6 +87,9 @@ public:
         return 2;
     }
 
+    /*
+        heuristic score of a board
+    */
     double heuristic() {
         int s = status();
         if (s == 1) return four;
@@ -76,10 +98,16 @@ public:
         return diag.get_score() + antidiag.get_score() + row.get_score() + col.get_score();
     }
 
+    /*
+        count the number of moves on the board
+    */
     int get_move() {
         return this->board.move;
     }
 
+    /*
+        print the board
+    */
     std::string print_board() {
         std::string ret;
         for (int i = 5; i >= 0; --i) {
@@ -114,6 +142,9 @@ public:
         return ret;
     }
 
+    /*
+        print out the board information for debug
+    */
     void debug() {
         std::cout << "current board" << std::endl;
         std::cout << print_board() << std::endl; 

@@ -73,14 +73,14 @@ int alphabeta_player::play(int previous) {
 
     auto get_depth = [](int piece) -> int {
         if (piece < 7) {
-            return 9;
+            return max_depth;
         } else if (piece < 12) {
-            return 11;
+            return 2 + max_depth;
         } else if (piece < 18) {
-            return 14;
+            return 5 + max_depth;
         }
 
-        return 18;
+        return 9 + max_depth;
     };
 
     auto p = minimax(this->player, get_depth(this->board.get_move()), -four, four);

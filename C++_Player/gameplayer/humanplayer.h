@@ -12,5 +12,5 @@ public:
 private:
     std::string name;
     int player = 0;
-    board brd;
+    connect4_board brd;
 };

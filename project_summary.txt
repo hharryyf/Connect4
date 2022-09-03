@@ -7,3 +7,7 @@ TODO: 1) implement the board data structure,
 2/9/2022: Finish the implementation of the board data structure for the alphabeta pruning agent
 TODO: 1) test the data structure 
       2) implement the alpha_beta pruning algorithm
+
+3/9/2022: Finish the implementation of the alpha_beta pruning agent in C++
+TODO: 1) test the agent
+      2) prepare the background knowledge for milestone 2

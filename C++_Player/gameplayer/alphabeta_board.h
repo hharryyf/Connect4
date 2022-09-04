@@ -30,7 +30,9 @@ public:
         col.init(COL, board);
         diag.init(DIAG, board);
         antidiag.init(ANTIDIAG, board);
-        std::cout << "transposition table size " << table.max_size() << std::endl;
+        this->store_cache(true);
+        std::cout << "transposition table maximum size " << table.max_size() << std::endl;
+        std::cout << "transposition table start size " << table.get_size() << std::endl;
     }
 
     // if we can take the current move
@@ -188,6 +190,38 @@ public:
 
     int get_cache_size() {
         return this->table.get_size();
+    }
+
+    void store_cache(bool isread=false) {
+        if (!isread) {
+            FILE *fp = fopen(cache_file.c_str(), "w");
+            auto iter = this->table.item_list.rbegin();
+            fprintf(fp, "%d\n", this->table.get_size());
+            while (iter != this->table.item_list.rend()) {
+                // std::cout << iter->first << " " << iter->second.first << " " << iter->second.second << std::endl;
+                fprintf(fp, "%s %lf %d\n", iter->first.to_string().c_str(), iter->second.first, iter->second.second);
+                ++iter;
+            }
+
+            fclose(fp);
+        } else {
+            FILE *fp = fopen(cache_file.c_str(), "r");
+            if (fp == NULL) return;
+            int n;
+            char ch[88];
+            memset(ch, 0, sizeof(ch));
+            fscanf(fp, "%d", &n);
+            while (n-- > 0) {
+                double score;
+                int move;
+                fscanf(fp, "%s%lf%d", ch, &score, &move);
+                std::string state(ch);
+                std::bitset<84> bt(state);
+                this->table.put(bt, std::make_pair(score, move));
+            }   
+
+            fclose(fp);         
+        }
     }
 
 private:

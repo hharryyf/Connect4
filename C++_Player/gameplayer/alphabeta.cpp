@@ -102,3 +102,9 @@ int alphabeta_player::play(int previous) {
     // this->board.debug();
     return p.second;
 }
+
+void alphabeta_player::game_over() {
+    std::cout << "game over start caching" << std::endl;
+    this->board.store_cache();
+    // TODO, write the LRU cache into a file
+}

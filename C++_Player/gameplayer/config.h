@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <string>
 /*
     configuration for the alpha-beta player
 */
@@ -16,3 +17,5 @@ const double one = 1000.0;
 // some "enum" values
 const int ROW = 0, COL = 1, DIAG = 2, ANTIDIAG = 3;
 const int max_depth = 11;
+
+const std::string cache_file = "memo.txt";

@@ -31,4 +31,8 @@ class gameplayer {
       @return: the name of the player
     */
     virtual std::string display_name() = 0;
+    /*
+      do something when the game is over, in many cases the player does nothing here
+    */
+    virtual void game_over() = 0;
 };

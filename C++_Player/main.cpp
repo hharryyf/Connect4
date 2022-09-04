@@ -37,5 +37,8 @@ int main() {
     } else {
         std::cout << human.display_name() << " Win!" << std::endl;
     }
+
+    human.game_over();
+    player.game_over();
     return 0;
 }

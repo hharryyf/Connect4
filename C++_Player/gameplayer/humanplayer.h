@@ -9,6 +9,10 @@ public:
     std::string display_name() {
         return this->name;
     }
+
+    void game_over() {
+        return;
+    }
 private:
     std::string name;
     int player = 0;

@@ -23,20 +23,9 @@
 #include <string>
 
 template <class KEY_T, class VAL_T> class LRUCache{
-private:
-        std::list< std::pair<KEY_T,VAL_T> > item_list;
-        std::unordered_map<KEY_T, decltype(item_list.begin()) > item_map;
-        int cache_size;
-private:
-        void clean(void){
-                while((int) item_map.size()>cache_size){
-                        auto last_it = item_list.end(); last_it --;
-                        item_map.erase(last_it->first);
-                        item_list.pop_back();
-                }
-        };
+
 public:
-        LRUCache(int cache_size_=3000000):cache_size(cache_size_){
+        LRUCache(int cache_size_=1000000):cache_size(cache_size_){
                 ;
         };
 
@@ -60,14 +49,26 @@ public:
         }
 
         bool exist(const KEY_T &key){
-                return (item_map.count(key)>0);
+            return (item_map.count(key)>0);
         };
 
         VAL_T get(const KEY_T &key){
-                assert(exist(key));
-                auto it = item_map.find(key);
-                item_list.splice(item_list.begin(), item_list, it->second);
-                return it->second->second;
+            assert(exist(key));
+            auto it = item_map.find(key);
+            item_list.splice(item_list.begin(), item_list, it->second);
+            return it->second->second;
         };
 
+        std::list< std::pair<KEY_T,VAL_T> > item_list;
+        std::unordered_map<KEY_T, decltype(item_list.begin()) > item_map;
+        int cache_size;
+
+private:
+        void clean(void){
+            while((int) item_map.size()>cache_size){
+                auto last_it = item_list.end(); last_it --;
+                item_map.erase(last_it->first);
+                item_list.pop_back();
+            }
+        };
 };

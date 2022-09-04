@@ -9,6 +9,8 @@ public:
     std::string display_name() {
         return this->name;
     }
+
+    void game_over();
 protected:
     /*
         recursive function

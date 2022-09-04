@@ -18,6 +18,7 @@
 #include <bitset>
 #include <string>
 #include "config.h"
+#include "lru_cache.h"
 
 class alphabeta_board {
 public:
@@ -29,6 +30,7 @@ public:
         col.init(COL, board);
         diag.init(DIAG, board);
         antidiag.init(ANTIDIAG, board);
+        std::cout << "transposition table size " << table.max_size() << std::endl;
     }
 
     // if we can take the current move
@@ -51,6 +53,9 @@ public:
         if (piece != 0) {
             r++;
         }
+
+        // we set (r, c) to be piece
+        set_bit(r, c, piece);
 
         for (int i = r; i < 6; ++i) {
             row.recalculate(i, board);
@@ -160,7 +165,42 @@ public:
         col.debug();        
     }
 
+    /*
+        Note that this simply means that given the current bitboard,
+        we can go to a terminal winning state, the return value is <heuristic score, move>
+    */
+    std::pair<double, int> get_cached_move() {
+        if (table.exist(this->bitboard)) return table.get(this->bitboard);
+        return std::make_pair(0, -1);
+    }
+
+    /*
+        store the bitboard status and move
+    */
+    void catche_state(std::pair<double, int> &score) {
+        table.put(this->bitboard, score);
+    }
+
+    void print_bit_board() {
+        std::cout << "reach bitboard terminal state" << std::endl;
+        std::cout << bitboard << std::endl;
+    }
+
 private:
+
+    void set_bit(int r, int c, int bt) {
+        int id1 = (r * 7 + c) << 1, id2 = ((r * 7 + c) << 1) | 1;
+        if (bt == 1) {
+            bitboard.set(id1, false);
+            bitboard.set(id2, true);
+        } else if (bt == 0) {
+            bitboard.set(id1, false);
+            bitboard.set(id2, false);
+        } else {
+            bitboard.set(id1, true);
+            bitboard.set(id2, false);
+        }
+    }
 
     void check_move(int c, int piece) {
         int r = board.height[c];    
@@ -390,12 +430,13 @@ private:
         }
     };
 
-    // a bit representation of the board 
+    // a bit representation of the board, prepare for the transposition table 
     // for position (r, c), we have index (r * 7 + c) * 2 and (r * 7 + c) * 2 + 1 describes this cell
     // if (r, c) has value 0, these index have value (0, 0)
     // if (r, c) has value -1, these index have value (1, 0)
     // if (r, c) has value 1, these index have value (0, 1)
     std::bitset<84> bitboard;
+    LRUCache<std::bitset<84>, std::pair<double, int>> table;
     // the watched entries
     group diag, antidiag, row, col;
     // the gameboard

@@ -25,6 +25,12 @@ std::pair<double, int> alphabeta_player::minimax(int current, int depth, double 
         }
     }
 
+    auto cache = this->board.get_cached_move();
+    if (cache.second != -1) {
+        //std::cout << "reach cache at depth " << depth << std::endl;
+        return cache;
+    }
+
     if (current == 1) {
         std::pair<double, int> nextmove = {-four, -1};
         for (auto p : valid_move) {
@@ -41,6 +47,10 @@ std::pair<double, int> alphabeta_player::minimax(int current, int depth, double 
             if (alpha >= beta) {
                 return nextmove;
             }
+        }
+
+        if (nextmove.first == four || nextmove.second == -four) {
+            this->board.catche_state(nextmove);
         }
 
         return nextmove;
@@ -62,6 +72,9 @@ std::pair<double, int> alphabeta_player::minimax(int current, int depth, double 
             }
         }
 
+        if (nextmove.first == four || nextmove.second == -four) {
+            this->board.catche_state(nextmove);
+        }
         return nextmove;
     }
 }
@@ -74,9 +87,7 @@ int alphabeta_player::play(int previous) {
     auto get_depth = [](int piece) -> int {
         if (piece < 12) {
             return max_depth;
-        } else if (piece < 15) {
-            return 2 + max_depth;
-        } else if (piece < 18) {
+        } else if (piece < 16) {
             return 4 + max_depth;
         }
 

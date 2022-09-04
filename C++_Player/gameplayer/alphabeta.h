@@ -9,11 +9,7 @@ public:
     std::string display_name() {
         return this->name;
     }
-private:
-    std::default_random_engine rng = std::default_random_engine {};
-    int player = 0;
-    std::string name;
-    alphabeta_board board;
+protected:
     /*
         recursive function
         @return: (evaluation score, move)
@@ -21,4 +17,9 @@ private:
         @current_player: int, current player
     */
     std::pair<double, int> minimax(int depth, int current_player, double alpha, double beta);
+private:
+    std::default_random_engine rng = std::default_random_engine {};
+    int player = 0;
+    std::string name;
+    alphabeta_board board;
 };

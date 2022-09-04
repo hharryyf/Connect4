@@ -28,7 +28,7 @@ public:
         row.init(ROW, board);
         col.init(COL, board);
         diag.init(DIAG, board);
-        antidiag.init(DIAG, board);
+        antidiag.init(ANTIDIAG, board);
     }
 
     // if we can take the current move
@@ -213,13 +213,13 @@ private:
 
             id = 0;
 
-            for (int i = 5; i >= 0; --i) {
+            for (int i = 0; i <= 5; ++i) {
                 for (int j = 6 ; j >= 0; --j) {
-                    if (antidiag[i][j] == -1 && std::min(i + 1, 7 - j) >= 4) {
+                    if (antidiag[i][j] == -1 && std::min(6 - i, j + 1) >= 4) {
                         int tx = i, ty = j;
-                        while(tx >= 0 && ty < 7) {
+                        while(tx < 6 && ty >= 0) {
                             antidiag[tx][ty] = id;
-                            tx--, ty++;
+                            tx++, ty--;
                         }
                         id++;
                     }
@@ -390,6 +390,14 @@ private:
         }
     };
 
+    // a bit representation of the board 
+    // for position (r, c), we have index (r * 7 + c) * 2 and (r * 7 + c) * 2 + 1 describes this cell
+    // if (r, c) has value 0, these index have value (0, 0)
+    // if (r, c) has value -1, these index have value (1, 0)
+    // if (r, c) has value 1, these index have value (0, 1)
+    std::bitset<84> bitboard;
+    // the watched entries
     group diag, antidiag, row, col;
+    // the gameboard
     gameboard board;
 };

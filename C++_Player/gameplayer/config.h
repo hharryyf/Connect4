@@ -15,4 +15,4 @@ const double two = 50000.0;
 const double one = 1000.0;
 // some "enum" values
 const int ROW = 0, COL = 1, DIAG = 2, ANTIDIAG = 3;
-const int max_depth = 9;
+const int max_depth = 11;

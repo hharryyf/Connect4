@@ -72,18 +72,21 @@ int alphabeta_player::play(int previous) {
     }
 
     auto get_depth = [](int piece) -> int {
-        if (piece < 7) {
+        if (piece < 12) {
             return max_depth;
-        } else if (piece < 12) {
+        } else if (piece < 15) {
             return 2 + max_depth;
         } else if (piece < 18) {
-            return 5 + max_depth;
+            return 4 + max_depth;
         }
 
-        return 9 + max_depth;
+        return 8 + max_depth;
     };
 
-    auto p = minimax(this->player, get_depth(this->board.get_move()), -four, four);
+    int d = get_depth(this->board.get_move());
+    auto p = minimax(this->player, d, -four, four);
     this->board.update(p.second, this->player);
+    std::cout << display_name() << " search depth: " << d << " score: " << p.first << std::endl;
+    // this->board.debug();
     return p.second;
 }

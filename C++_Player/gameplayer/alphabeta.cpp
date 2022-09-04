@@ -49,7 +49,7 @@ std::pair<double, int> alphabeta_player::minimax(int current, int depth, double 
             }
         }
 
-        if (nextmove.first == four || nextmove.second == -four) {
+        if (nextmove.first == four || nextmove.first == -four) {
             this->board.cache_state(nextmove);
         }
 
@@ -72,7 +72,7 @@ std::pair<double, int> alphabeta_player::minimax(int current, int depth, double 
             }
         }
 
-        if (nextmove.first == four || nextmove.second == -four) {
+        if (nextmove.first == four || nextmove.first == -four) {
             this->board.cache_state(nextmove);
         }
         return nextmove;

@@ -18,6 +18,7 @@
 #include <bitset>
 #include <string>
 #include "config.h"
+#include <fstream>
 #include "lru_cache.h"
 
 class alphabeta_board {
@@ -194,33 +195,30 @@ public:
 
     void store_cache(bool isread=false) {
         if (!isread) {
-            FILE *fp = fopen(cache_file.c_str(), "w");
+            std::ofstream file;
+            file.open(cache_file);
             auto iter = this->table.item_list.rbegin();
-            fprintf(fp, "%d\n", this->table.get_size());
+            file << this->table.get_size() << std::endl;
             while (iter != this->table.item_list.rend()) {
-                // std::cout << iter->first << " " << iter->second.first << " " << iter->second.second << std::endl;
-                fprintf(fp, "%s %lf %d\n", iter->first.to_string().c_str(), iter->second.first, iter->second.second);
+                file << iter->first.to_string() << " " << iter->second.first << " " << iter->second.second << std::endl;
                 ++iter;
             }
 
-            fclose(fp);
         } else {
-            FILE *fp = fopen(cache_file.c_str(), "r");
-            if (fp == NULL) return;
+            std::ifstream infile;
+            infile.open(cache_file);
+            if (!infile.is_open()) return;
             int n;
-            char ch[88];
-            memset(ch, 0, sizeof(ch));
-            fscanf(fp, "%d", &n);
+            infile >> n;
             while (n-- > 0) {
+                std::string ch;
                 double score;
                 int move;
-                fscanf(fp, "%s%lf%d", ch, &score, &move);
+                infile >> ch >> score >> move;
                 std::string state(ch);
                 std::bitset<84> bt(state);
                 this->table.put(bt, std::make_pair(score, move));
             }   
-
-            fclose(fp);         
         }
     }
 

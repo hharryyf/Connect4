@@ -11,3 +11,7 @@ TODO: 1) test the data structure
 3/9/2022: Finish the implementation of the alpha_beta pruning agent in C++
 TODO: 1) test the agent
       2) prepare the background knowledge for milestone 2
+
+4/9/2022: Introducing transposition table to the alpha_beta pruning agent
+TODO: 1) start learning MCTS + Deep Learning algorithm
+      2) further test the agent 

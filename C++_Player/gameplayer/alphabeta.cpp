@@ -50,7 +50,7 @@ std::pair<double, int> alphabeta_player::minimax(int current, int depth, double 
         }
 
         if (nextmove.first == four || nextmove.second == -four) {
-            this->board.catche_state(nextmove);
+            this->board.cache_state(nextmove);
         }
 
         return nextmove;
@@ -73,7 +73,7 @@ std::pair<double, int> alphabeta_player::minimax(int current, int depth, double 
         }
 
         if (nextmove.first == four || nextmove.second == -four) {
-            this->board.catche_state(nextmove);
+            this->board.cache_state(nextmove);
         }
         return nextmove;
     }
@@ -98,6 +98,7 @@ int alphabeta_player::play(int previous) {
     auto p = minimax(this->player, d, -four, four);
     this->board.update(p.second, this->player);
     std::cout << display_name() << " search depth: " << d << " score: " << p.first << std::endl;
+    std::cout << "cache size: " << this->board.get_cache_size() << std::endl;
     // this->board.debug();
     return p.second;
 }

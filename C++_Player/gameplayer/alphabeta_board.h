@@ -177,13 +177,17 @@ public:
     /*
         store the bitboard status and move
     */
-    void catche_state(std::pair<double, int> &score) {
+    void cache_state(std::pair<double, int> &score) {
         table.put(this->bitboard, score);
     }
 
     void print_bit_board() {
         std::cout << "reach bitboard terminal state" << std::endl;
         std::cout << bitboard << std::endl;
+    }
+
+    int get_cache_size() {
+        return this->table.get_size();
     }
 
 private:

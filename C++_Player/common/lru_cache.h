@@ -25,7 +25,7 @@
 template <class KEY_T, class VAL_T> class LRUCache{
 
 public:
-        LRUCache(int cache_size_=1000000):cache_size(cache_size_){
+        LRUCache(int cache_size_=300000):cache_size(cache_size_){
                 ;
         };
 

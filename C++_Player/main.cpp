@@ -3,7 +3,7 @@
 #include "connect4_board.h"
 #include "gameplayer.h"
 #include "alpha_beta/alphabeta.h"
-#include "alpha_beta/humanplayer.h"
+#include "human_play/humanplayer.h"
 
 int main() {
     torch::Tensor tensor = torch::rand({2, 3});

@@ -472,7 +472,7 @@ private:
     // if (r, c) has value -1, these index have value (1, 0)
     // if (r, c) has value 1, these index have value (0, 1)
     std::bitset<84> bitboard;
-    LRUCache<std::bitset<84>, std::pair<double, int>> table;
+    LRUCache<std::bitset<84>, std::pair<double, int>> table = LRUCache<std::bitset<84>, std::pair<double, int>>(AlphaBetaConfig::max_cache);
     // the watched entries
     group diag, antidiag, row, col;
     // the gameboard

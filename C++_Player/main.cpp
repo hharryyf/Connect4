@@ -1,10 +1,9 @@
 #include <torch/torch.h>
 #include <iostream>
-#include "gameplayer/connect4_board.h"
-#include "gameplayer/gameplayer.h"
-#include "gameplayer/alphabeta.h"
-#include "gameplayer/humanplayer.h"
-#include "gameplayer/alphabeta_board.h"
+#include "connect4_board.h"
+#include "gameplayer.h"
+#include "alpha_beta/alphabeta.h"
+#include "alpha_beta/humanplayer.h"
 
 int main() {
     torch::Tensor tensor = torch::rand({2, 3});

@@ -22,4 +22,6 @@ namespace AlphaBetaConfig {
     const int max_depth = 11;
 
     const std::string cache_file = "memo.txt";
+
+    const int max_cache = 300000;
 }

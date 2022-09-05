@@ -23,5 +23,5 @@ namespace AlphaBetaConfig {
 
     const std::string cache_file = "memo.txt";
 
-    const int max_cache = 300000;
+    const int max_cache = 500000;
 }

@@ -17,7 +17,6 @@
 #include <bitset>
 #include <string>
 #include <iterator>
-#include "config.h"
 
 class connect4_board {
 public:

@@ -8,7 +8,7 @@ void alphabeta_player::init(int turn, std::string n) {
 
 std::pair<double, int> alphabeta_player::minimax(int current, int depth, double alpha, double beta) {
     auto status = this->board.status();
-    if (status != 2) return std::make_pair(four * status, -1);
+    if (status != 2) return std::make_pair(AlphaBetaConfig::four * status, -1);
     if (depth == 0) return std::make_pair(this->board.heuristic(), -1);
     std::vector<int> valid_move;
     for (int i = 0 ; i < 7; ++i) {
@@ -21,7 +21,7 @@ std::pair<double, int> alphabeta_player::minimax(int current, int depth, double 
 
     for (auto p : valid_move) {
         if (this->board.killmove(p, current)) {
-            return std::make_pair(four * current, p);
+            return std::make_pair(AlphaBetaConfig::four * current, p);
         }
     }
 
@@ -32,7 +32,7 @@ std::pair<double, int> alphabeta_player::minimax(int current, int depth, double 
     }
 
     if (current == 1) {
-        std::pair<double, int> nextmove = {-four, -1};
+        std::pair<double, int> nextmove = {-AlphaBetaConfig::four, -1};
         for (auto p : valid_move) {
             this->board.update(p, current);
             auto nxt = minimax(-current, depth - 1, alpha, beta);
@@ -49,13 +49,13 @@ std::pair<double, int> alphabeta_player::minimax(int current, int depth, double 
             }
         }
 
-        if (nextmove.first == four || nextmove.first == -four) {
+        if (nextmove.first == AlphaBetaConfig::four || nextmove.first == -AlphaBetaConfig::four) {
             this->board.cache_state(nextmove);
         }
 
         return nextmove;
     } else {
-        std::pair<double, int> nextmove = {four, -1};
+        std::pair<double, int> nextmove = {AlphaBetaConfig::four, -1};
         for (auto p : valid_move) {
             this->board.update(p, current);
             auto nxt = minimax(-current, depth - 1, alpha, beta);
@@ -72,7 +72,7 @@ std::pair<double, int> alphabeta_player::minimax(int current, int depth, double 
             }
         }
 
-        if (nextmove.first == four || nextmove.first == -four) {
+        if (nextmove.first == AlphaBetaConfig::four || nextmove.first == -AlphaBetaConfig::four) {
             this->board.cache_state(nextmove);
         }
         return nextmove;
@@ -86,16 +86,16 @@ int alphabeta_player::play(int previous) {
 
     auto get_depth = [](int piece) -> int {
         if (piece < 12) {
-            return max_depth;
+            return AlphaBetaConfig::max_depth;
         } else if (piece < 16) {
-            return 4 + max_depth;
+            return 4 + AlphaBetaConfig::max_depth;
         }
 
-        return 8 + max_depth;
+        return 8 + AlphaBetaConfig::max_depth;
     };
 
     int d = get_depth(this->board.get_move());
-    auto p = minimax(this->player, d, -four, four);
+    auto p = minimax(this->player, d, -AlphaBetaConfig::four, AlphaBetaConfig::four);
     this->board.update(p.second, this->player);
     std::cout << display_name() << " search depth: " << d << " score: " << p.first << std::endl;
     std::cout << "cache size: " << this->board.get_cache_size() << std::endl;

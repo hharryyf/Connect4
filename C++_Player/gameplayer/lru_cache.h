@@ -60,10 +60,9 @@ public:
         };
 
         std::list< std::pair<KEY_T,VAL_T> > item_list;
+private:
         std::unordered_map<KEY_T, decltype(item_list.begin()) > item_map;
         int cache_size;
-
-private:
         void clean(void){
             while((int) item_map.size()>cache_size){
                 auto last_it = item_list.end(); last_it --;

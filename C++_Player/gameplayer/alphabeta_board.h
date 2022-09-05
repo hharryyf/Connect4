@@ -27,10 +27,10 @@ public:
     // initialize the data structure for alpha-beta player
     void init() {
         board.init();
-        row.init(ROW, board);
-        col.init(COL, board);
-        diag.init(DIAG, board);
-        antidiag.init(ANTIDIAG, board);
+        row.init(AlphaBetaConfig::ROW, board);
+        col.init(AlphaBetaConfig::COL, board);
+        diag.init(AlphaBetaConfig::DIAG, board);
+        antidiag.init(AlphaBetaConfig::ANTIDIAG, board);
         this->store_cache(true);
         std::cout << "transposition table maximum size " << table.max_size() << std::endl;
         std::cout << "transposition table start size " << table.get_size() << std::endl;
@@ -100,8 +100,8 @@ public:
     */
     double heuristic() {
         int s = status();
-        if (s == 1) return four;
-        if (s == -1) return -four;
+        if (s == 1) return AlphaBetaConfig::four;
+        if (s == -1) return -AlphaBetaConfig::four;
         if (s == 0) return 0;
         return diag.get_score() + antidiag.get_score() + row.get_score() + col.get_score();
     }
@@ -196,7 +196,7 @@ public:
     void store_cache(bool isread=false) {
         if (!isread) {
             std::ofstream file;
-            file.open(cache_file);
+            file.open(AlphaBetaConfig::cache_file);
             auto iter = this->table.item_list.rbegin();
             file << this->table.get_size() << std::endl;
             while (iter != this->table.item_list.rend()) {
@@ -206,7 +206,7 @@ public:
 
         } else {
             std::ifstream infile;
-            infile.open(cache_file);
+            infile.open(AlphaBetaConfig::cache_file);
             if (!infile.is_open()) return;
             int n;
             infile >> n;
@@ -265,7 +265,7 @@ private:
             }
 
             pw[0] = 1.0;
-            for (int i = 1; i < 29; ++i) pw[i] = pw[i-1] * discount;
+            for (int i = 1; i < 29; ++i) pw[i] = pw[i-1] * AlphaBetaConfig::discount;
             
             for (int i = 0; i < 6; ++i) {
                 for (int j = 0 ; j < 7; ++j) {
@@ -357,25 +357,25 @@ private:
             x_win = o_win = 0;
             tol_score = 0.0;
             for (int i = 0 ; i < 8; ++i) status[i] = 0, score[i] = 0.0;
-            if (type == ROW) {
+            if (type == AlphaBetaConfig::ROW) {
                 for (int i = 0 ; i < 6; ++i) {
                     for (int j = 0 ; j < 7; ++j) {
                         window[i].emplace_back(i, j);
                     }
                 }
-            } else if (type == COL) {
+            } else if (type == AlphaBetaConfig::COL) {
                 for (int i = 0 ; i < 6; ++i) {
                     for (int j = 0 ; j < 7; ++j) {
                         window[j].emplace_back(i, j);
                     }
                 }
-            } else if (type == DIAG) {
+            } else if (type == AlphaBetaConfig::DIAG) {
                 for (int i = 0 ; i < 6; ++i) {
                     for (int j = 0 ; j < 7; ++j) {
                         if (board.diag[i][j] != -1) window[board.diag[i][j]].emplace_back(i, j);
                     }
                 }
-            } else if (type == ANTIDIAG) {
+            } else if (type == AlphaBetaConfig::ANTIDIAG) {
                 for (int i = 0 ; i < 6; ++i) {
                     for (int j = 0 ; j < 7; ++j) {
                         if (board.antidiag[i][j] != -1) window[board.antidiag[i][j]].emplace_back(i, j);
@@ -406,25 +406,25 @@ private:
                 if (i >= 3) {
                     if (x_count == 0) {
                         if (o_count == 2) {
-                            score[index] = score[index] - brd.pw[potential] * two;
+                            score[index] = score[index] - brd.pw[potential] * AlphaBetaConfig::two;
                         } else if (o_count == 3) {
-                            score[index] = score[index] - brd.pw[potential] * three;
+                            score[index] = score[index] - brd.pw[potential] * AlphaBetaConfig::three;
                         } else if (o_count == 4) {
-                             score[index] = score[index] - brd.pw[potential] * four;
+                             score[index] = score[index] - brd.pw[potential] * AlphaBetaConfig::four;
                              status[index]--;
                         } else if (o_count == 1) {
-                             score[index] = score[index] - brd.pw[potential] * one;
+                             score[index] = score[index] - brd.pw[potential] * AlphaBetaConfig::one;
                         }
                     } else if (o_count == 0) {
                         if (x_count == 2) {
-                            score[index] = score[index] + brd.pw[potential] * two;
+                            score[index] = score[index] + brd.pw[potential] * AlphaBetaConfig::two;
                         } else if (x_count == 3) {
-                            score[index] = score[index] + brd.pw[potential] * three;
+                            score[index] = score[index] + brd.pw[potential] * AlphaBetaConfig::three;
                         } else if (x_count == 4) {
-                            score[index] = score[index] + brd.pw[potential] * four;
+                            score[index] = score[index] + brd.pw[potential] * AlphaBetaConfig::four;
                             status[index]++;
                         } else if (x_count == 1) {
-                            score[index] = score[index] + brd.pw[potential] * one;
+                            score[index] = score[index] + brd.pw[potential] * AlphaBetaConfig::one;
                         }
                     }
 

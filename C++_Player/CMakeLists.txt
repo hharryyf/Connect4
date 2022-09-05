@@ -4,10 +4,16 @@ project(main)
 find_package(Torch REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
+add_subdirectory(common)
+add_subdirectory(alpha_beta)
 add_executable(main main.cpp)
-add_library(gameplayer gameplayer/alphabeta.cpp gameplayer/humanplayer.cpp)
 
-target_link_libraries(main "${TORCH_LIBRARIES}" gameplayer)
+target_link_libraries(main 
+  "${TORCH_LIBRARIES}" 
+  common
+  alpha_beta
+)
+
 set_property(TARGET main PROPERTY CXX_STANDARD 14)
 
 # cmake -DCMAKE_PREFIX_PATH=/e/NNProject/libtorch-win-shared-with-deps-1.12.1+cpu/libtorch ..

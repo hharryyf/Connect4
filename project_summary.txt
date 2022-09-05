@@ -16,6 +16,8 @@ TODO: 1) test the agent
 TODO: 1) start learning MCTS + Deep Learning algorithm
       2) further test the agent 
 
-5/9/2022: Refactor the code, seperate different players into different directory, and the common data structures into a different directory 
+5/9/2022: Refactor the code, seperate different players into different directory, and the common data structures into a different directory
+      --> Milestone 1 ends
 TODO: 1) start learning the MCTS + Deep Learning algorithm
       2) start learning socket programming for games
+

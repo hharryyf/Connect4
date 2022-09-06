@@ -18,6 +18,7 @@
 #include <string>
 // the interface for a connect4 player
 class gameplayer {
+public:
     // this init method would let the player to initialize the board
     // turn: integer 1/-1 represents whether the player plays first or second
     virtual void init(int turn, std::string name) = 0;
@@ -35,4 +36,6 @@ class gameplayer {
       do something when the game is over, in many cases the player does nothing here
     */
     virtual void game_over() = 0;
+    /* used for debug, can do nothing */
+    virtual void debug() = 0;
 };

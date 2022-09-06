@@ -13,6 +13,10 @@ public:
     void game_over() {
         return;
     }
+
+    void debug() {
+        return;
+    }
 private:
     std::string name;
     int player = 0;

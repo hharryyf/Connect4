@@ -20,8 +20,13 @@ namespace AlphaBetaConfig {
     // some "enum" values
     const int ROW = 0, COL = 1, DIAG = 2, ANTIDIAG = 3;
     const int max_depth = 11;
+    // transposition table
+    const int LOWER = 0, UPPER = 1, EXACT = 2, ENDGAME = 3;
+    const int LOWER_ID = -11, UPPER_ID = -10, INVALID = -1;
 
     const std::string cache_file = "memo.txt";
+
+    const int meaningful_depth = 5;
 
     const int max_cache = 500000;
 }

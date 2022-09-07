@@ -174,14 +174,28 @@ public:
     */
     std::pair<double, int> get_cached_move() {
         if (table.exist(this->bitboard)) return table.get(this->bitboard);
-        return std::make_pair(0, -1);
+        if (move_table.exist(this->bitboard)) return move_table.get(this->bitboard);
+        if (bound_table.exist(this->bitboard)) return bound_table.get(this->bitboard);
+        return std::make_pair(0, AlphaBetaConfig::INVALID);
+    }
+
+    void clear_middle_game_cache() {
+        this->bound_table.clear();
     }
 
     /*
         store the bitboard status and move
     */
-    void cache_state(std::pair<double, int> &score) {
-        table.put(this->bitboard, score);
+    void cache_state(std::pair<double, int> &score, int type=0) {
+        if (type == AlphaBetaConfig::ENDGAME) {
+            table.put(this->bitboard, score);
+        } else if (type == AlphaBetaConfig::EXACT) {
+            move_table.put(this->bitboard, score);
+        } else if (type == AlphaBetaConfig::LOWER) {
+            this->bound_table.put(this->bitboard, std::make_pair(score.first, AlphaBetaConfig::LOWER_ID));
+        } else {
+            this->bound_table.put(this->bitboard, std::make_pair(score.first, AlphaBetaConfig::UPPER_ID));
+        }
     }
 
     void print_bit_board() {
@@ -473,6 +487,8 @@ private:
     // if (r, c) has value 1, these index have value (0, 1)
     std::bitset<84> bitboard;
     LRUCache<std::bitset<84>, std::pair<double, int>> table = LRUCache<std::bitset<84>, std::pair<double, int>>(AlphaBetaConfig::max_cache);
+    LRUCache<std::bitset<84>, std::pair<double, int>> move_table = LRUCache<std::bitset<84>, std::pair<double, int>>(AlphaBetaConfig::max_cache);
+    LRUCache<std::bitset<84>, std::pair<double, int>> bound_table = LRUCache<std::bitset<84>, std::pair<double, int>>(AlphaBetaConfig::max_cache);
     // the watched entries
     group diag, antidiag, row, col;
     // the gameboard

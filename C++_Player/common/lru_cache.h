@@ -59,6 +59,11 @@ public:
             return it->second->second;
         };
 
+        void clear() {
+            this->item_list.clear();
+            this->item_map.clear();
+        }
+
         std::list< std::pair<KEY_T,VAL_T> > item_list;
 private:
         std::unordered_map<KEY_T, decltype(item_list.begin()) > item_map;

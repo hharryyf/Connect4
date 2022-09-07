@@ -12,7 +12,7 @@ public:
         return this->name;
     }
 
-    void game_over();
+    void game_over(int result);
 
     void debug() {
         std::cout << this->name << " play turn " << this->player << std::endl;

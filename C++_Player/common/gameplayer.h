@@ -35,7 +35,7 @@ public:
     /*
       do something when the game is over, in many cases the player does nothing here
     */
-    virtual void game_over() = 0;
+    virtual void game_over(int result) = 0;
     /* used for debug, can do nothing */
     virtual void debug() = 0;
 };

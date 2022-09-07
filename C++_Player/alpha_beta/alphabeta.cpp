@@ -87,6 +87,8 @@ int alphabeta_player::play(int previous) {
     auto get_depth = [](int piece) -> int {
         if (piece < 12) {
             return AlphaBetaConfig::max_depth;
+        } else if (piece < 14) {
+            return 2 + AlphaBetaConfig::max_depth;
         } else if (piece < 16) {
             return 4 + AlphaBetaConfig::max_depth;
         }
@@ -103,8 +105,8 @@ int alphabeta_player::play(int previous) {
     return p.second;
 }
 
-void alphabeta_player::game_over() {
-    if (cache_result) {
+void alphabeta_player::game_over(int result) {
+    if (result == -1) {
         std::cout << "game over " << display_name() << " start caching" << std::endl;
         this->board.store_cache();
     } else {

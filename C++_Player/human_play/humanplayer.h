@@ -10,7 +10,7 @@ public:
         return this->name;
     }
 
-    void game_over() {
+    void game_over(int result) {
         return;
     }
 

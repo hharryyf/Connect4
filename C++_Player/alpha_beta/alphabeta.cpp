@@ -208,6 +208,12 @@ std::pair<double, int> alphabeta_player::minimax(int current, int depth, double 
     }
 }
 
+int alphabeta_player::force_play(int position) {
+    assert(this->board.can_move(position));
+    this->board.update(position, this->player);
+    return position;
+}
+
 int alphabeta_player::play(int previous) {
     if (previous != -1) {
         this->board.update(previous, -this->player);

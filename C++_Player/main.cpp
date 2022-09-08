@@ -14,16 +14,18 @@ int main(int argc, char *argv[]) {
     std::cout << tensor << std::endl;
     std::cout << "Pytorch start success" << std::endl;
     alphabeta_player b, b2;
+    human_player human;
     connect4_board brd;
     brd.init();
     b.init(1, "Alpha-Beta AI X Player");
     b2.init(-1, "Alpha-Beta AI O Player");
+    human.init(-1, "Human Player");
     gameplayer *player, *player2;
     /* Do your stuff here */
     
     clock_t t1 = 0, t2 = 0;
     player = &b;
-    player2 = &b2;
+    player2 = &human;
 
     // player->debug();
     int previous = -1, current = 1;

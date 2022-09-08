@@ -18,6 +18,10 @@
 #include "gameplayer.h"
 #include "connect4_board.h"
 #include "human_play/humanplayer.h"
+#include <winsock2.h>
+#include <Windows.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
 
 int main() {
     connect4_board board;

@@ -12,17 +12,19 @@ std::pair<double, int> alphabeta_player::negamax(int current, int depth, double 
     if (status != 2) return std::make_pair(AlphaBetaConfig::four * status * current, AlphaBetaConfig::INVALID);
     auto entry = this->board.get_cached_move();
     if (entry.second != AlphaBetaConfig::INVALID) {
-        if (entry.second == AlphaBetaConfig::UPPER_ID) {
+        if (entry.second != AlphaBetaConfig::LOWER_ID && entry.second != AlphaBetaConfig::UPPER_ID) {
+            return entry;
+        }
+
+        if (entry.second == AlphaBetaConfig::LOWER_ID) {
             alpha = std::max(alpha, entry.first);
         } else if (entry.second == AlphaBetaConfig::UPPER_ID) {
             beta = std::min(beta, entry.first);
-        } else {
+        } 
+        
+        if (alpha >= beta) {
             return entry;
         }
-    }
-
-    if (depth == 0) {
-        return std::make_pair(this->board.heuristic() * current, AlphaBetaConfig::INVALID);
     }
 
     std::vector<int> valid_move;
@@ -38,6 +40,10 @@ std::pair<double, int> alphabeta_player::negamax(int current, int depth, double 
         if (this->board.killmove(p, current)) {
             return std::make_pair(AlphaBetaConfig::four, p);
         }
+    }
+
+    if (depth == 0) {
+        return std::make_pair(this->board.heuristic() * current, AlphaBetaConfig::INVALID);
     }
 
     std::pair<double, int> nextmove = {-AlphaBetaConfig::four, AlphaBetaConfig::INVALID};
@@ -59,6 +65,11 @@ std::pair<double, int> alphabeta_player::negamax(int current, int depth, double 
     }
 
     entry.first = nextmove.first;
+    if ((entry.first == AlphaBetaConfig::four && depth >= AlphaBetaConfig::meaningful_depth)) {
+        entry.second = nextmove.second;
+        this->board.cache_state(entry, AlphaBetaConfig::ENDGAME);
+    }
+
     if (nextmove.first <= alphaorg) {
         entry.second = AlphaBetaConfig::UPPER_ID;
         this->board.cache_state(entry, AlphaBetaConfig::UPPER);
@@ -66,12 +77,50 @@ std::pair<double, int> alphabeta_player::negamax(int current, int depth, double 
         entry.second = AlphaBetaConfig::LOWER_ID;
         this->board.cache_state(entry, AlphaBetaConfig::LOWER);
     } else {
-        if (depth >= AlphaBetaConfig::meaningful_depth) {
-            entry.second = nextmove.second;
-            this->board.cache_state(entry, AlphaBetaConfig::ENDGAME);
-        } else {
-            entry.second = nextmove.second;
-            this->board.cache_state(entry, AlphaBetaConfig::EXACT);
+        entry.second = nextmove.second;
+        this->board.cache_state(entry, AlphaBetaConfig::EXACT);
+    }
+
+    return nextmove;
+}
+
+std::pair<double, int> alphabeta_player::negamax_no_table(int current, int depth, double alpha, double beta) {
+    auto status = this->board.status();
+    if (status != 2) return std::make_pair(AlphaBetaConfig::four * status * current, AlphaBetaConfig::INVALID);
+        if (depth == 0) {
+        return std::make_pair(this->board.heuristic() * current, AlphaBetaConfig::INVALID);
+    }
+
+    std::vector<int> valid_move;
+    for (int i = 0 ; i < 7; ++i) {
+        if (this->board.can_move(i)) {
+            valid_move.push_back(i);
+        }
+    }
+
+    std::shuffle(valid_move.begin(), valid_move.end(), rng);
+
+    for (auto p : valid_move) {
+        if (this->board.killmove(p, current)) {
+            return std::make_pair(AlphaBetaConfig::four, p);
+        }
+    }
+
+    std::pair<double, int> nextmove = {-AlphaBetaConfig::four, AlphaBetaConfig::INVALID};
+    for (auto p : valid_move) {
+        this->board.update(p, current);
+        auto nxt = negamax_no_table(-current, depth - 1, -beta, -alpha);
+        this->board.update(p, 0);
+        nxt.first *= -1;
+        if (nxt.first >= nextmove.first || nextmove.second == AlphaBetaConfig::INVALID) {
+            nextmove.second = p;
+            nextmove.first = nxt.first;
+        }
+
+        alpha = std::max(alpha, nextmove.first);
+
+        if (alpha >= beta) {
+            break;
         }
     }
 
@@ -99,7 +148,6 @@ std::pair<double, int> alphabeta_player::minimax(int current, int depth, double 
 
     auto cache = this->board.get_cached_move();
     if (cache.second != -1) {
-        //std::cout << "reach cache at depth " << depth << std::endl;
         return cache;
     }
 
@@ -123,9 +171,9 @@ std::pair<double, int> alphabeta_player::minimax(int current, int depth, double 
 
         if ((nextmove.first == AlphaBetaConfig::four || nextmove.first == -AlphaBetaConfig::four)) {
             if (depth >= AlphaBetaConfig::meaningful_depth) {
-                this->board.cache_state(nextmove);
+                this->board.cache_state(nextmove, AlphaBetaConfig::ENDGAME);
             } else {
-                this->board.cache_state(nextmove, false);
+                this->board.cache_state(nextmove, AlphaBetaConfig::EXACT);
             }
         }
 
@@ -150,9 +198,9 @@ std::pair<double, int> alphabeta_player::minimax(int current, int depth, double 
         
         if ((nextmove.first == AlphaBetaConfig::four || nextmove.first == -AlphaBetaConfig::four)) {
             if (depth >= AlphaBetaConfig::meaningful_depth) {
-                this->board.cache_state(nextmove);
+                this->board.cache_state(nextmove, AlphaBetaConfig::ENDGAME);
             } else {
-                this->board.cache_state(nextmove, false);
+                this->board.cache_state(nextmove, AlphaBetaConfig::EXACT);
             }
         }
 
@@ -166,7 +214,7 @@ int alphabeta_player::play(int previous) {
     }
 
     auto get_depth = [](int piece) -> int {
-        if (piece < 12) {
+        if (piece < 8) {
             return AlphaBetaConfig::max_depth;
         } else if (piece < 14) {
             return 2 + AlphaBetaConfig::max_depth;
@@ -181,10 +229,14 @@ int alphabeta_player::play(int previous) {
     int d = get_depth(this->board.get_move());
     //auto p = minimax(this->player, d, -AlphaBetaConfig::four, AlphaBetaConfig::four);
     auto p = negamax(this->player, d, -AlphaBetaConfig::four, AlphaBetaConfig::four);
+    if (p.first == -AlphaBetaConfig::four) {
+        auto q = negamax_no_table(this->player, 3, -AlphaBetaConfig::four, AlphaBetaConfig::four);
+        std::cout << "heuristic " << q.first * this->player << std::endl;
+        p.second = q.second;
+    }
     this->board.update(p.second, this->player);
     std::cout << display_name() << " search depth: " << d << " score: " << p.first * this->player << std::endl;
     std::cout << "cache size: " << this->board.get_cache_size() << std::endl;
-    // this->board.debug();
     return p.second;
 }
 

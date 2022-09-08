@@ -21,3 +21,7 @@ TODO: 1) start learning MCTS + Deep Learning algorithm
 TODO: 1) start learning the MCTS + Deep Learning algorithm
       2) start learning socket programming for games
 
+
+8/9/2022: Improve the transposition table of the alpha-beta player 
+TODO: 1) start learning the MCTS + Deep Learning algorithm
+      2) start learning socket programming for games

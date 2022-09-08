@@ -181,16 +181,17 @@ public:
 
     void clear_middle_game_cache() {
         this->bound_table.clear();
+        this->move_table.clear();
     }
 
     /*
         store the bitboard status and move
     */
-    void cache_state(std::pair<double, int> &score, int type=0) {
+    void cache_state(std::pair<double, int> score, int type=0) {
         if (type == AlphaBetaConfig::ENDGAME) {
-            table.put(this->bitboard, score);
+            this->table.put(this->bitboard, score);
         } else if (type == AlphaBetaConfig::EXACT) {
-            move_table.put(this->bitboard, score);
+            this->move_table.put(this->bitboard, score);
         } else if (type == AlphaBetaConfig::LOWER) {
             this->bound_table.put(this->bitboard, std::make_pair(score.first, AlphaBetaConfig::LOWER_ID));
         } else {

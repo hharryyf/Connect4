@@ -33,6 +33,8 @@ protected:
         @current_player: int, current player
     */
     std::pair<double, int> negamax(int current_player, int depth, double alpha, double beta);
+
+    std::pair<double, int> negamax_no_table(int current_player, int depth, double alpha, double beta);
 private:
     std::default_random_engine rng = std::default_random_engine {};
     int player = 0;

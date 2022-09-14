@@ -8,6 +8,10 @@
 #include "human_play/humanplayer.h"
 #include "deepq_mcts/mcts_pure.h"
 #include "deepq_mcts/mcts_zero.h"
+#include <winsock2.h>
+#include <Windows.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
 
 #define ALPHA_BETA_X 0
 #define MCTS_DEEP_X 1

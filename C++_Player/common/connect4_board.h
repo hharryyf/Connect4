@@ -132,6 +132,7 @@ public:
 
     void show_board() {
         auto s = print_board();
+        std::cout << std::endl;
         for (auto &ch : s) {
             if (ch == 'X') {
                  printf("X");
@@ -141,6 +142,8 @@ public:
                 printf("%c", ch);
             }
         }
+        
+        std::cout << std::endl;
     }
 
 private:

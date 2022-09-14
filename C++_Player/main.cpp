@@ -1,9 +1,14 @@
+#pragma warning(push, 0)
 #include <torch/torch.h>
+#pragma warning(pop)
 #include <iostream>
 #include "connect4_board.h"
 #include "gameplayer.h"
 #include "alpha_beta/alphabeta.h"
 #include "human_play/humanplayer.h"
+#include "deepq_mcts/mcts_pure.h"
+#include "deepq_mcts/mcts_zero.h"
+
 #define ALPHA_BETA_X 0
 #define MCTS_DEEP_X 1
 #define MCTS_DEEP_O 2
@@ -49,7 +54,7 @@ int main(int argc, char *argv[]) {
 
         previous = move;
         brd.update(move, current);
-        std::cout << brd.print_board() << std::endl;
+        brd.show_board();
         current *= -1;
     }
 

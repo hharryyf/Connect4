@@ -18,7 +18,8 @@ int human_player::play(int previous_move) {
         this->brd.update(previous_move, -this->player);
     }
 
-    std::cout << this->brd.print_board() << std::endl;
+    // std::cout << this->brd.print_board() << std::endl;
+    this->brd.show_board();
     std::cout << "please input the move column: ";
     int v;
     while (scanf("%d", &v)) {

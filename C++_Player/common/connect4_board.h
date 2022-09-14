@@ -129,6 +129,20 @@ public:
         
         return ret;
     }
+
+    void show_board() {
+        auto s = print_board();
+        for (auto &ch : s) {
+            if (ch == 'X') {
+                 printf("X");
+            } else if (ch == 'O') {
+                printf("O");
+            } else {
+                printf("%c", ch);
+            }
+        }
+    }
+
 private:
     int a[6][7], col[7], move = 0;
 };

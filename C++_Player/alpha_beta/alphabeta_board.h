@@ -20,6 +20,11 @@
 #include "config.h"
 #include <fstream>
 #include "lru_cache.h"
+/*
+    #pragma warning(push, 0)
+    #include <torch/torch.h>
+    #pragma warning(pop)
+*/
 
 class alphabeta_board {
 public:

@@ -25,3 +25,6 @@ TODO: 1) start learning the MCTS + Deep Learning algorithm
 8/9/2022: Improve the transposition table of the alpha-beta player 
 TODO: 1) start learning the MCTS + Deep Learning algorithm
       2) start learning socket programming for games
+
+
+14/9/2022: Set up the CMake framework for the MCTS + Deep Learning player 

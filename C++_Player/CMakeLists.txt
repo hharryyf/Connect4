@@ -7,12 +7,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 add_subdirectory(common)
 add_subdirectory(alpha_beta)
 add_subdirectory(human_play)
+add_subdirectory(deepq_mcts)
 add_executable(main main.cpp)
 add_executable(server server.cpp)
 
 target_link_libraries(main 
   "${TORCH_LIBRARIES}" 
   common
+  deepq_mcts
   alpha_beta
   human_play
 )

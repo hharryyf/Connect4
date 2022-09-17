@@ -1,5 +1,6 @@
 #pragma warning(push, 0)
 #include <torch/torch.h>
+#include <torch/csrc/autograd/generated/variable_factories.h>
 #pragma warning(pop)
 #include <iostream>
 #include "connect4_board.h"
@@ -19,8 +20,22 @@
 #define ALPHA_BETA_O 3
 
 int main(int argc, char *argv[]) {
-    torch::Tensor tensor = torch::rand({2, 3});
+    
+    // tensor = torch::rand({2, 3});
+    int n = 5, m = 4;
+    // Just creating some dummy data for example
+    std::vector<std::vector<double>> vect(n, std::vector<double>(m, 0)); 
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            vect[i][j] = i+j;
+
+    // Copying into a tensor
+    auto options = torch::TensorOptions().dtype(at::kDouble);
+    torch::Tensor tensor = torch::zeros({n,m}, options);
+    for (int i = 0; i < n; i++)
+        tensor.slice(0, i,i+1) = torch::from_blob(vect[i].data(), {m}, options);
     std::cout << tensor << std::endl;
+    std::cout << tensor[0][2].item<double>() << std::endl;
     std::cout << "Pytorch start success" << std::endl;
     alphabeta_player b, b2;
     human_player human;

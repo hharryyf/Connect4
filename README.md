@@ -16,3 +16,13 @@ The project would consist of the following iterations:
 
 4. Translate the Python MCTS + Deep Reinforcement Learning agent to C++
 
+
+The implementation heavily referenced https://github.com/junxiaosong/AlphaZero_Gomoku
+
+And I have also read the following papers to have a better understanding of the algorithm aspect of this project.
+[1] Monte-Carlo Graph Search for AlphaZero https://arxiv.org/pdf/2012.11045.pdf
+
+[2] Mastering the Game of Go without Human Knowledge https://discovery.ucl.ac.uk/id/eprint/10045895/1/agz_unformatted_nature.pdf
+
+[3] Mastering Chess and Shogi by Self-Play with a General Reinforcement Learning Algorithm https://arxiv.org/abs/1712.01815
+

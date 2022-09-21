@@ -7,9 +7,9 @@ The project would consist of the following iterations:
 
 1. Implement a descent C++ based alpha-beta pruning agent, we would use this agent to 
 
-  ** be familiar with a C++ project
+  #^ * be familiar with a C++ project
 
-  ** act as a reference player and see how the Deep Q-Learning agent performs 
+  #^ * act as a reference player and see how the Deep Q-Learning agent performs 
 
 2. Implement and train the Python MCTS + Deep Reinforcement Learning agent
 

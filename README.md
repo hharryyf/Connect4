@@ -11,11 +11,11 @@ The project would consist of the following iterations:
 
     * act as a reference player and see how the Deep Q-Learning agent performs 
 
-2. - [] Implement and train the Python MCTS + Deep Reinforcement Learning agent
+2. - [ ] Implement and train the Python MCTS + Deep Reinforcement Learning agent
 
-3. - [] Set up a game server which allows two programs to compete
+3. - [ ] Set up a game server which allows two programs to compete
 
-4. - [] Translate the Python MCTS + Deep Reinforcement Learning agent to C++
+4. - [ ] Translate the Python MCTS + Deep Reinforcement Learning agent to C++
 
 
 ## Reference

@@ -2,20 +2,20 @@
 Learn Deep Reinforcement Learning by writing a Connect4 player. Although alpha-beta pruning can play a game of this size very well, 
 we want to use this game as an opportunity to learn how the AlphaZero algorithm works. We would firstly learn how to code a Deep Reinforcement Learning Player in Python, because it's easier, then translate it to C++ if we have time.
 
-## General info
+## Project Outline
 The project would consist of the following iterations:
 
-1. Implement a descent C++ based alpha-beta pruning agent, we would use this agent to 
+1. - [x] Implement a descent C++ based alpha-beta pruning agent, we would use this agent to 
 
     * be familiar with a C++ project
 
     * act as a reference player and see how the Deep Q-Learning agent performs 
 
-2. Implement and train the Python MCTS + Deep Reinforcement Learning agent
+2. - [] Implement and train the Python MCTS + Deep Reinforcement Learning agent
 
-3. Set up a game server which allows two programs to compete
+3. - [] Set up a game server which allows two programs to compete
 
-4. Translate the Python MCTS + Deep Reinforcement Learning agent to C++
+4. - [] Translate the Python MCTS + Deep Reinforcement Learning agent to C++
 
 
 ## Reference

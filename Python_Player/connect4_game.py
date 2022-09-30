@@ -25,6 +25,13 @@ class Board(object):
             return True
         return False
 
+    def available(self):
+        ret = []
+        for i in range(0, self.col):
+            if self.can_move(i):
+                ret.append(i)
+        return ret
+
     # see if there's a winner on the board
     def has_winner(self):
         if self.status != 2:

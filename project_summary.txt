@@ -31,3 +31,6 @@ TODO: 1) start learning the MCTS + Deep Learning algorithm
 
 19/9/2022: Start the MCTS + Deep Learning Python player, we have ensured the board data structure implementation is correct,
 however, python is much slower than C++, which means the translation at the end of the project might be essential 
+
+30/9/2022: Implement the policy value network for the MCTS + Deep Learning Python player.
+

@@ -44,7 +44,7 @@ class Net(nn.Module):
         x_value = F.tanh(self.value_layer_3(x_value))
         return x_action, x_value
 
-class ValueNet():
+class ValueNet(object):
     def __init__(self,gpu=False, trained_model=None):
         self.gpu = gpu
         if gpu:
@@ -110,7 +110,7 @@ class ValueNet():
         self.optimizer.step()
         
         entropy = -torch.mean(torch.sum(torch.exp(log_probability_batch) * log_probability_batch, 1))
-        return loss.data[0], entropy.data[0]
+        return loss.item(), entropy.item()
 
 
     def save(self, model_file):

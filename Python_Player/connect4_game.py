@@ -19,6 +19,16 @@ class Board(object):
         self.current_player = 1 
         self.status = 2
 
+    def reset(self):
+        # a move dictionary key = (i, j) coordinate, value = player 
+        self.movedict = {}
+        self.col = list(np.zeros(self.ncol, dtype=int))
+        self.piece = list(np.zeros((self.nrow, self.ncol), dtype=int))
+        self.lastmove = -1
+        # player 1 always moves first
+        self.current_player = 1 
+        self.status = 2
+
     # check if a player can move at column "move"
     def can_move(self, move):
         if move < self.ncol and move >= 0 and self.col[move] <= 5:

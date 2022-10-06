@@ -1,6 +1,5 @@
 import numpy as np
 import copy 
-from operator import itemgetter
 from connect4_game import Board
 
 def softmax(probability):
@@ -87,7 +86,7 @@ class MCTSZero(object):
             self.root = self.root.children[last_move]
             self.root.parent = None
         else:
-            self._root = AlphaMCTSNode(None, 1.0) 
+            self.root = AlphaMCTSNode(None, 1.0) 
 
 class MCTSDQNPlayer(object):
     def __init__(self, policy_value_function, c_puct=5, n_playout=2000, self_play_mode=False):
@@ -101,7 +100,7 @@ class MCTSDQNPlayer(object):
         self.mcts.update_with_move(-1)
 
     def get_action(self, board: Board, temp=1e-3):
-        move_probability = np.zeros(board.col)
+        move_probability = np.zeros(board.ncol)
         if not board.game_end():
             action, action_probability = self.mcts.get_move_probability(board, temp)
             move_probability[list(action)] = action_probability
@@ -114,3 +113,35 @@ class MCTSDQNPlayer(object):
             return move, move_probability
         else:
             AssertionError("Cannot move when board is at terminal state")
+
+    
+
+class GamePipeLine(object):
+    def __init__(self, board: Board):
+        self.board = board
+    
+    def self_play(self, player: MCTSDQNPlayer, temp=1e-3):
+        self.board.reset()
+        board_state, mcts_probability, current_player = [], [], []
+        while True:
+            move, move_probs = player.get_action(self.board, temp=temp)
+            # store the data
+            board_state.append(self.board.get_board_state())
+            mcts_probability.append(move_probs)
+            current_player.append(self.board.current_player)
+            # perform a move
+            self.board.do_move(move)
+            end, winner = self.board.has_winner()
+            if end:
+                # winner from the perspective of the current player of each state
+                winners = np.zeros(len(current_player))
+                if winner != 0:
+                    winners[np.array(current_player) == winner] = 1.0
+                    winners[np.array(current_player) != winner] = -1.0
+                # reset MCTS root node
+                player.reset_player()
+                if winner != 0:
+                    print("Game end. Winner is player:", winner)
+                else:
+                    print("Game end. Tie")
+                return winner, zip(board_state, mcts_probability, winners)

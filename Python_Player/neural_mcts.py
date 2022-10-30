@@ -145,3 +145,18 @@ class GamePipeLine(object):
                 else:
                     print("Game end. Tie")
                 return winner, zip(board_state, mcts_probability, winners)
+    
+    def play_game(self, player1, player2):
+        self.board.reset()
+        i = 0
+        while True:
+            move = -1
+            if i % 2 == 0:
+                move = player1.get_move(self.board)
+            else:
+                move = player2.get_move(self.board)
+            self.board.do_move(move)
+            end, winner = self.board.has_winner()
+            if end:
+                return winner
+        

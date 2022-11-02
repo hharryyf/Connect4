@@ -34,6 +34,42 @@ class TrainingPipeLine(object):
             self.policy_value_net = ValueNet(gpu, None)
         self.mcts_player = MCTSDQNPlayer(self.policy_value_net.evaluate_position, 5, self.playout, True)
 
+    def collect_selfplay_data(self, n_games=1):
+        """collect self-play data for training"""
+        for i in range(n_games):
+            _, play_data = self.game.self_play(self.mcts_player)
+            play_data = list(play_data)[:]
+            self.episode_len = len(play_data)
+            # we don't do any data augmentation, because only horizontal flip can generate some equal data
+            self.data_buffer.extend(play_data)
+    
+    def policy_update(self):
+        """update the policy-value net"""
+        mini_batch = random.sample(self.data_buffer, self.batch_size)
+        state_batch = [data[0] for data in mini_batch]
+        mcts_probs_batch = [data[1] for data in mini_batch]
+        winner_batch = [data[2] for data in mini_batch]
+        old_probs, old_v = self.policy_value_net.evaluate_batches(state_batch)
+        for i in range(self.epochs):
+            loss, entropy = self.policy_value_net.train_step(
+                    state_batch,
+                    mcts_probs_batch,
+                    winner_batch)
+            new_probs, new_v = self.policy_value_net.evaluate_batches(state_batch)
+            kl = np.mean(np.sum(old_probs * (
+                    np.log(old_probs + 1e-10) - np.log(new_probs + 1e-10)),
+                    axis=1)
+            )
+            if kl > self.kl_targ * 4:  # early stopping if D_KL diverges badly
+                break
+        print(("kl:{:.5f},"
+               "loss:{},"
+               "entropy:{}"
+               ).format(kl,
+                        loss,
+                        entropy))
+        return loss, entropy
+
     def policy_evaluate(self, n_games=10):
         """
         Evaluate the trained policy by playing against the pure MCTS player
@@ -70,7 +106,30 @@ class TrainingPipeLine(object):
         return win_rate
 
     def run(self):
-        pass 
+        try:
+            for i in range(self.game_batch_num):
+                self.collect_selfplay_data(self.play_batch_size)
+                print("batch i:{}, episode_len:{}".format(
+                        i+1, self.episode_len))
+                if len(self.data_buffer) > self.batch_size:
+                    loss, entropy = self.policy_update()
+                # check the performance of the current model,
+                # and save the model params
+                if (i+1) % self.check_freq == 0:
+                    print("current self-play batch: {}".format(i+1))
+                    win_ratio = self.policy_evaluate()
+                    self.policy_value_net.save_model('./current_policy.model')
+                    if win_ratio > self.best_win_ratio:
+                        print("New best policy!!!!!!!!")
+                        self.best_win_ratio = win_ratio
+                        # update the best_policy
+                        self.policy_value_net.save_model('./best_policy.model')
+                        if (self.best_win_ratio == 1.0 and
+                                self.pure_mcts_playout_num < 5000):
+                            self.pure_mcts_playout_num += 1000
+                            self.best_win_ratio = 0.0
+        except KeyboardInterrupt:
+            print('\n\rquit')
 
 
 if __name__ == '__main__':

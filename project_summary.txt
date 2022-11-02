@@ -35,3 +35,5 @@ however, python is much slower than C++, which means the translation at the end 
 30/9/2022: Implement the policy value network for the MCTS + Deep Learning Python player.
 
 4/10/2022: Implement part of the MCTS + Deep Learning Python player, not my idea but learn a lot by reading the code written by others.
+
+2/11/2022: Implement all of MCTS + Deep Learning Python player, not my idea, need testing!

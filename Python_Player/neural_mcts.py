@@ -15,7 +15,7 @@ class AlphaMCTSNode(object):
     
     def expansion(self, action_prior):
         for action, prob in action_prior:
-            if action not in self._children:
+            if action not in self.children:
                 self.children[action] = AlphaMCTSNode(self, prob)
 
 
@@ -68,7 +68,7 @@ class MCTSZero(object):
             else:
                 leaf_value = 1.0 if winner == board.current_player else -1.0
         
-        node.update_recursive(-leaf_value)
+        curr.update_recursive(-leaf_value)
 
     def get_move_probability(self, board: Board, temp=1e-3):
         for n in range(self.max_playout):

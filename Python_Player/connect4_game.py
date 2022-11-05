@@ -37,7 +37,7 @@ class Board(object):
 
     def available(self):
         ret = []
-        for i in range(0, self.col):
+        for i in range(0, self.ncol):
             if self.can_move(i):
                 ret.append(i)
         return ret
@@ -129,7 +129,6 @@ class Board(object):
 
         if len(self.movedict) % 2 == 0:
             board_state[3][:,:] = 1.0
-        
         return board_state
 
     def display(self):

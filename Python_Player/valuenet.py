@@ -13,28 +13,33 @@ class Net(nn.Module):
     def __init__(self):
         super().__init__() 
         self.common_layer = nn.Sequential(
-            nn.Conv2d(4, 64, kernel_size=4, padding=1),
+            nn.Conv2d(4, 32, kernel_size=3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
             nn.BatchNorm2d(64),
             nn.ReLU(inplace=True),
-            nn.Conv2d(64, 64, kernel_size=4, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(64, 84, kernel_size=4, padding=1),
-            nn.BatchNorm2d(84),
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
             nn.ReLU(inplace=True),
         )
 
-        self.policy_layer_1 = nn.Conv2d(84, 4, kernel_size=1)
+        #self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
+
+        self.policy_layer_1 = nn.Conv2d(128, 4, kernel_size=1)
         self.policy_layer_2 = nn.Linear(4 * 6 * 7, 7)
 
-        self.value_layer_1 = nn.Conv2d(2 * 42, 2, kernel_size=1)
+        self.value_layer_1 = nn.Conv2d(128, 2, kernel_size=1)
         self.value_layer_2 = nn.Linear(2 * 6 * 7, 7)
         self.value_layer_3 = nn.Linear(7, 1)
 
     def forward(self, state_input):
+        #x = self.conv1(state_input)
+        print("enter here")
         x = self.common_layer(state_input)
-        
+        #print(x)
         x_action = F.relu(self.policy_layer_1(x))
+        print("hi", x_action.shape)
         x_action = x_action.view(-1, 4*6*7)
         x_action = F.log_softmax(self.policy_layer_2(x_action))
 
@@ -51,7 +56,7 @@ class ValueNet(object):
             self.value_net = Net().cuda()
         else:
             self.value_net = Net()
-        self.optimizer = optim.Adam(self.value_net.parameters, lr=0.06, weight_decay=0.0001)
+        self.optimizer = optim.Adam(self.value_net.parameters(), lr=0.06, weight_decay=0.0001)
         if trained_model:
             params = torch.load(trained_model)
             self.value_net.load_state_dict(params)
@@ -59,12 +64,13 @@ class ValueNet(object):
 
     def evaluate_position(self, board: Board):
         valid_position = board.available()
-
+        current_state = np.ascontiguousarray(board.get_board_state().reshape(
+                -1, 4, 6, 7))
         if self.gpu:
-            log_probability, position_score = self.value_net(Variable(torch.from_numpy(board.get_board_state()).cuda().float()))
+            log_probability, position_score = self.value_net(Variable(torch.from_numpy(current_state).cuda().float()))
             move_probability = np.exp(log_probability.data.cpu().numpy().flatten())
         else:
-            log_probability, position_score = self.value_net(Variable(torch.from_numpy(board.get_board_state()).float()))
+            log_probability, position_score = self.value_net(Variable(torch.from_numpy(current_state).float()))
             move_probability = np.exp(log_probability.data.numpy().flatten())
 
         move_probability = zip(valid_position, move_probability[valid_position])

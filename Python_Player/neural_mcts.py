@@ -37,7 +37,7 @@ class AlphaMCTSNode(object):
 
     def update_recursive(self, val):
         if self.parent != None:
-            self.parent.update_recirsive(-val)
+            self.parent.update_recursive(-val)
         self.update(val)
 
     def leaf(self):
@@ -57,6 +57,7 @@ class MCTSZero(object):
                 break
             action, node = curr.selection(self.c_puct)
             board.do_move(action)
+            curr = node
 
         action_probability, leaf_value = self.policy_value_function(board)
         game_over, winner = board.has_winner()

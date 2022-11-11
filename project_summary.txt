@@ -37,3 +37,6 @@ however, python is much slower than C++, which means the translation at the end 
 4/10/2022: Implement part of the MCTS + Deep Learning Python player, not my idea but learn a lot by reading the code written by others.
 
 2/11/2022: Implement all of MCTS + Deep Learning Python player, not my idea, need testing!
+
+11/11/2022: Finish the MCTS + Deep Learning Python player, the player is way too slow, we need to translate it to C++ before the actual training.
+            The good news is, the player has no error at this point.

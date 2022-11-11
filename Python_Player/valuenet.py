@@ -116,22 +116,25 @@ class ValueNet(object):
 
         self.optimizer.zero_grad()
         
-        # forward
+        # feed forward the state batch with the policy value net
         log_probability_batch, position_score_batch = self.policy_value_net(batch)
         # define the loss = (z - v)^2 - pi^T * log(p) + c||theta||^2
         # Note: the L2 penalty is incorporated in optimizer
         value_loss = F.mse_loss(position_score_batch.view(-1), winner)
         policy_loss = -torch.mean(torch.sum(mcts_probability * log_probability_batch, 1))
+        # the loss is the sum of the value loss and the policy loss
         loss = value_loss + policy_loss
         
         # backpropagation
         loss.backward()
         self.optimizer.step()
         
+        # return the loss item and the policy item for monitor only
         entropy = -torch.mean(torch.sum(torch.exp(log_probability_batch) * log_probability_batch, 1))
         return loss.item(), entropy.item()
 
 
-    def save(self, model_file):
+    # save the trained model
+    def save_model(self, model_file):
         torch.save(self.value_net.state_dict(), model_file)
     

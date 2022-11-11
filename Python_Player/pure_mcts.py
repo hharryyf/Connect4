@@ -5,13 +5,13 @@ from connect4_game import Board
 
 
 def random_rollout(board: Board):
-    action_probability = np.random.rand(len(board.available))
-    return zip(board.available, action_probability)
+    action_probability = np.random.rand(len(board.available()))
+    return zip(board.available(), action_probability)
 
 
 def policy_value_function(board: Board):
-    action_probability = np.ones(len(board.available)) / len(board.available)
-    return zip(board.available, action_probability), 0
+    action_probability = np.ones(len(board.available())) / len(board.available())
+    return zip(board.available(), action_probability), 0
 
 class PureMCTSNode(object):
     def __init__(self, parent, prior):
@@ -22,7 +22,7 @@ class PureMCTSNode(object):
     
     def expansion(self, action_prior):
         for action, prob in action_prior:
-            if action not in self._children:
+            if action not in self.children:
                 self.children[action] = PureMCTSNode(self, prob)
 
 
@@ -44,7 +44,7 @@ class PureMCTSNode(object):
 
     def update_recursive(self, val):
         if self.parent != None:
-            self.parent.update_recirsive(-val)
+            self.parent.update_recursive(-val)
         self.update(val)
 
     def leaf(self):
@@ -64,6 +64,7 @@ class PureMCTS(object):
                 break
             action, node = curr.selection(self.c_puct)
             board.do_move(action)
+            curr = node
 
         action_probability, _ = self.policy_value_function(board)
         game_over, _ = board.has_winner()
@@ -71,10 +72,10 @@ class PureMCTS(object):
             curr.expansion(action_probability)
         
         leaf_value = self.evaluate_rollout(board)
-        node.update_recursive(-leaf_value)
+        curr.update_recursive(-leaf_value)
 
     def evaluate_rollout(self, board: Board, limit=1000):
-        player = board.get_current_player()
+        player = board.current_player
         for i in range(limit):
             end, winner = board.has_winner()
             if end:
@@ -102,7 +103,7 @@ class PureMCTS(object):
             self.root = self.root.children[last_move]
             self.root.parent = None
         else:
-            self._root = PureMCTSNode(None, 1.0) 
+            self.root = PureMCTSNode(None, 1.0) 
 
 class PureMCTSPlayer(object):
     def __init__(self, c_puct=5, n_playout=2000):
@@ -118,6 +119,6 @@ class PureMCTSPlayer(object):
         if not board.game_end():
             move = self.mcts.get_move(board)
             self.mcts.update_with_move(move)
-            return move
+            return move, 0
         else:
             AssertionError("Cannot move when board is at terminal state")

@@ -20,9 +20,11 @@ class AlphaMCTSNode(object):
 
 
     def selection(self, c_puct):
+        # get the children with the maximum "weighted" U + Q based on the c_puct value
         return max(self.children.items(), key=lambda action: action[1].get_value(c_puct))
 
     # we use the c_puct algorithm
+    # note that it is quite obvious that the visit count of the parent node is the sum of the visit value of all the children
     def get_value(self, c_puct):
         self.U = c_puct * self.P * np.sqrt(self.parent.N) / (1 + self.N)
         return self.Q + self.U
@@ -37,6 +39,8 @@ class AlphaMCTSNode(object):
 
     def update_recursive(self, val):
         if self.parent != None:
+            # the negative sign because the reward is based on the current player's point of view
+            # if we move up by 1 level, we should negate it
             self.parent.update_recursive(-val)
         self.update(val)
 
@@ -55,43 +59,63 @@ class MCTSZero(object):
         while(curr != None):
             if curr.leaf():
                 break
+            # selection
             action, node = curr.selection(self.c_puct)
             board.do_move(action)
             curr = node
 
+        # determine the value of the current state
+        # very important: action probability's length is equal to the number of cols that are not filled
         action_probability, leaf_value = self.policy_value_function(board)
         game_over, winner = board.has_winner()
+        # if the game does not end
         if not game_over:
+            # expand the leaf with the new prior probability
             curr.expansion(action_probability)
         else:
             if winner == 0:
+                # leaf value is 0 when the game is draw
                 leaf_value = 0.0
             else:
+                # otherwise, the leaf value is 1/-1
+                # for connect4, this line always return -1.0
                 leaf_value = 1.0 if winner == board.current_player else -1.0
         
+        # check the 2012 paper Monte-Carlo Graph Search for AlphaZero https://arxiv.org/pdf/2012.11045.pdf
+        # on why this negative sign is necessary
         curr.update_recursive(-leaf_value)
 
+    # we want to get the move probability
     def get_move_probability(self, board: Board, temp=1e-3):
         for n in range(self.max_playout):
+            # each time we do a playout
             board_copy = copy.deepcopy(board)
             self.playout(board_copy)
         
+        # get the probability of the root node, note that this root node is frequently updated
         action_visits = [(action, c.N) for action, c in self.root.children.items()]
+        # get the actions and the visit count
         action, visits = zip(*action_visits)
+        # action probability encode with the softmax, only contain valid actions
         action_probability = softmax(1.0/temp * np.log(np.array(visits) + 1e-10))
 
+        # return the simulated actions and their probability
         return action, action_probability
 
     def update_with_move(self, last_move):
+        # update the move, when the move has been simulated, replace the root with the subtree's root
         if last_move in self.root.children:
             self.root = self.root.children[last_move]
             self.root.parent = None
         else:
+            # otherwise, the root is a new one
             self.root = AlphaMCTSNode(None, 1.0) 
 
 class MCTSDQNPlayer(object):
     def __init__(self, policy_value_function, c_puct=5, n_playout=2000, self_play_mode=False):
+        # init
         self.mcts = MCTSZero(policy_value_function, c_puct, n_playout)
+        # see if the current mode is self play
         self.self_play_mode = self_play_mode
 
     def set_player(self, p):
@@ -104,13 +128,21 @@ class MCTSDQNPlayer(object):
         move_probability = np.zeros(board.ncol)
         if not board.game_end():
             action, action_probability = self.mcts.get_move_probability(board, temp)
+            # set the action with action probability
+            # note that len(action) might not equal to board.ncol
             move_probability[list(action)] = action_probability
             if self.self_play_mode:
+                # add some dirichlet noise, see the AlphaGo paper
+                # force exploration
                 move = np.random.choice(action,p=0.75*action_probability + 0.25*np.random.dirichlet(0.3*np.ones(len(action_probability))))
                 self.mcts.update_with_move(move)
             else:
-                move = np.random.choice(action, action_probability)
+                # almost equivalent to get the move with the highest probability
+                # print(action, action_probability)
+                move = np.random.choice(action, p=action_probability)
+                # we would reuse the search tree, I think this might work better than https://github.com/junxiaosong/AlphaZero_Gomoku/blob/master/mcts_alphaZero.py
                 self.mcts.update_with_move(move)
+            # [3.97563671e-263, 6.82409694e-078, 5.53077680e-254, 4.98458246e-245, 5.53077680e-254, 1.00000000e+000, 4.98458246e-245]
             return move, move_probability
         else:
             AssertionError("Cannot move when board is at terminal state")
@@ -153,10 +185,10 @@ class GamePipeLine(object):
         while True:
             move = -1
             if i % 2 == 0:
-                move = player1.get_move(self.board)
+                move = player1.get_action(self.board)
             else:
-                move = player2.get_move(self.board)
-            self.board.do_move(move)
+                move = player2.get_action(self.board)
+            self.board.do_move(move[0])
             end, winner = self.board.has_winner()
             if end:
                 return winner

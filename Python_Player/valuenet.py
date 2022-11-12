@@ -9,6 +9,10 @@ from connect4_game import Board
 # heavily referenced the implementation https://github.com/junxiaosong/AlphaZero_Gomoku/blob/master/policy_value_net_pytorch.py
 # for learning purpose only
 
+def set_learning_rate(optimizer, lr):
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
 class Net(nn.Module):
     def __init__(self):
         super().__init__() 
@@ -60,7 +64,7 @@ class ValueNet(object):
             self.value_net = Net()
         
         # we use the Adam optimizer
-        self.optimizer = optim.Adam(self.value_net.parameters(), lr=0.06, weight_decay=0.0001)
+        self.optimizer = optim.Adam(self.value_net.parameters(), lr=0.002, weight_decay=0.0001)
         
         # if we have a trained model, we need to load the trained model from the file of the given path
         if trained_model:
@@ -103,7 +107,7 @@ class ValueNet(object):
             return move_probability, position_score_batch.data.numpy()
 
     # a single training step, given a batch of state, mcts probability
-    def train_step(self, batch, mcts_probability, winner):
+    def train_step(self, batch, mcts_probability, winner, lr=0.002):
         
         if self.gpu:
             batch = Variable(torch.FloatTensor(batch).cuda())
@@ -115,9 +119,11 @@ class ValueNet(object):
             winner = Variable(torch.FloatTensor(winner))
 
         self.optimizer.zero_grad()
-        
+                
+        set_learning_rate(self.optimizer, lr)
+
         # feed forward the state batch with the policy value net
-        log_probability_batch, position_score_batch = self.policy_value_net(batch)
+        log_probability_batch, position_score_batch = self.value_net(batch)
         # define the loss = (z - v)^2 - pi^T * log(p) + c||theta||^2
         # Note: the L2 penalty is incorporated in optimizer
         value_loss = F.mse_loss(position_score_batch.view(-1), winner)

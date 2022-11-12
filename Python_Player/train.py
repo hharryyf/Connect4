@@ -13,6 +13,7 @@ class TrainingPipeLine(object):
         self.board = Board(self.nrow, self.ncol)
         self.game = GamePipeLine(self.board)
         self.lr = 2e-3
+        self.lr_multiplier = 1.0
         self.playout = 400
         self.c_puct = 5
         self.buffer_size = 10000
@@ -39,10 +40,23 @@ class TrainingPipeLine(object):
         for i in range(n_games):
             _, play_data = self.game.self_play(self.mcts_player)
             play_data = list(play_data)[:]
+            print(play_data)
             self.episode_len = len(play_data)
-            # we don't do any data augmentation, because only horizontal flip can generate some equal data
             self.data_buffer.extend(play_data)
-    
+
+            # do data augmentation, horizontal flip extend with a new set of data
+            extended = []
+            for state, prob, winner in play_data:
+                eqi_state = np.array([np.fliplr(s) for s in state])
+                prob = np.fliplr(prob.reshape(1, len(prob))).flatten()
+                extended.append((eqi_state, prob, winner))
+
+            self.data_buffer.extend(extended)
+
+            #print(play_data)
+            #print("----------------------------")
+            #print(extended)
+
     def policy_update(self):
         """update the policy-value net"""
         mini_batch = random.sample(self.data_buffer, self.batch_size)
@@ -54,7 +68,7 @@ class TrainingPipeLine(object):
             loss, entropy = self.policy_value_net.train_step(
                     state_batch,
                     mcts_probs_batch,
-                    winner_batch)
+                    winner_batch, self.lr * self.lr_multiplier)
             new_probs, new_v = self.policy_value_net.evaluate_batches(state_batch)
             kl = np.mean(np.sum(old_probs * (
                     np.log(old_probs + 1e-10) - np.log(new_probs + 1e-10)),
@@ -62,6 +76,12 @@ class TrainingPipeLine(object):
             )
             if kl > self.kl_targ * 4:  # early stopping if D_KL diverges badly
                 break
+        
+        if kl > self.kl_targ * 2 and self.lr_multiplier > 0.1:
+            self.lr_multiplier /= 1.5
+        elif kl < self.kl_targ / 2 and self.lr_multiplier < 10:
+            self.lr_multiplier *= 1.5
+
         print(("kl:{:.5f},"
                "loss:{},"
                "entropy:{}"
@@ -133,5 +153,5 @@ class TrainingPipeLine(object):
 
 
 if __name__ == '__main__':
-    pipeline = TrainingPipeLine(False, None)
+    pipeline = TrainingPipeLine(False, 'best_policy.model')
     pipeline.run()

@@ -40,7 +40,6 @@ class TrainingPipeLine(object):
         for i in range(n_games):
             _, play_data = self.game.self_play(self.mcts_player)
             play_data = list(play_data)[:]
-            print(play_data)
             self.episode_len = len(play_data)
             self.data_buffer.extend(play_data)
 
@@ -153,5 +152,5 @@ class TrainingPipeLine(object):
 
 
 if __name__ == '__main__':
-    pipeline = TrainingPipeLine(False, 'best_policy.model')
+    pipeline = TrainingPipeLine(False, 'current_policy.model')
     pipeline.run()

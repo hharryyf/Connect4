@@ -31,12 +31,12 @@ class Net(nn.Module):
 
         # for the policy network
         self.policy_layer_1 = nn.Conv2d(128, 4, kernel_size=1)
-        #self.policy_layer_1_2 = nn.Linear(4 * 6 * 7, 4 * 6 * 7)
+        self.policy_layer_1_2 = nn.Linear(4 * 6 * 7, 4 * 6 * 7)
         self.policy_layer_2 = nn.Linear(4 * 6 * 7, 7)
 
         # for the position score
         self.value_layer_1 = nn.Conv2d(128, 2, kernel_size=1)
-        #self.value_layer_1_2 = nn.Linear(2 * 6 * 7, 2 * 6 * 7)
+        self.value_layer_1_2 = nn.Linear(2 * 6 * 7, 2 * 6 * 7)
         self.value_layer_2 = nn.Linear(2 * 6 * 7, 7)
         self.value_layer_3 = nn.Linear(7, 1)
 
@@ -46,12 +46,12 @@ class Net(nn.Module):
         x = self.common_layer(state_input)
         x_action = F.relu(self.policy_layer_1(x))
         x_action = x_action.view(-1, 4*6*7)
-        # x_action = F.relu(self.policy_layer_1_2(x_action))
+        x_action = F.relu(self.policy_layer_1_2(x_action))
         x_action = F.log_softmax(self.policy_layer_2(x_action), dim=1)
         
         x_value = F.relu(self.value_layer_1(x))
         x_value = x_value.view(-1, 2 * 6 * 7)
-        # x_value = F.relu(self.value_layer_1_2(x_value))
+        x_value = F.relu(self.value_layer_1_2(x_value))
         x_value = F.relu(self.value_layer_2(x_value))
         x_value = torch.tanh(self.value_layer_3(x_value))
         return x_action, x_value

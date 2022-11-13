@@ -140,12 +140,14 @@ class MCTSDQNPlayer(object):
                 # almost equivalent to get the move with the highest probability
                 # print(action, action_probability)
                 move = np.random.choice(action, p=action_probability)
-                # we would reuse the search tree, I think this might work better than https://github.com/junxiaosong/AlphaZero_Gomoku/blob/master/mcts_alphaZero.py
-                self.mcts.update_with_move(move)
+                self.mcts.update_with_move(-1)
             # [3.97563671e-263, 6.82409694e-078, 5.53077680e-254, 4.98458246e-245, 5.53077680e-254, 1.00000000e+000, 4.98458246e-245]
             return move, move_probability
         else:
             AssertionError("Cannot move when board is at terminal state")
+
+    def __str__(self):
+        return "MCTSDQNPlayer"
 
     
 
@@ -186,10 +188,18 @@ class GamePipeLine(object):
             move = -1
             if i % 2 == 0:
                 move = player1.get_action(self.board)
+                print("player", player1, move[0])
             else:
                 move = player2.get_action(self.board)
+                print("player", player2, move[0])
             self.board.do_move(move[0])
             end, winner = self.board.has_winner()
             if end:
+                if winner == 0:
+                    print("Draw!")
+                elif i % 2 == 0:
+                    print("Winner is ", player1)
+                else:
+                    print("Winner is ", player2)
                 return winner
-        
+            i += 1

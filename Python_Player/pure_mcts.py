@@ -118,7 +118,10 @@ class PureMCTSPlayer(object):
     def get_action(self, board: Board):
         if not board.game_end():
             move = self.mcts.get_move(board)
-            self.mcts.update_with_move(move)
+            self.mcts.update_with_move(-1)
             return move, 0
         else:
             AssertionError("Cannot move when board is at terminal state")
+
+    def  __str__(self):
+        return "PureMCTSPlayer-" + str(self.mcts.max_playout)

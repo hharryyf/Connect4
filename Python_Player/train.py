@@ -14,7 +14,7 @@ class TrainingPipeLine(object):
         self.game = GamePipeLine(self.board)
         self.lr = 2e-3
         self.lr_multiplier = 1.0
-        self.playout = 400
+        self.playout = 100
         self.c_puct = 5
         self.buffer_size = 10000
         self.batch_size = 512  # mini-batch size for training
@@ -96,7 +96,7 @@ class TrainingPipeLine(object):
         """
         dqn_player = MCTSDQNPlayer(self.policy_value_net.evaluate_position,
                                          c_puct=self.c_puct,
-                                         n_playout=self.playout)
+                                         n_playout=self.pure_mcts_playout_num)
         pure_mcts_player = PureMCTSPlayer(c_puct=5,
                                      n_playout=self.pure_mcts_playout_num)
         
@@ -126,6 +126,7 @@ class TrainingPipeLine(object):
 
     def run(self):
         try:
+            self.policy_evaluate()
             for i in range(self.game_batch_num):
                 self.collect_selfplay_data(self.play_batch_size)
                 print("batch i:{}, episode_len:{}".format(
@@ -152,5 +153,5 @@ class TrainingPipeLine(object):
 
 
 if __name__ == '__main__':
-    pipeline = TrainingPipeLine(False, 'current_policy.model')
+    pipeline = TrainingPipeLine(False, 'best_policy.model')
     pipeline.run()

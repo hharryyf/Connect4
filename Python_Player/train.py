@@ -1,10 +1,11 @@
 import random
+import torch
 import numpy as np 
 from connect4_game import Board
 from neural_mcts import MCTSDQNPlayer
 from neural_mcts import GamePipeLine
 from pure_mcts import PureMCTSPlayer
-from valuenet import ValueNet
+from valuenet_v3 import ValueNet
 from collections import defaultdict, deque
 
 class TrainingPipeLine(object):
@@ -14,7 +15,7 @@ class TrainingPipeLine(object):
         self.game = GamePipeLine(self.board)
         self.lr = 2e-3
         self.lr_multiplier = 1.0
-        self.playout = 100
+        self.playout = 150
         self.c_puct = 5
         self.buffer_size = 10000
         self.batch_size = 512  # mini-batch size for training
@@ -94,39 +95,41 @@ class TrainingPipeLine(object):
         Evaluate the trained policy by playing against the pure MCTS player
         Note: this is only for monitoring the progress of training
         """
-        dqn_player = MCTSDQNPlayer(self.policy_value_net.evaluate_position,
-                                         c_puct=self.c_puct,
-                                         n_playout=self.pure_mcts_playout_num)
-        pure_mcts_player = PureMCTSPlayer(c_puct=5,
-                                     n_playout=self.pure_mcts_playout_num)
-        
+        self.policy_value_net.value_net.eval()
         win, draw, loss = 0, 0, 0
-        for i in range(n_games):
-            if i % 2 == 0:
-                winner = self.game.play_game(dqn_player, pure_mcts_player)
-                if winner == 1:
-                    win += 1
-                elif winner == 0:
-                    draw += 1
+        with torch.no_grad():
+            dqn_player = MCTSDQNPlayer(self.policy_value_net.evaluate_position,
+                                            c_puct=self.c_puct,
+                                            n_playout=self.pure_mcts_playout_num)
+            pure_mcts_player = PureMCTSPlayer(c_puct=5,
+                                        n_playout=self.pure_mcts_playout_num)
+            
+            for i in range(n_games):
+                if i % 2 == 0:
+                    winner = self.game.play_game(dqn_player, pure_mcts_player)
+                    if winner == 1:
+                        win += 1
+                    elif winner == 0:
+                        draw += 1
+                    else:
+                        loss += 1
                 else:
-                    loss += 1
-            else:
-                winner = self.game.play_game(pure_mcts_player, dqn_player)
-                if winner == -1:
-                    win += 1
-                elif winner == 0:
-                    draw += 1
-                else:
-                    loss += 1
+                    winner = self.game.play_game(pure_mcts_player, dqn_player)
+                    if winner == -1:
+                        win += 1
+                    elif winner == 0:
+                        draw += 1
+                    else:
+                        loss += 1
 
         win_rate = 1.0 * (win + 0.5 * draw) / n_games
         print("Pure MCTS #playouts:{}, win: {}, lose: {}, draw:{}".format(self.pure_mcts_playout_num,win, loss, draw))
-        
+        self.policy_value_net.value_net.train()
         return win_rate
 
     def run(self):
         try:
-            self.policy_evaluate()
+            # self.policy_evaluate()
             for i in range(self.game_batch_num):
                 self.collect_selfplay_data(self.play_batch_size)
                 print("batch i:{}, episode_len:{}".format(
@@ -138,12 +141,12 @@ class TrainingPipeLine(object):
                 if (i+1) % self.check_freq == 0:
                     print("current self-play batch: {}".format(i+1))
                     win_ratio = self.policy_evaluate()
-                    self.policy_value_net.save_model('./current_policy.model')
+                    self.policy_value_net.save_model('./current_policy_v3.model')
                     if win_ratio > self.best_win_ratio:
                         print("New best policy!!!!!!!!")
                         self.best_win_ratio = win_ratio
                         # update the best_policy
-                        self.policy_value_net.save_model('./best_policy.model')
+                        self.policy_value_net.save_model('./best_policy_v3.model')
                         if (self.best_win_ratio == 1.0 and
                                 self.pure_mcts_playout_num < 5000):
                             self.pure_mcts_playout_num += 1000
@@ -153,5 +156,5 @@ class TrainingPipeLine(object):
 
 
 if __name__ == '__main__':
-    pipeline = TrainingPipeLine(False, 'best_policy.model')
+    pipeline = TrainingPipeLine(False, None)
     pipeline.run()

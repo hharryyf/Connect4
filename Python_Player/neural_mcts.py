@@ -134,14 +134,13 @@ class MCTSDQNPlayer(object):
             if self.self_play_mode:
                 # add some dirichlet noise, see the AlphaGo paper
                 # force exploration
-                move = np.random.choice(action,p=0.75*action_probability + 0.25*np.random.dirichlet(0.3*np.ones(len(action_probability))))
+                move = np.random.choice(action,p=0.75*action_probability + 0.25*np.random.dirichlet(0.2*np.ones(len(action_probability))))
                 self.mcts.update_with_move(move)
             else:
                 # almost equivalent to get the move with the highest probability
                 # print(action, action_probability)
                 move = np.random.choice(action, p=action_probability)
                 self.mcts.update_with_move(-1)
-            # [3.97563671e-263, 6.82409694e-078, 5.53077680e-254, 4.98458246e-245, 5.53077680e-254, 1.00000000e+000, 4.98458246e-245]
             return move, move_probability
         else:
             AssertionError("Cannot move when board is at terminal state")

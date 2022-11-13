@@ -18,49 +18,54 @@ class Net(nn.Module):
         super().__init__() 
         # common layer
         self.common_layer = nn.Sequential(
-            nn.Conv2d(4, 32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(32, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.Conv2d(4, 128, kernel_size=4, padding='same'),
             nn.BatchNorm2d(128),
             nn.ReLU(inplace=True),
-            nn.Conv2d(128, 256, kernel_size=3, padding=1),
+            nn.Conv2d(128, 256, kernel_size=4, padding='same'),
             nn.BatchNorm2d(256),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(256, 256, kernel_size=4, padding='same'),
+            nn.BatchNorm2d(256),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(256, 512, kernel_size=4, padding='same'),
+            nn.BatchNorm2d(512),
             nn.ReLU(inplace=True)
         )
         
-        self.transition = nn.Conv2d(256, 4, kernel_size=1)
+        self.transition = nn.Conv2d(512, 4, kernel_size=1)
 
 
-        self.linear_layer = nn.Sequential(
-            nn.Linear(4 * 6 * 7, 1024),
+        self.policy_linear_layer = nn.Sequential(
+            nn.Linear(4 * 6 * 7, 4 * 6 * 7),
             nn.ReLU(inplace=True),
             nn.Dropout(0.2),
-            nn.Linear(1024, 256),
-            nn.ReLU(inplace=True)
+            nn.Linear(4 * 6 * 7, 4 * 6 * 7),
+            nn.Dropout(0.2),
+            nn.ReLU(inplace=True),
+            nn.Linear(4 * 6 * 7, 7),     
         )
 
-        # for the policy network
-        self.policy_layer = nn.Linear(256, 7)
-
-        # for the position score
-        self.value_layer = nn.Linear(256, 1)
+        
+        self.value_linear_layer = nn.Sequential(
+            nn.Linear(4 * 6 * 7, 2 * 6 * 7),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.2),
+            nn.Linear(2 * 6 * 7, 2 * 6 * 7),
+            nn.Dropout(0.2),
+            nn.ReLU(inplace=True),
+            nn.Linear(2 * 6 * 7, 1),     
+        )
 
     # return the action probability (not necessary from 0 to 1) and the position score
     # action probability size = [1][7], position score size = [1][1]
     def forward(self, state_input):
+        x_in = state_input.clone()
         x = self.common_layer(state_input)
         x = self.transition(x)
+        x = x + x_in
         x = torch.flatten(x, start_dim=1)
-        #print("here")
-        #print(x.shape)
-        x = self.linear_layer(x)
-        #print(x.shape)
-        x_action = F.log_softmax(self.policy_layer(x), dim=1)
-        x_value = torch.tanh(self.value_layer(x))
+        x_action = F.log_softmax(self.policy_linear_layer(x), dim=1)
+        x_value = torch.tanh(self.value_linear_layer(x))
         # print(x_action, x_value)
         return x_action, x_value
 

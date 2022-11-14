@@ -5,7 +5,7 @@ class Human(object):
         board.display()
         print("please insert action: ", end='')
         mv = int(input())
-        return mv
+        return mv, 0
 
     def __str__(self):
         return "Human Player"

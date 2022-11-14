@@ -18,36 +18,36 @@ class Net(nn.Module):
         super().__init__() 
         # common layer
         self.common_layer = nn.Sequential(
-            nn.Conv2d(4, 128, kernel_size=4, padding='same'),
+            nn.Conv2d(3, 128, kernel_size=3, padding=1),
             nn.BatchNorm2d(128),
             nn.ReLU(inplace=True),
-            nn.Conv2d(128, 256, kernel_size=4, padding='same'),
+            nn.Conv2d(128, 256, kernel_size=3, padding=1),
             nn.BatchNorm2d(256),
             nn.ReLU(inplace=True),
-            nn.Conv2d(256, 256, kernel_size=4, padding='same'),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),
             nn.BatchNorm2d(256),
             nn.ReLU(inplace=True),
-            nn.Conv2d(256, 512, kernel_size=4, padding='same'),
+            nn.Conv2d(256, 512, kernel_size=3, padding=1),
             nn.BatchNorm2d(512),
             nn.ReLU(inplace=True)
         )
         
-        self.transition = nn.Conv2d(512, 4, kernel_size=1)
+        self.transition = nn.Conv2d(512, 3, kernel_size=1)
 
 
         self.policy_linear_layer = nn.Sequential(
-            nn.Linear(4 * 6 * 7, 4 * 6 * 7),
+            nn.Linear(3 * 6 * 7, 3 * 6 * 7),
             nn.ReLU(inplace=True),
             nn.Dropout(0.2),
-            nn.Linear(4 * 6 * 7, 4 * 6 * 7),
+            nn.Linear(3 * 6 * 7, 3 * 6 * 7),
             nn.Dropout(0.2),
             nn.ReLU(inplace=True),
-            nn.Linear(4 * 6 * 7, 7),     
+            nn.Linear(3 * 6 * 7, 7),     
         )
 
         
         self.value_linear_layer = nn.Sequential(
-            nn.Linear(4 * 6 * 7, 2 * 6 * 7),
+            nn.Linear(3 * 6 * 7, 2 * 6 * 7),
             nn.ReLU(inplace=True),
             nn.Dropout(0.2),
             nn.Linear(2 * 6 * 7, 2 * 6 * 7),
@@ -59,10 +59,10 @@ class Net(nn.Module):
     # return the action probability (not necessary from 0 to 1) and the position score
     # action probability size = [1][7], position score size = [1][1]
     def forward(self, state_input):
-        x_in = state_input.clone()
+        #x_in = state_input.clone()
         x = self.common_layer(state_input)
         x = self.transition(x)
-        x = x + x_in
+        #x = x + x_in
         x = torch.flatten(x, start_dim=1)
         x_action = F.log_softmax(self.policy_linear_layer(x), dim=1)
         x_value = torch.tanh(self.value_linear_layer(x))
@@ -96,7 +96,7 @@ class ValueNet(object):
         # get all the available positions in a 1-d list
         valid_position = board.available()
         current_state = np.ascontiguousarray(board.get_board_state().reshape(
-                -1, 4, 6, 7))
+                -1, 3, 6, 7))
         if self.gpu:
             # the log probability of positions and the position reward
             log_probability, position_score = self.value_net(Variable(torch.from_numpy(current_state).cuda().float()))

@@ -18,7 +18,7 @@ class Net(nn.Module):
         super().__init__() 
         # common layer
         self.common_layer = nn.Sequential(
-            nn.Conv2d(4, 32, kernel_size=3, padding=1),
+            nn.Conv2d(3, 32, kernel_size=3, padding=1),
             nn.BatchNorm2d(32),
             nn.ReLU(inplace=True),
             nn.Conv2d(32, 64, kernel_size=3, padding=1),
@@ -32,11 +32,11 @@ class Net(nn.Module):
             nn.ReLU(inplace=True)
         )
         
-        self.transition = nn.Conv2d(256, 4, kernel_size=1)
+        self.transition = nn.Conv2d(256, 3, kernel_size=1)
 
 
         self.linear_layer = nn.Sequential(
-            nn.Linear(4 * 6 * 7, 1024),
+            nn.Linear(3 * 6 * 7, 1024),
             nn.ReLU(inplace=True),
             nn.Dropout(0.2),
             nn.Linear(1024, 256),
@@ -91,7 +91,7 @@ class ValueNet(object):
         # get all the available positions in a 1-d list
         valid_position = board.available()
         current_state = np.ascontiguousarray(board.get_board_state().reshape(
-                -1, 4, 6, 7))
+                -1, 3, 6, 7))
         if self.gpu:
             # the log probability of positions and the position reward
             log_probability, position_score = self.value_net(Variable(torch.from_numpy(current_state).cuda().float()))

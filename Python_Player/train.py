@@ -15,14 +15,14 @@ class TrainingPipeLine(object):
         self.game = GamePipeLine(self.board)
         self.lr = 2e-3
         self.lr_multiplier = 1.0
-        self.playout = 150
-        self.c_puct = 5
+        self.playout = 250
+        self.c_puct = 2
         self.buffer_size = 10000
-        self.batch_size = 512  # mini-batch size for training
+        self.batch_size = 256  # mini-batch size for training
         self.data_buffer = deque(maxlen=self.buffer_size)
         self.play_batch_size = 1
         self.epochs = 5  # num of train_steps for each update
-        self.kl_targ = 0.02
+        self.kl_targ = 0.03
         self.check_freq = 50
         self.game_batch_num = 1500
         self.best_win_ratio = 0.0
@@ -34,7 +34,7 @@ class TrainingPipeLine(object):
         else:
             # start training from a new policy-value net
             self.policy_value_net = ValueNet(gpu, None)
-        self.mcts_player = MCTSDQNPlayer(self.policy_value_net.evaluate_position, 5, self.playout, True)
+        self.mcts_player = MCTSDQNPlayer(self.policy_value_net.evaluate_position, self.c_puct, self.playout, True)
 
     def collect_selfplay_data(self, n_games=1):
         """collect self-play data for training"""
@@ -121,6 +121,7 @@ class TrainingPipeLine(object):
                         draw += 1
                     else:
                         loss += 1
+                print(f"{win + 0.5 * draw} - {loss + 0.5 * draw}")
 
         win_rate = 1.0 * (win + 0.5 * draw) / n_games
         print("Pure MCTS #playouts:{}, win: {}, lose: {}, draw:{}".format(self.pure_mcts_playout_num,win, loss, draw))
@@ -156,5 +157,5 @@ class TrainingPipeLine(object):
 
 
 if __name__ == '__main__':
-    pipeline = TrainingPipeLine(False, None)
+    pipeline = TrainingPipeLine(False, 'best_policy_v3.model')
     pipeline.run()

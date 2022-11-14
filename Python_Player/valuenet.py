@@ -18,7 +18,7 @@ class Net(nn.Module):
         super().__init__() 
         # common layer
         self.common_layer = nn.Sequential(
-            nn.Conv2d(4, 32, kernel_size=3, padding=1),
+            nn.Conv2d(3, 32, kernel_size=3, padding=1),
             nn.BatchNorm2d(32),
             nn.ReLU(inplace=True),
             nn.Conv2d(32, 64, kernel_size=3, padding=1),
@@ -30,9 +30,9 @@ class Net(nn.Module):
         )
 
         # for the policy network
-        self.policy_layer_1 = nn.Conv2d(128, 4, kernel_size=1)
-        #self.policy_layer_1_2 = nn.Linear(4 * 6 * 7, 4 * 6 * 7)
-        self.policy_layer_2 = nn.Linear(4 * 6 * 7, 7)
+        self.policy_layer_1 = nn.Conv2d(128, 3, kernel_size=1)
+        #self.policy_layer_1_2 = nn.Linear(3 * 6 * 7, 3 * 6 * 7)
+        self.policy_layer_2 = nn.Linear(3 * 6 * 7, 7)
 
         # for the position score
         self.value_layer_1 = nn.Conv2d(128, 2, kernel_size=1)
@@ -45,7 +45,7 @@ class Net(nn.Module):
     def forward(self, state_input):
         x = self.common_layer(state_input)
         x_action = F.relu(self.policy_layer_1(x))
-        x_action = x_action.view(-1, 4*6*7)
+        x_action = x_action.view(-1, 3*6*7)
         # x_action = F.relu(self.policy_layer_1_2(x_action))
         x_action = F.log_softmax(self.policy_layer_2(x_action), dim=1)
         
@@ -83,7 +83,7 @@ class ValueNet(object):
         # get all the available positions in a 1-d list
         valid_position = board.available()
         current_state = np.ascontiguousarray(board.get_board_state().reshape(
-                -1, 4, 6, 7))
+                -1, 3, 6, 7))
         if self.gpu:
             # the log probability of positions and the position reward
             log_probability, position_score = self.value_net(Variable(torch.from_numpy(current_state).cuda().float()))

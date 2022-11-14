@@ -110,25 +110,22 @@ class Board(object):
         get the board state used for the policy-value network
         dimension[0] all the pieces played by the current player
         dimension[1] all the pieces played by the other player
-        dimension[2] the latest piece played on the board (i.e. in this dimension only 1 pixel is 1 all the others are 0)
-        dimension[3] the player doing the current move, if it is the maximizer (i.e. if it is player 1), 
+        dimension[2] the player doing the current move, if it is the maximizer (i.e. if it is player 1), 
         then the final dimension is 1, otherwise 0
         precondition: this method can only be called before current_player actually takes the move!!!!
         return type: a numpy array
     '''
     def get_board_state(self):
-        board_state = np.zeros((4, self.nrow, self.ncol))
+        board_state = np.zeros((3, self.nrow, self.ncol))
         pieces = np.array(self.piece)
         if len(self.movedict) > 0:
             # positions of the current moves
             board_state[0] = 1.0 * (pieces == self.current_player)
             # positions of the moves by the other player
             board_state[1] = 1.0 * (pieces == -self.current_player)
-            # indicate where the last move is played
-            board_state[2][self.col[self.lastmove] - 1, self.lastmove] = 1.0
-
+            
         if len(self.movedict) % 2 == 0:
-            board_state[3][:,:] = 1.0
+            board_state[2][:,:] = 1.0
         return board_state
 
     def display(self):

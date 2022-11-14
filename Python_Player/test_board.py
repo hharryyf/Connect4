@@ -40,31 +40,6 @@ def check_can_move():
     board.do_move(4)
     assert (not board.can_move(4))
 
-def test_board_state_pre_maximizer():
-    board = Board(6, 7)
-    board.do_move(4)
-    board.do_move(1)
-    brd_rep = board.get_board_state()
-    target = np.zeros((4, 6, 7))
-    target[0, 0, 4] = 1
-    target[1, 0, 1] = 1
-    target[2, 0, 1] = 1
-    target[3] = np.ones((6, 7))
-    assert ((target == brd_rep).all())
-    board.display()
-    
-def test_board_state_pre_minimizer():
-    board = Board(6, 7)
-    board.do_move(4)
-    board.do_move(1)
-    board.do_move(4)
-    brd_rep = board.get_board_state()
-    target = np.zeros((4, 6, 7))
-    target[1, 0, 4] = 1
-    target[0, 0, 1] = 1
-    target[1, 1, 4] = 1
-    target[2, 1, 4] = 1
-    assert ((target == brd_rep).all())
 
 def test_player_update_end_game_col():
     def check_end(b):

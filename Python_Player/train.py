@@ -15,10 +15,10 @@ class TrainingPipeLine(object):
         self.game = GamePipeLine(self.board)
         self.lr = 2e-3
         self.lr_multiplier = 1.0
-        self.playout = 250
+        self.playout = 343
         self.c_puct = 3
         self.buffer_size = 10000
-        self.batch_size = 256 # mini-batch size for training
+        self.batch_size = 1024 # mini-batch size for training
         self.data_buffer = deque(maxlen=self.buffer_size)
         self.play_batch_size = 1
         self.epochs = 5  # num of train_steps for each update

@@ -173,7 +173,7 @@ class GamePipeLine(object):
                     winners[np.array(current_player) == winner] = 1.0
                     winners[np.array(current_player) != winner] = -1.0
                 # reset MCTS root node
-                player.reset_player()
+                # player.reset_player()
                 if winner != 0:
                     print("Game end. Winner is player:", winner)
                 else:

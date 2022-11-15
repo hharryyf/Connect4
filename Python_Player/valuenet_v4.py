@@ -73,7 +73,7 @@ class OutBlock(nn.Module):
 class Net(nn.Module):
     # after many failure, I believe a ResNet is important, try the ResNet from this repo
     # https://github.com/ThePrincipalComponent/AlphaZeroConnect4/blob/main/Part%205/model.py
-    def __init__(self, res_block_num=8):
+    def __init__(self, res_block_num=5):
         super().__init__()
         self.conv = ConvBlock()
         self.res_block_num = res_block_num

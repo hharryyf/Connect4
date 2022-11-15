@@ -5,7 +5,7 @@ from connect4_game import Board
 from neural_mcts import MCTSDQNPlayer
 from neural_mcts import GamePipeLine
 from pure_mcts import PureMCTSPlayer
-from valuenet_v3 import ValueNet
+from valuenet_v4 import ValueNet
 from collections import defaultdict, deque
 
 class TrainingPipeLine(object):
@@ -16,9 +16,9 @@ class TrainingPipeLine(object):
         self.lr = 2e-3
         self.lr_multiplier = 1.0
         self.playout = 250
-        self.c_puct = 2
+        self.c_puct = 3
         self.buffer_size = 10000
-        self.batch_size = 256  # mini-batch size for training
+        self.batch_size = 256 # mini-batch size for training
         self.data_buffer = deque(maxlen=self.buffer_size)
         self.play_batch_size = 1
         self.epochs = 5  # num of train_steps for each update
@@ -142,12 +142,12 @@ class TrainingPipeLine(object):
                 if (i+1) % self.check_freq == 0:
                     print("current self-play batch: {}".format(i+1))
                     win_ratio = self.policy_evaluate()
-                    self.policy_value_net.save_model('./current_policy_v3.model')
+                    self.policy_value_net.save_model('./current_policy_v4.model')
                     if win_ratio > self.best_win_ratio:
                         print("New best policy!!!!!!!!")
                         self.best_win_ratio = win_ratio
                         # update the best_policy
-                        self.policy_value_net.save_model('./best_policy_v3.model')
+                        self.policy_value_net.save_model('./best_policy_v4.model')
                         if (self.best_win_ratio == 1.0 and
                                 self.pure_mcts_playout_num < 5000):
                             self.pure_mcts_playout_num += 1000
@@ -157,5 +157,5 @@ class TrainingPipeLine(object):
 
 
 if __name__ == '__main__':
-    pipeline = TrainingPipeLine(False, 'best_policy_v3.model')
+    pipeline = TrainingPipeLine(False, None)
     pipeline.run()

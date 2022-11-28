@@ -17,7 +17,14 @@ The project would consist of the following iterations:
 
     * the translation is a MUST do task, otherwise, we have no time to obtain a good model
     
-3. - [ ] Translate the Python MCTS + Deep Reinforcement Learning agent to C++
+3. - [ ] Translate the Python MCTS + Deep Reinforcement Learning agent to C++, the aim of this stage include
+
+    * review the CPUCT MCTS algorithm
+    
+    * be familiar with the bit-board representation of connect-4 (I must thank my supervisor Abdallah Saffidine for introducing this)
+
+    * be familiar with the C++ deep learning library
+
 
 
 ## Reference

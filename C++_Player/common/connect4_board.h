@@ -33,7 +33,7 @@ public:
 
     // if we can play a move
     bool canplay(int c) {
-      return col[c] <= 5;
+      return (col[c] < 5) && (c >= 0) && (c < 7);
     }
     // update column c with piece
     void update(int c, int piece) {
@@ -42,7 +42,8 @@ public:
           col[c]--;
           --move;
         } else {
-            a[++col[c]][c] = piece;
+            ++col[c];
+            a[col[c]][c] = piece;
             ++move;
         }
     }
@@ -131,6 +132,11 @@ public:
     }
 
     void show_board() {
+        printf("column detail: ");
+        for (int i = 0 ; i < 7; ++i) {
+            printf("%d ", col[i]);
+        }
+        printf("\n");
         auto s = print_board();
         std::cout << std::endl;
         for (auto &ch : s) {

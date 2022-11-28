@@ -134,7 +134,7 @@ class MCTSDQNPlayer(object):
             if self.self_play_mode:
                 # add some dirichlet noise, see the AlphaGo paper
                 # force exploration
-                move = np.random.choice(action,p=0.75*action_probability + 0.25*np.random.dirichlet(0.28*np.ones(len(action_probability))))
+                move = np.random.choice(action,p=0.75*action_probability + 0.25*np.random.dirichlet(0.3*np.ones(len(action_probability))))
                 self.mcts.update_with_move(move)
             else:
                 # almost equivalent to get the move with the highest probability
@@ -154,7 +154,7 @@ class GamePipeLine(object):
     def __init__(self, board: Board):
         self.board = board
     
-    def self_play(self, player: MCTSDQNPlayer, temp=1e-3):
+    def self_play(self, player: MCTSDQNPlayer, temp=1e-3, restart=False):
         self.board.reset()
         board_state, mcts_probability, current_player = [], [], []
         while True:
@@ -173,7 +173,9 @@ class GamePipeLine(object):
                     winners[np.array(current_player) == winner] = 1.0
                     winners[np.array(current_player) != winner] = -1.0
                 # reset MCTS root node
-                # player.reset_player()
+                if restart:
+                    player.reset_player()
+                
                 if winner != 0:
                     print("Game end. Winner is player:", winner)
                 else:

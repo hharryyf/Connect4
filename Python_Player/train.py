@@ -36,10 +36,10 @@ class TrainingPipeLine(object):
             self.policy_value_net = ValueNet(gpu, None)
         self.mcts_player = MCTSDQNPlayer(self.policy_value_net.evaluate_position, self.c_puct, self.playout, True)
 
-    def collect_selfplay_data(self, n_games=1):
+    def collect_selfplay_data(self, n_games=1, restart=False):
         """collect self-play data for training"""
         for i in range(n_games):
-            _, play_data = self.game.self_play(self.mcts_player)
+            _, play_data = self.game.self_play(self.mcts_player, restart=restart)
             play_data = list(play_data)[:]
             self.episode_len = len(play_data)
             self.data_buffer.extend(play_data)
@@ -132,7 +132,10 @@ class TrainingPipeLine(object):
         try:
             # self.policy_evaluate()
             for i in range(self.game_batch_num):
-                self.collect_selfplay_data(self.play_batch_size)
+                restart = False 
+                if (i + 1) % 100 == 0:
+                    restart = True
+                self.collect_selfplay_data(self.play_batch_size, restart)
                 print("batch i:{}, episode_len:{}".format(
                         i+1, self.episode_len))
                 if len(self.data_buffer) > self.batch_size:
@@ -147,7 +150,7 @@ class TrainingPipeLine(object):
                         print("New best policy!!!!!!!!")
                         self.best_win_ratio = win_ratio
                         # update the best_policy
-                        self.policy_value_net.save_model('./best_policy_v4.model')
+                        self.policy_value_net.save_model('./best_policy_v4_2.model')
                         if (self.best_win_ratio == 1.0 and
                                 self.pure_mcts_playout_num < 5000):
                             self.pure_mcts_playout_num += 1000
@@ -157,5 +160,5 @@ class TrainingPipeLine(object):
 
 
 if __name__ == '__main__':
-    pipeline = TrainingPipeLine(False, None)
+    pipeline = TrainingPipeLine(False, 'best_policy_v4_2.model')
     pipeline.run()

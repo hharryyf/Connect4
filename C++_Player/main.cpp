@@ -3,6 +3,8 @@
 #include <torch/csrc/autograd/generated/variable_factories.h>
 #pragma warning(pop)
 #include <iostream>
+#include <vector>
+#include "bit_board.h"
 #include "connect4_board.h"
 #include "gameplayer.h"
 #include "alpha_beta/alphabeta.h"
@@ -19,8 +21,101 @@
 #define MCTS_DEEP_O 2
 #define ALPHA_BETA_O 3
 
+void play_game();
+
+void tensor_test();
+
+void bit_board_unit_test(int T=1000000);
+
 int main(int argc, char *argv[]) {
-    
+    bit_board_unit_test();
+    return 0;
+}
+
+void bit_board_unit_test(int T) {
+    int npass = 0, nfail = 0;
+    clock_t judge_time = 0, fast_time = 0;
+    srand(time(NULL));
+    for (int i = 1 ; i <= T; ++i) {
+        connect4_board judge;
+        bit_board board = bit_board();
+        std::vector<int> rec;
+        int curr = 1;
+        bool ok = true;
+        judge.init();
+        while (judge.get_status() == 2) {
+            int nxt = rand() % 7;
+            if (judge.canplay(nxt) != board.can_move(nxt)) {
+                ok = false;
+                break;
+            }
+
+            if (judge.canplay(nxt)) {
+                rec.push_back(nxt);
+                clock_t start = clock();
+                judge.update(nxt, curr);
+                clock_t end = clock();
+                judge_time += end - start;
+                start = clock();
+                board.do_move(nxt);
+                end = clock();
+                fast_time += end - start;
+                curr *= -1;
+            }
+            
+            bool answer, observe;
+            clock_t start = clock();
+            answer = judge.get_status();
+            clock_t end = clock();
+            judge_time += end - start;
+
+            start = clock();
+            observe = board.has_winner().second;
+            end = clock();
+            fast_time += end - start;
+            if (answer != observe || judge.get_move() != board.get_move()) {
+                ok = false;
+                break;
+            }
+        }
+        
+        if (!ok) {
+            printf("-------- Test %d --------\n", i);
+            printf("FAIL\nMove details: [");
+            for (auto v : rec) {
+                printf("%d, ", v);
+            }
+            printf("]\n");
+
+            printf("judge status = %d, board status = %d\n", judge.get_status(), board.has_winner().second);
+            printf("total move by judges = %d, total move by bitboard = %d, judge can move: ", judge.get_move(), board.get_move());
+            for (int j = 0 ; j < 7; ++j) {
+                if (judge.canplay(j)) printf("%d ", j);
+            }
+            printf("\n");
+            printf("bit board can move: ");
+            for (int j = 0 ; j < 7; ++j) {
+                if (board.can_move(j)) printf("%d ", j);
+            }
+            printf("\n");
+            judge.show_board();
+            nfail++;
+            break;
+        } 
+
+        npass++;
+    }
+
+    printf("%d cases PASS, %d cases FAIL, brute force takes %.2lfs, bit-board takes %.2lfs\n", 
+                        npass, nfail, (double) judge_time / CLOCKS_PER_SEC, (double) fast_time / CLOCKS_PER_SEC);
+    if (!nfail) {
+        printf("OK!\n");
+    } else {
+        printf("Wrong Answer!\n");
+    }
+}
+
+void tensor_test() {
     // tensor = torch::rand({2, 3});
     int n = 5, m = 4;
     // Just creating some dummy data for example
@@ -37,6 +132,9 @@ int main(int argc, char *argv[]) {
     std::cout << tensor << std::endl;
     std::cout << tensor[0][2].item<double>() << std::endl;
     std::cout << "Pytorch start success" << std::endl;
+}
+
+void play_game() {
     alphabeta_player b, b2;
     human_player human;
     connect4_board brd;
@@ -98,5 +196,4 @@ int main(int argc, char *argv[]) {
     }
     printf("Game Time %s: %.2lfs, %s: %.2lfs\n", player->display_name().c_str(), (double) t1/CLOCKS_PER_SEC, 
                                                 player2->display_name().c_str(), (double) t2/CLOCKS_PER_SEC);
-    return 0;
 }

@@ -238,20 +238,20 @@ int alphabeta_player::play(int previous) {
     auto p = negamax(this->player, d, -AlphaBetaConfig::four, AlphaBetaConfig::four);
     if (p.first == -AlphaBetaConfig::four) {
         auto q = negamax_no_table(this->player, 3, -AlphaBetaConfig::four, AlphaBetaConfig::four);
-        std::cout << "heuristic " << q.first * this->player << std::endl;
+        //std::cout << "heuristic " << q.first * this->player << std::endl;
         p.second = q.second;
     }
     this->board.update(p.second, this->player);
-    std::cout << display_name() << " search depth: " << d << " score: " << p.first * this->player << std::endl;
-    std::cout << "cache size: " << this->board.get_cache_size() << std::endl;
+    //std::cout << display_name() << " search depth: " << d << " score: " << p.first * this->player << std::endl;
+    //std::cout << "cache size: " << this->board.get_cache_size() << std::endl;
     return p.second;
 }
 
 void alphabeta_player::game_over(int result) {
     if (result == -1) {
-        std::cout << "game over " << display_name() << " start caching" << std::endl;
+        //std::cout << "game over " << display_name() << " start caching" << std::endl;
         this->board.store_cache();
     } else {
-        std::cout << "game over " << display_name() << " discard caching" << std::endl;
+        //std::cout << "game over " << display_name() << " discard caching" << std::endl;
     }
 }

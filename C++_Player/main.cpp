@@ -111,7 +111,7 @@ void bit_board_unit_test(int T) {
     if (!nfail) {
         printf("OK!\n");
     } else {
-        printf("Wrong Answer!\n");
+        printf("FAIL!\n");
     }
 }
 
@@ -139,9 +139,10 @@ void play_game() {
     human_player human;
     connect4_board brd;
     brd.init();
-    b.init(1, "Alpha-Beta AI X Player");
-    b2.init(-1, "Alpha-Beta AI O Player");
-    human.init(-1, "Human Player");
+    ConfigObject config1, config2;
+    b.init(1, "Alpha-Beta AI X Player", config1);
+    b2.init(-1, "Alpha-Beta AI O Player", config2);
+    human.init(-1, "Human Player", config2);
     gameplayer *player, *player2;
     /* Do your stuff here */
     

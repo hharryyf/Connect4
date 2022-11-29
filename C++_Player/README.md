@@ -6,18 +6,22 @@
 * [Setup](#setup)
 
 ## General info
-This project consists of a bunch of connect4 players. The project is still under development. We **plan** to implement at least the following 2 players: 
+This project consists of a bunch of connect4 players. The project is still under development. We **plan** to implement at least the following 3 players: 
 
 1) an alpha-beta pruning player with endgame transposition table
 
-2) a MCTS player with Deep Learning enhancement 
+2) a pure MCTS player
 
-We also support: human play mode in a terminal window, and a game player that allows game players of different language to compete accross a socket  
+3) a MCTS player with Deep Learning enhancement 
+
+We also support: human play mode in a terminal window
+
+Optional task: A game player that allows game players of different language to compete accross a socket  
 	
 ## Technologies
 Project is created with:
-* LibTorch: 1.12.1
-* CMake: 3.24.1
+* LibTorch: >= 1.12.1
+* CMake: >= 3.24.1
 * C++ 14
 	
 ## Setup
@@ -32,3 +36,4 @@ $ ./main
 ```
 
 At the moment, only human VS alpha-beta pruning agent is supported.
+

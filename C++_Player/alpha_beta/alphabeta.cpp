@@ -1,9 +1,10 @@
 #include "alphabeta.h"
 
-void alphabeta_player::init(int turn, std::string n) {
+void alphabeta_player::init(int turn, std::string n, ConfigObject config) {
     this->player = turn;
     this->name = n;
     this->board.init();
+    this->max_depth = config.get_alpha_beta_max_depth();
 }
 
 std::pair<double, int> alphabeta_player::negamax(int current, int depth, double alpha, double beta) {
@@ -219,16 +220,16 @@ int alphabeta_player::play(int previous) {
         this->board.update(previous, -this->player);
     }
 
-    auto get_depth = [](int piece) -> int {
+    auto get_depth = [&](int piece) -> int {
         if (piece < 8) {
-            return AlphaBetaConfig::max_depth;
+            return this->max_depth;
         } else if (piece < 14) {
-            return 2 + AlphaBetaConfig::max_depth;
+            return 2 + this->max_depth;
         } else if (piece < 16) {
-            return 4 + AlphaBetaConfig::max_depth;
+            return 4 + this->max_depth;
         }
 
-        return 8 + AlphaBetaConfig::max_depth;
+        return 8 + this->max_depth;
     };
 
     this->board.clear_middle_game_cache();

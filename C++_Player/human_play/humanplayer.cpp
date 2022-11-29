@@ -1,6 +1,6 @@
 #include "humanplayer.h"
 
-void human_player::init(int turn, std::string n) {
+void human_player::init(int turn, std::string n, ConfigObject config) {
     this->player = turn;
     this->name = n;
     this->brd.init();

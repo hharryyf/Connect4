@@ -5,7 +5,7 @@ add_library(deepq_mcts
     mcts_zero.h
     mcts_zero.cpp
     mcts_pure.h
-    train.h
+    mcts_pure.cpp
 )
 
 target_include_directories(deepq_mcts PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

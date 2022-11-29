@@ -6,7 +6,7 @@ class alphabeta_player : public gameplayer {
 public:
     alphabeta_player(bool cache_result=false) : cache_result(cache_result) {}
 
-    void init(int turn, std::string n="Alpha-Beta AI");
+    void init(int turn, std::string n, ConfigObject config);
     int play(int previous_move);
     
     int force_play(int position);
@@ -37,9 +37,11 @@ protected:
     std::pair<double, int> negamax(int current_player, int depth, double alpha, double beta);
 
     std::pair<double, int> negamax_no_table(int current_player, int depth, double alpha, double beta);
+    
 private:
     std::default_random_engine rng = std::default_random_engine {};
     int player = 0;
+    int max_depth = 11;
     bool cache_result = false;
     std::string name;
     alphabeta_board board;

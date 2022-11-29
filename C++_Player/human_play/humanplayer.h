@@ -4,7 +4,7 @@
 
 class human_player : public gameplayer {
 public:
-    void init(int turn, std::string n="Human Player");
+    void init(int turn, std::string n, ConfigObject config);
     int play(int previous_move);
     std::string display_name() {
         return this->name;

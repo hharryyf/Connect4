@@ -134,6 +134,10 @@ public:
         return this->num_move;
     }
 
+    int get_current_player() {
+        return this->current_player;
+    }
+
 protected:
     int col[7], current_player, status, last_move, num_move;
     unsigned long long x_board, o_board;

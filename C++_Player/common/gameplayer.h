@@ -16,12 +16,13 @@
 #include <unordered_set>
 #include <bitset>
 #include <string>
+#include "config.h"
 // the interface for a connect4 player
 class gameplayer {
 public:
     // this init method would let the player to initialize the board
     // turn: integer 1/-1 represents whether the player plays first or second
-    virtual void init(int turn, std::string name) = 0;
+    virtual void init(int turn, std::string name, ConfigObject config) = 0;
     /* 
       @previous_move: integer between 0 and max_col - 1 represents the column the opponent moves, 
                         -1 means the current move is the first move

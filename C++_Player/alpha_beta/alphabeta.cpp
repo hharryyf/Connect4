@@ -47,6 +47,7 @@ std::pair<double, int> alphabeta_player::negamax(int current, int depth, double 
         return std::make_pair(this->board.heuristic() * current, AlphaBetaConfig::INVALID);
     }
 
+    //printf("enter general case\n");
     std::pair<double, int> nextmove = {-AlphaBetaConfig::four, AlphaBetaConfig::INVALID};
     for (auto p : valid_move) {
         this->board.update(p, current);
@@ -82,6 +83,7 @@ std::pair<double, int> alphabeta_player::negamax(int current, int depth, double 
         this->board.cache_state(entry, AlphaBetaConfig::EXACT);
     }
 
+    //printf("score = %.2lf move = %d\n", nextmove.first, nextmove.second);
     return nextmove;
 }
 
@@ -241,9 +243,9 @@ int alphabeta_player::play(int previous) {
         //std::cout << "heuristic " << q.first * this->player << std::endl;
         p.second = q.second;
     }
+    std::cout << display_name() << " search depth: " << d << " score: " << p.first * this->player << std::endl;
     this->board.update(p.second, this->player);
-    //std::cout << display_name() << " search depth: " << d << " score: " << p.first * this->player << std::endl;
-    //std::cout << "cache size: " << this->board.get_cache_size() << std::endl;
+    std::cout << "cache size: " << this->board.get_cache_size() << std::endl;
     return p.second;
 }
 

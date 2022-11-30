@@ -21,6 +21,10 @@
 #define MCTS_DEEP_O 2
 #define ALPHA_BETA_O 3
 
+void tensor_test();
+
+void bit_board_unit_test(int T=1000000);
+
 int play_game(gameplayer *player1, gameplayer *player2
     ,std::string player1_name, std::string player2_name, 
     ConfigObject config1, ConfigObject config2, bool detail);
@@ -29,13 +33,132 @@ void play_group_of_games(int T, gameplayer *player1, gameplayer *player2,
     std::string player1_name, std::string player2_name, 
     ConfigObject config1, ConfigObject config2);
 
-void tensor_test();
-
-void bit_board_unit_test(int T=1000000);
-
 int main(int argc, char *argv[]) {
-    bit_board_unit_test();
+    // run 10000 test-cases for bitboard
+    bit_board_unit_test(10000);
+    alphabeta_player player1;
+    mcts_pure player2;
+    ConfigObject config1;
+    ConfigObject config2;
+    config1.Set_alpha_beta_depth(11).Set_mcts_play_iteration(50);
+    config2.Set_alpha_beta_depth(11).Set_mcts_play_iteration(50);
+    gameplayer *g1 = &player1;
+    gameplayer *g2 = &player2;
+    play_group_of_games(10, g1, g2, "Alpha-Beta-depth-11", "MCTS-200000", config1, config2);
     return 0;
+}
+
+void tensor_test() {
+    // tensor = torch::rand({2, 3});
+    int n = 5, m = 4;
+    // Just creating some dummy data for example
+    std::vector<std::vector<double>> vect(n, std::vector<double>(m, 0)); 
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            vect[i][j] = i+j;
+
+    // Copying into a tensor
+    auto options = torch::TensorOptions().dtype(at::kDouble);
+    torch::Tensor tensor = torch::zeros({n,m}, options);
+    for (int i = 0; i < n; i++)
+        tensor.slice(0, i,i+1) = torch::from_blob(vect[i].data(), {m}, options);
+    std::cout << tensor << std::endl;
+    std::cout << tensor[0][2].item<double>() << std::endl;
+    std::cout << "Pytorch start success" << std::endl;
+}
+
+void play_group_of_games(int T, gameplayer *player1, gameplayer *player2
+        ,std::string player1_name, std::string player2_name, 
+        ConfigObject config1, ConfigObject config2) {
+    int win = 0, lose = 0, draw = 0;
+    for (int i = 1; i <= T; ++i) {
+        int res = 0;
+        if (i % 2 == 1) {
+            res = play_game(player1, player2, player1_name, player2_name, config1, config2, false);
+            if (res == 1) {
+                win++;
+            } else if (res == 0) {
+                draw++;
+            } else {
+                lose++;
+            }
+        } else {
+            res = play_game(player2, player1, player2_name, player1_name, config2, config1, false);
+            if (res == -1) {
+                win++;
+            } else if (res == 0) {
+                draw++;
+            } else {
+                lose++;
+            }
+        }
+
+        printf("(%.1lf - %.1lf)\n", (1.0 * win + 0.5 * draw), (1.0 * lose + 0.5 * draw));
+    }
+
+    printf("Final result of <%d> games <%s vs %s>\n %.1lf - %.1lf", 
+        T, player1->display_name().c_str(), player2->display_name().c_str(),
+        (1.0 * win + 0.5 * draw), (1.0 * lose + 0.5 * draw));
+}
+
+int play_game(gameplayer *player1, gameplayer *player2, 
+        std::string player1_name, std::string player2_name,
+        ConfigObject config1, ConfigObject config2, bool detail) {
+    connect4_board brd;
+    brd.init();
+    
+    player1->init(1, player1_name, config1);
+
+    player2->init(-1, player2_name, config2);
+
+    clock_t t1 = 0, t2 = 0;
+    int previous = -1, current = 1;
+    while (brd.get_status() == 2) {
+        int move = 0;
+        if (current == 1) {
+            std::cout << player1->display_name() << " move" << std::endl;
+            clock_t start = clock();
+            move = player1->play(previous);
+            clock_t end = clock();
+            t1 = t1 + end - start; 
+            printf("Move %d taken: %.2fs\n", brd.get_move() + 1, (double)(end - start)/CLOCKS_PER_SEC);
+        } else {
+            std::cout << player2->display_name() << " move" << std::endl;
+            clock_t start = clock();
+            move = player2->play(previous);
+            clock_t end = clock();
+            t2 = t2 + end - start;
+            printf("Move %d taken: %.2fs\n", brd.get_move() + 1, (double)(end - start)/CLOCKS_PER_SEC);
+        }
+
+        previous = move;
+        brd.update(move, current);
+        brd.show_board();
+        current *= -1;
+    }
+
+    std::cout << brd.print_board() << std::endl;
+    if (brd.get_status() == 0) {
+        std::cout << "Draw!" << std::endl;
+    } else if (brd.get_status() == 1) {
+        std::cout << player1->display_name() << " Win!" << std::endl;
+    } else {
+        std::cout << player2->display_name() << " Win!" << std::endl;
+    }
+
+    if (brd.get_status() == 0) {
+        player1->game_over(0);
+        player2->game_over(0);
+    } else if (brd.get_status() == 1) {
+        player1->game_over(1);
+        player2->game_over(-1);
+    } else {
+        player1->game_over(-1);
+        player2->game_over(1);
+    }
+    printf("Game Time %s: %.2lfs, %s: %.2lfs\n", player1->display_name().c_str(), (double) t1/CLOCKS_PER_SEC, 
+                                                player2->display_name().c_str(), (double) t2/CLOCKS_PER_SEC);
+    return brd.get_status();
 }
 
 void bit_board_unit_test(int T) {
@@ -115,138 +238,8 @@ void bit_board_unit_test(int T) {
     printf("%d cases PASS, %d cases FAIL, brute force takes %.2lfs, bit-board takes %.2lfs\n", 
                         npass, nfail, (double) judge_time / CLOCKS_PER_SEC, (double) fast_time / CLOCKS_PER_SEC);
     if (!nfail) {
-        printf("OK!\n");
+        printf("Unit test for bit_board\nOK!\n");
     } else {
-        printf("FAIL!\n");
+        printf("Unit test for bit_board\nFAIL!\n");
     }
-}
-
-void tensor_test() {
-    // tensor = torch::rand({2, 3});
-    int n = 5, m = 4;
-    // Just creating some dummy data for example
-    std::vector<std::vector<double>> vect(n, std::vector<double>(m, 0)); 
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < m; j++)
-            vect[i][j] = i+j;
-
-    // Copying into a tensor
-    auto options = torch::TensorOptions().dtype(at::kDouble);
-    torch::Tensor tensor = torch::zeros({n,m}, options);
-    for (int i = 0; i < n; i++)
-        tensor.slice(0, i,i+1) = torch::from_blob(vect[i].data(), {m}, options);
-    std::cout << tensor << std::endl;
-    std::cout << tensor[0][2].item<double>() << std::endl;
-    std::cout << "Pytorch start success" << std::endl;
-}
-
-void play_group_of_games(int T, gameplayer *player1, gameplayer *player2
-        ,std::string player1_name, std::string player2_name, 
-        ConfigObject config1, ConfigObject config2) {
-    int win = 0, lose = 0, draw = 0;
-    for (int i = 1; i <= T; ++i) {
-        int res = 0;
-        if (i % 2 == 1) {
-            res = play_game(player1, player2, player1_name, player2_name, config1, config2, false);
-            if (res == 1) {
-                win++;
-            } else if (res == 0) {
-                draw++;
-            } else {
-                lose++;
-            }
-        } else {
-            res = play_game(player2, player1, player2_name, player1_name, config2, config1, false);
-            if (res == -1) {
-                win++;
-            } else if (res == 0) {
-                draw++;
-            } else {
-                lose++;
-            }
-        }
-
-        printf("(%.1lf - %.1lf)\n", (1.0 * win + 0.5 * draw), (1.0 * lose + 0.5 * draw));
-    }
-
-    printf("Final result of <%d> games <%s vs %s>\n %.1lf - %.1lf", 
-        T, player1->display_name().c_str(), player2->display_name().c_str(),
-        (1.0 * win + 0.5 * draw), (1.0 * lose + 0.5 * draw));
-}
-
-int play_game(gameplayer *player1, gameplayer *player2, 
-        std::string player1_name, std::string player2_name,
-        ConfigObject config1, ConfigObject config2, bool detail) {
-    
-    /**
-     * alphabeta_player b, b2;
-        human_player human;
-        connect4_board brd;
-        brd.init();
-        ConfigObject config1, config2;
-        b.init(1, "Alpha-Beta AI X Player", config1);
-        b2.init(-1, "Alpha-Beta AI O Player", config2);
-        human.init(-1, "Human Player", config2);
-        gameplayer *player, *player2;
-        
-        clock_t t1 = 0, t2 = 0;
-        player = &b;
-        player2 = &human;
-    */
-
-    connect4_board brd;
-    brd.init();
-    
-    player1->init(1, player1_name, config1);
-
-    player2->init(-1, player2_name, config2);
-
-    clock_t t1 = 0, t2 = 0;
-    int previous = -1, current = 1;
-    while (brd.get_status() == 2) {
-        int move = 0;
-        if (current == 1) {
-            if (detail) std::cout << player1->display_name() << " move" << std::endl;
-            clock_t start = clock();
-            move = player1->play(previous);
-            clock_t end = clock();
-            t1 = t1 + end - start; 
-            if (detail)  printf("Move %d taken: %.2fs\n", brd.get_move() + 1, (double)(end - start)/CLOCKS_PER_SEC);
-        } else {
-            if (detail) std::cout << player2->display_name() << " move" << std::endl;
-            clock_t start = clock();
-            move = player2->play(previous);
-            clock_t end = clock();
-            t2 = t2 + end - start;
-            if (detail) printf("Move %d taken: %.2fs\n", brd.get_move() + 1, (double)(end - start)/CLOCKS_PER_SEC);
-        }
-
-        previous = move;
-        brd.update(move, current);
-        if (detail) brd.show_board();
-        current *= -1;
-    }
-
-    std::cout << brd.print_board() << std::endl;
-    if (brd.get_status() == 0) {
-        std::cout << "Draw!" << std::endl;
-    } else if (brd.get_status() == 1) {
-        std::cout << player1->display_name() << " Win!" << std::endl;
-    } else {
-        std::cout << player2->display_name() << " Win!" << std::endl;
-    }
-
-    if (brd.get_status() == 0) {
-        player1->game_over(0);
-        player2->game_over(0);
-    } else if (brd.get_status() == 1) {
-        player1->game_over(1);
-        player2->game_over(-1);
-    } else {
-        player1->game_over(-1);
-        player2->game_over(1);
-    }
-    printf("Game Time %s: %.2lfs, %s: %.2lfs\n", player1->display_name().c_str(), (double) t1/CLOCKS_PER_SEC, 
-                                                player2->display_name().c_str(), (double) t2/CLOCKS_PER_SEC);
-    return brd.get_status();
 }

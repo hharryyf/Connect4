@@ -94,7 +94,7 @@ public:
      * update the status of the board after this move
     */
     bool do_move(int move) {
-        assert (!game_end());
+        assert(!game_end());
         if (!can_move(move)) return false;  
         this->col[move]++;
         this->last_move = move;
@@ -136,6 +136,12 @@ public:
 
     int get_current_player() {
         return this->current_player;
+    }
+
+    void debug() {
+        printf("column information: ");
+        for (int i = 0 ; i < 7; ++i) printf("%d ", col[i]);
+        printf("\ncurrent player = %d, status = %d, last_move = %d, num_move = %d\n", current_player, status, last_move, num_move);
     }
 
 protected:

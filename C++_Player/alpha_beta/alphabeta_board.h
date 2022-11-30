@@ -36,7 +36,12 @@ public:
         col.init(AlphaBetaConfig::COL, board);
         diag.init(AlphaBetaConfig::DIAG, board);
         antidiag.init(AlphaBetaConfig::ANTIDIAG, board);
+        this->table = LRUCache<std::bitset<84>, std::pair<double, int>>(AlphaBetaConfig::max_cache);
+        this->move_table = LRUCache<std::bitset<84>, std::pair<double, int>>(AlphaBetaConfig::max_cache);
+        this->bound_table = LRUCache<std::bitset<84>, std::pair<double, int>>(AlphaBetaConfig::max_cache);
+        this->bitboard = std::bitset<84>();
         this->store_cache(true);
+
         std::cout << "transposition table maximum size " << table.max_size() << std::endl;
         std::cout << "transposition table start size " << table.get_size() << std::endl;
     }
@@ -80,7 +85,16 @@ public:
         precondition: the board status is still undetermine && piece \in {1, -1}
     */
     bool killmove(int c, int piece) {
-        assert(piece != 0);
+        if (piece == 0) {
+            printf("player cannot be 0!\n");
+            exit(1);
+        }
+
+        if (c < 0 || c > 6) {
+            printf("a move at column %d is invalid\n", c);
+            exit(1);
+        }
+
         check_move(c, piece);
         bool ok = (status() == piece);
         check_move(c, 0);
@@ -328,13 +342,25 @@ private:
         }
 
         void play(int column, int piece) {
-            assert(column >= 0 && column <= 6);
+            if (column < 0 || column > 6) {
+                printf("column %d out of range 0~6 \n", column);
+                exit(1);
+            }
+
             if (piece != 0) {
-                assert(canplay(column));
+                if (!canplay(column)) {
+                    printf("column %d is full\n", column);
+                    exit(1);
+                }
+
                 a[++height[column]][column] = piece;
                 ++move;
             } else {
-                assert(height[column] >= 0);
+                if (height[column] < 0) {
+                    printf("height[%d] = %d, cannot undo a move\n", column, height[column]);
+                    exit(1);
+                }
+
                 a[height[column]][column] = 0;
                 --height[column];
                 --move;
@@ -376,7 +402,7 @@ private:
         void init(int type, gameboard &board) {
             x_win = o_win = 0;
             tol_score = 0.0;
-            for (int i = 0 ; i < 8; ++i) status[i] = 0, score[i] = 0.0;
+            for (int i = 0 ; i < 8; ++i) status[i] = 0, score[i] = 0.0, window[i].clear();
             if (type == AlphaBetaConfig::ROW) {
                 for (int i = 0 ; i < 6; ++i) {
                     for (int j = 0 ; j < 7; ++j) {

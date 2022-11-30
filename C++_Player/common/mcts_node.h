@@ -31,6 +31,7 @@ public:
             double prob = p.second;
             if (children.find(move) == children.end()) {
                 children[move] = std::make_shared<mcts_node>(mcts_node(std::make_shared<mcts_node>(*this), prob));
+                printf("expand children with move %d prob = %.3lf\n", move, prob);
             }
         }
     }
@@ -49,6 +50,7 @@ public:
     int select_move() {
         int move = -1, vis = 0;
         for (auto &iter : this->children) {
+            std::cout << iter.first << ", visit_count = " << iter.second->N << std::endl;
             if (move == -1) move = iter.first, vis = iter.second->N;
             if (vis < iter.second->N) vis = iter.second->N, move = iter.first;
         }
@@ -62,8 +64,10 @@ public:
     }
 
     void update(double val) {
+
         this->N = this->N + 1;
         this->Q += (val - this->Q) / this->N;
+        std::cout << "visit count = " << this->N << " Q-value " << this->Q << std::endl;
     }
 
     void update_recursive(double val) {
@@ -82,6 +86,21 @@ public:
 
     void set_parent(std::shared_ptr<mcts_node> new_parent) {
         this->parent = new_parent;
+    }
+
+    void debug() {
+        for (auto &iter : this->children) {
+            printf("move = %d, visit count = %d, q_value = %.3lf | ", iter.first, iter.second->N, iter.second->Q);
+        }
+        printf("\n");
+        int depth = 0;
+        auto curr = this->children[0];
+        while (curr != nullptr) {
+            depth++;
+            curr = curr->children[0];
+        }
+
+        printf("depth = %d\n", depth);
     }
 
 private:

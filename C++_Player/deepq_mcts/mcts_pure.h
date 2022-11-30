@@ -41,19 +41,21 @@ public:
 
 private:
 
-    std::vector<std::pair<int, double>> random_rollout(bit_board &board) {
+    std::vector<std::pair<int, double>> random_rollout(bit_board board) {
         auto valid_move = board.get_available();
         int len = valid_move.size();
         std::vector<std::pair<int, double>> ret(len);
         for (int i = 0 ; i < len; ++i) {
             ret[i].second = (double) rand() / RAND_MAX;
             ret[i].first = valid_move[i];
+            printf("(%d, %.3lf) ", ret[i].first, ret[i].second);
         }
+        printf("\n");
 
         return ret;
     }
 
-    std::vector<std::pair<int, double>> policy_value_function(bit_board &board) {
+    std::vector<std::pair<int, double>> policy_value_function(bit_board board) {
         auto vc = board.get_available();
         std::vector<std::pair<int, double>> ret;
         for (int i = 0 ; i < (int) vc.size(); ++i) {
@@ -63,7 +65,7 @@ private:
         return ret;
     }
 
-    int evaluate_rollout(bit_board &board) {
+    int evaluate_rollout(bit_board board) {
         int player = board.get_current_player();
         std::pair<bool, int> res;
         for (int i = 0 ; i < 1000; ++i) {

@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <string>
+
 /*
     configuration for the alpha-beta player
 */

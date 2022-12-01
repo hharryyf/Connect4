@@ -51,6 +51,11 @@ public:
         this->mcts_train_iteration = iteration;
         return *this;
     }
+
+    ConfigObject &Set_c_puct(int c) {
+        this->c_puct = c;
+        return *this;
+    }
     
     int get_alpha_beta_max_depth() {
         return alpha_beta_max_depth;
@@ -64,8 +69,13 @@ public:
         return mcts_train_iteration;
     }
 
+    int get_c_puct() {
+        return c_puct;
+    }
+
 private:
     int alpha_beta_max_depth = 11;
     int mcts_play_iteration = 10000;
     int mcts_train_iteration = 500;
+    int c_puct = 5;
 };

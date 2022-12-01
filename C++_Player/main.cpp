@@ -3,6 +3,8 @@
 #include <torch/csrc/autograd/generated/variable_factories.h>
 #pragma warning(pop)
 #include <iostream>
+#include <algorithm>
+#include <cstdio>
 #include <vector>
 #include "bit_board.h"
 #include "connect4_board.h"
@@ -38,13 +40,56 @@ int main(int argc, char *argv[]) {
     bit_board_unit_test(10000);
     srand(time(NULL));
     alphabeta_player player1;
-    mcts_pure player2;
+    alphabeta_player player2;
+    mcts_pure player3;
+    mcts_pure player4;
+    human_player player5;
+    human_player player6;
     ConfigObject config1;
     ConfigObject config2;
-    config1.Set_alpha_beta_depth(11);
-    config2.Set_mcts_play_iteration(500000);
-    gameplayer *g1 = &player1;
-    gameplayer *g2 = &player2;
+    int type1, type2, d;
+    gameplayer *g1;
+    gameplayer *g2;
+    std::cout << "please input player 1\n1 for alpha-beta, 2 for pure-mcts, 3 for human: ";
+    std::cin >> type1;
+    if (type1 == 1) {
+        g1 = &player1;
+        std::cout << "please input the searching depth: ";
+        std::cin >> d;
+        config1.Set_alpha_beta_depth(d >= 3 ? d : 3);
+    } else if (type1 == 2) {
+        g1 = &player3;
+        std::cout << "please input the number of MCTS iteration: ";
+        std::cin >> d;
+        config1.Set_mcts_play_iteration(d >= 10000 ? d : 10000).Set_c_puct(5);
+    } else if (type1 == 3) {
+        g1 = &player5;
+    } else {
+        std::cerr << "player 1 type must be within {1, 2, 3}" << std::endl;
+        return 1;
+    }
+
+    std::cout << "please input player 2\n1 for alpha-beta, 2 for pure-mcts, 3 for human: ";
+    std::cin >> type2;
+    if (type2 == 1) {
+        g2 = &player2;
+        std::cout << "please input the searching depth: ";
+        std::cin >> d;
+        config2.Set_alpha_beta_depth(d >= 3 ? d : 3);
+    } else if (type2 == 2) {
+        g2 = &player4;
+        std::cout << "please input the number of MCTS iteration: ";
+        std::cin >> d;
+        config2.Set_mcts_play_iteration(d >= 10000 ? d : 10000).Set_c_puct(5);
+    } else if (type2 == 3) {
+        g2 = &player6;
+    } else {
+        std::cerr << "player 2 type must be within {1, 2, 3}" << std::endl;
+        return 1;
+    }
+
+    //config1.Set_alpha_beta_depth(11);
+    //config2.Set_mcts_play_iteration(500000);
     play_group_of_games(10, g1, g2, "Alpha-Beta-d-11", "MCTS-500000", config1, config2);
     return 0;
 }

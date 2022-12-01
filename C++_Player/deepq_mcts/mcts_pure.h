@@ -17,6 +17,7 @@
 #include <bitset>
 #include <string>
 #include <memory>
+#include <chrono>
 #include "bit_board.h"
 #include "gameplayer.h"
 #include "mcts_node.h"
@@ -27,10 +28,11 @@
 
 class pure_mcts_tree {
 public:
-    pure_mcts_tree(int c_puct=2, int n_playout=1000) {
+    pure_mcts_tree(int c_puct=5, int n_playout=1000) {
         this->root = std::make_shared<mcts_node>(mcts_node(nullptr, 1.0));
         this->num_playout = n_playout;
         this->c_puct = c_puct;
+        this->rng.seed(std::chrono::system_clock::now().time_since_epoch().count());
     }
     /**
      * MCTS-Playout given the current board state
@@ -105,7 +107,7 @@ public:
     void init(int turn, std::string name, ConfigObject config) {
         this->name = name;
         this->board = bit_board();
-        this->mcts = pure_mcts_tree(2, config.get_mcts_play_iteration());      
+        this->mcts = pure_mcts_tree(config.get_c_puct(), config.get_mcts_play_iteration());      
     }
     /* 
       @previous_move: integer between 0 and max_col - 1 represents the column the opponent moves, 

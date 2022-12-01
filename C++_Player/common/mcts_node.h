@@ -20,7 +20,7 @@
 
 class mcts_node {
 public:
-    mcts_node(std::shared_ptr<mcts_node> parent=nullptr, double prior=1.0) {
+    mcts_node(mcts_node* parent=nullptr, double prior=1.0) {
         this->parent = parent;
         this->prior = prior;
     }
@@ -29,45 +29,50 @@ public:
         for (auto &p : action_prior) {
             int move = p.first;
             double prob = p.second;
-            if (children.find(move) == children.end()) {
-                children[move] = std::make_shared<mcts_node>(mcts_node(std::make_shared<mcts_node>(*this), prob));
-                printf("expand children with move %d prob = %.3lf\n", move, prob);
+            if (this->children[move] == nullptr) {
+                children[move] = std::make_shared<mcts_node>(nullptr, prob);
+                children[move]->set_parent(this);
             }
         }
     }
 
     std::pair<int, std::shared_ptr<mcts_node>> selection(double c_puct) {
-        assert (!is_leaf());
         std::pair<int, std::shared_ptr<mcts_node>> ret = {-1, nullptr};
-        for (auto &iter : this->children) {
-            if (ret.second == nullptr) ret = iter;
-            if (ret.second->get_value(c_puct) < iter.second->get_value(c_puct)) ret = iter;
+        for (int i = 0 ; i < 7; ++i) {
+            if (this->children[i] != nullptr) {
+                if (ret.second == nullptr) ret.second = this->children[i], ret.first = i;
+                if (ret.second->get_value(c_puct) < this->children[i]->get_value(c_puct)) {
+                    ret.second = this->children[i];
+                    ret.first = i;
+                }
+            }
         }
+
+
 
         return ret;
     }
 
     int select_move() {
         int move = -1, vis = 0;
-        for (auto &iter : this->children) {
-            std::cout << iter.first << ", visit_count = " << iter.second->N << std::endl;
-            if (move == -1) move = iter.first, vis = iter.second->N;
-            if (vis < iter.second->N) vis = iter.second->N, move = iter.first;
+        for (int i = 0 ; i < 7; ++i) {
+            if (this->children[i] != nullptr) {
+                if (move == -1) move = i, vis = this->children[i]->N;
+                if (vis < this->children[i]->N) vis = this->children[i]->N, move = i;
+            }
         }
 
         return move;
     }
 
     double get_value(double c_puct) {
-        this->U = c_puct * this->prior * sqrt(this->parent->N) / (1 + this->N);
+        this->U = c_puct * this->prior * sqrt(1.0 * this->parent->N) / (1 + this->N);
         return this->U + this->Q;
     }
 
     void update(double val) {
-
         this->N = this->N + 1;
         this->Q += (val - this->Q) / this->N;
-        std::cout << "visit count = " << this->N << " Q-value " << this->Q << std::endl;
     }
 
     void update_recursive(double val) {
@@ -76,21 +81,27 @@ public:
     }
 
     bool is_leaf() {
-        return this->children.empty();
+        for (int i = 0 ; i < 7; ++i) {
+            if (this->children[i] != nullptr) return false;
+        }
+
+        return true;
     }
 
     std::shared_ptr<mcts_node> get_children(int move) {
-        if (this->children.find(move) != this->children.end()) return this->children[move];
+        if (move >= 0 && move <= 6 && this->children[move] != nullptr) return this->children[move];
         return nullptr;
     }
 
-    void set_parent(std::shared_ptr<mcts_node> new_parent) {
+    void set_parent(mcts_node* new_parent) {
         this->parent = new_parent;
     }
 
     void debug() {
-        for (auto &iter : this->children) {
-            printf("move = %d, visit count = %d, q_value = %.3lf | ", iter.first, iter.second->N, iter.second->Q);
+        for (int i = 0 ; i < 7; ++i) {
+            if (this->children[i] != nullptr) {
+                printf("move = %d, visit count = %d, q_value = %.10lf | ", i, this->children[i]->N, this->children[i]->Q);
+            }
         }
         printf("\n");
         int depth = 0;
@@ -106,6 +117,6 @@ public:
 private:
     double prior = 1.0, U = 0.0, Q = 0.0;
     int N = 0;
-    std::map<int, std::shared_ptr<mcts_node>> children;    
-    std::shared_ptr<mcts_node> parent;
+    std::shared_ptr<mcts_node> children[7];    
+    mcts_node* parent;
 };

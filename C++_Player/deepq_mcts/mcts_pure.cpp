@@ -3,7 +3,6 @@
 
 void pure_mcts_tree::playout(bit_board board) {
     auto curr = this->root;
-    board.debug();
     while (curr != nullptr) {
         if (curr->is_leaf()) break;
         auto mpn = curr->selection(this->c_puct);
@@ -11,18 +10,13 @@ void pure_mcts_tree::playout(bit_board board) {
         curr = mpn.second;
     }
 
-    //board.debug();
     auto action_prob = this->policy_value_function(board);
     if (!board.has_winner().first) {
-        //printf("enter here!\n");
         curr->expansion(action_prob);
     }
 
     int reward = evaluate_rollout(board);
-    printf("reward = %d\nstart backpropagation\n", reward);
     curr->update_recursive(-1.0 * reward);
-    printf("finish backproagation");
-    this->root->debug();
 }
 
 
@@ -31,6 +25,7 @@ int pure_mcts_tree::get_move(bit_board board) {
         this->playout(board);
     }
 
+    this->root->debug();
     return this->root->select_move();  
 }
 
@@ -51,22 +46,25 @@ int mcts_pure::force_play(int position) {
     return position;
 }
 
-int mcts_pure::play(int previous_move) {
+int mcts_pure::play(int previous_move) {    
+    if (this->board.game_end()) {
+        printf("cannot play when the game ends!\n");
+        exit(1);
+    }
 
-    assert(!this->board.game_end());
-    printf("before\n");
-    board.debug();
     if (previous_move != -1) { 
         this->board.do_move(previous_move);
     }
 
-    assert(!this->board.game_end());
     
+    if (this->board.game_end()) {
+        printf("cannot play when the game ends!\n");
+        exit(1);
+    }
+
     int move = this->mcts.get_move(this->board);
     this->board.do_move(move);
     this->mcts.update_with_move(-1);
-    printf("after\n");
-    board.debug();
     return move;
 }
 

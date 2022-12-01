@@ -42,3 +42,5 @@ however, python is much slower than C++, which means the translation at the end 
             The good news is, the player has no error at this point. The winning rate of this DQN player is very low :(.
 
 28/11/2022: Start the translation of the pure MCTS player, implement the bitboard.
+
+1/12/2022: Finish the translation of the pure MCTS player. We need to do some experiments with the winning rate.

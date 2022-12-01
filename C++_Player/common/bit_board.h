@@ -46,14 +46,14 @@ public:
     }
 
     /**
-     * 
+     * check if we can make a move at a column
     */
     bool can_move(int move) {
         return (move < 7) && (move >= 0) && (this->col[move] < 5);
     }
 
     /**
-     * 
+     * return the list of columns that are available
     */
     std::vector<int> get_available() {
         std::vector<int> ret;
@@ -65,7 +65,7 @@ public:
     }
 
     /**
-     * 
+     * check if we have a winner (if there's a winner?, game result)
     */
     std::pair<bool, int> has_winner() {
         if (this->status != 2) return std::make_pair(true, this->status);
@@ -73,14 +73,14 @@ public:
     }
 
     /**
-     * 
+     * check if the game ends
     */
     bool game_end() {
         return this->status != 2;
     }
 
     /**
-     * 
+     * the column of the last move
     */
     int get_last_move() {
         return this->last_move;
@@ -130,10 +130,16 @@ public:
         return new_board;
     }
 
+    /*
+        Get the total number of moves
+    */
     int get_move() {
         return this->num_move;
     }
 
+    /*
+        Get the player making the next move
+    */
     int get_current_player() {
         return this->current_player;
     }

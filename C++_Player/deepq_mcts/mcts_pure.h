@@ -32,11 +32,19 @@ public:
         this->num_playout = n_playout;
         this->c_puct = c_puct;
     }
-
+    /**
+     * MCTS-Playout given the current board state
+    */
     void playout(bit_board board);
 
+    /**
+     * Decide the move we are going to play given the current board state
+    */
     int get_move(bit_board board);
 
+    /**
+     * Update the search tree give the current move
+    */
     void update_with_move(int move);
 
 private:
@@ -46,11 +54,10 @@ private:
         int len = valid_move.size();
         std::vector<std::pair<int, double>> ret(len);
         for (int i = 0 ; i < len; ++i) {
-            ret[i].second = (double) rand() / RAND_MAX;
+            //ret[i].second = (double) rand() / RAND_MAX;
+            ret[i].second = distribution(rng);
             ret[i].first = valid_move[i];
-            printf("(%d, %.3lf) ", ret[i].first, ret[i].second);
         }
-        printf("\n");
 
         return ret;
     }
@@ -84,6 +91,8 @@ private:
         return res.second == board.get_current_player() ? 1 : -1;
     } 
 
+    std::default_random_engine rng = std::default_random_engine {};
+    std::uniform_real_distribution<double> distribution = std::uniform_real_distribution<double>(0.0, 1.0);
     std::shared_ptr<mcts_node> root;
     int num_playout;
     int c_puct;
@@ -123,7 +132,6 @@ public:
     void debug();
 
 protected:
-    std::default_random_engine rng = std::default_random_engine {};
     std::string name;
     bit_board board;
     pure_mcts_tree mcts;

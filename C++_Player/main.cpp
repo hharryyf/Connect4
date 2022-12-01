@@ -36,36 +36,19 @@ void play_group_of_games(int T, gameplayer *player1, gameplayer *player2,
 int main(int argc, char *argv[]) {
     // run 10000 test-cases for bitboard
     bit_board_unit_test(10000);
+    srand(time(NULL));
     alphabeta_player player1;
     mcts_pure player2;
     ConfigObject config1;
     ConfigObject config2;
-    config1.Set_alpha_beta_depth(11).Set_mcts_play_iteration(50);
-    config2.Set_alpha_beta_depth(11).Set_mcts_play_iteration(50);
+    config1.Set_alpha_beta_depth(11);
+    config2.Set_mcts_play_iteration(500000);
     gameplayer *g1 = &player1;
     gameplayer *g2 = &player2;
-    play_group_of_games(10, g1, g2, "Alpha-Beta-depth-11", "MCTS-200000", config1, config2);
+    play_group_of_games(10, g1, g2, "Alpha-Beta-d-11", "MCTS-500000", config1, config2);
     return 0;
 }
 
-void tensor_test() {
-    // tensor = torch::rand({2, 3});
-    int n = 5, m = 4;
-    // Just creating some dummy data for example
-    std::vector<std::vector<double>> vect(n, std::vector<double>(m, 0)); 
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < m; j++)
-            vect[i][j] = i+j;
-
-    // Copying into a tensor
-    auto options = torch::TensorOptions().dtype(at::kDouble);
-    torch::Tensor tensor = torch::zeros({n,m}, options);
-    for (int i = 0; i < n; i++)
-        tensor.slice(0, i,i+1) = torch::from_blob(vect[i].data(), {m}, options);
-    std::cout << tensor << std::endl;
-    std::cout << tensor[0][2].item<double>() << std::endl;
-    std::cout << "Pytorch start success" << std::endl;
-}
 
 void play_group_of_games(int T, gameplayer *player1, gameplayer *player2
         ,std::string player1_name, std::string player2_name, 
@@ -96,7 +79,7 @@ void play_group_of_games(int T, gameplayer *player1, gameplayer *player2
         printf("(%.1lf - %.1lf)\n", (1.0 * win + 0.5 * draw), (1.0 * lose + 0.5 * draw));
     }
 
-    printf("Final result of <%d> games <%s vs %s>\n %.1lf - %.1lf", 
+    printf("Final result of %d games <%s vs %s>\n %.1lf - %.1lf", 
         T, player1->display_name().c_str(), player2->display_name().c_str(),
         (1.0 * win + 0.5 * draw), (1.0 * lose + 0.5 * draw));
 }
@@ -160,6 +143,26 @@ int play_game(gameplayer *player1, gameplayer *player2,
                                                 player2->display_name().c_str(), (double) t2/CLOCKS_PER_SEC);
     return brd.get_status();
 }
+
+void tensor_test() {
+    // tensor = torch::rand({2, 3});
+    int n = 5, m = 4;
+    // Just creating some dummy data for example
+    std::vector<std::vector<double>> vect(n, std::vector<double>(m, 0)); 
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            vect[i][j] = i+j;
+
+    // Copying into a tensor
+    auto options = torch::TensorOptions().dtype(at::kDouble);
+    torch::Tensor tensor = torch::zeros({n,m}, options);
+    for (int i = 0; i < n; i++)
+        tensor.slice(0, i,i+1) = torch::from_blob(vect[i].data(), {m}, options);
+    std::cout << tensor << std::endl;
+    std::cout << tensor[0][2].item<double>() << std::endl;
+    std::cout << "Pytorch start success" << std::endl;
+}
+
 
 void bit_board_unit_test(int T) {
     int npass = 0, nfail = 0;

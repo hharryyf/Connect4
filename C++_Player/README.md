@@ -23,6 +23,7 @@ Project is created with:
 * LibTorch: >= 1.12.1
 * CMake: >= 3.24.1
 * C++ 14
+* OS: Windows 10/11
 	
 ## Setup
 To run this project, download LibTorch in any directory you preferred. After that assume you are in the Connect4/C++_Player directory, do the following.

@@ -27,6 +27,8 @@ void tensor_test();
 
 void bit_board_unit_test(int T=1000000);
 
+void start_interactive_game();
+
 int play_game(gameplayer *player1, gameplayer *player2
     ,std::string player1_name, std::string player2_name, 
     ConfigObject config1, ConfigObject config2, bool detail);
@@ -39,6 +41,11 @@ int main(int argc, char *argv[]) {
     // run 10000 test-cases for bitboard
     bit_board_unit_test(10000);
     srand(time(NULL));
+    start_interactive_game();
+    return 0;
+}
+
+void start_interactive_game() {
     alphabeta_player player1;
     alphabeta_player player2;
     mcts_pure player3;
@@ -71,7 +78,7 @@ int main(int argc, char *argv[]) {
         name1 = std::string("Human");
     } else {
         std::cerr << "player 1 type must be within {1, 2, 3}" << std::endl;
-        return 1;
+        exit(1);
     }
 
     std::cout << "please input player 2\n1 for alpha-beta, 2 for pure-mcts, 3 for human: ";
@@ -93,15 +100,13 @@ int main(int argc, char *argv[]) {
         name2 = std::string("Human");
     } else {
         std::cerr << "player 2 type must be within {1, 2, 3}" << std::endl;
-        return 1;
+        exit(1);
     }
 
     std::cout << "please input the total number of games: ";
     std::cin >> tolgame;
     play_group_of_games(tolgame, g1, g2, name1, name2, config1, config2);
-    return 0;
 }
-
 
 void play_group_of_games(int T, gameplayer *player1, gameplayer *player2
         ,std::string player1_name, std::string player2_name, 

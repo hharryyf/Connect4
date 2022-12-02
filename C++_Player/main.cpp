@@ -50,6 +50,8 @@ int main(int argc, char *argv[]) {
     int type1, type2, d;
     gameplayer *g1;
     gameplayer *g2;
+    std::string name1, name2;
+    int tolgame = 10;
     std::cout << "please input player 1\n1 for alpha-beta, 2 for pure-mcts, 3 for human: ";
     std::cin >> type1;
     if (type1 == 1) {
@@ -57,13 +59,16 @@ int main(int argc, char *argv[]) {
         std::cout << "please input the searching depth: ";
         std::cin >> d;
         config1.Set_alpha_beta_depth(d >= 3 ? d : 3);
+        name1 = std::string("Alpha-Beta-d-").append(std::to_string(d));
     } else if (type1 == 2) {
         g1 = &player3;
         std::cout << "please input the number of MCTS iteration: ";
         std::cin >> d;
         config1.Set_mcts_play_iteration(d >= 10000 ? d : 10000).Set_c_puct(5);
+        name1 = std::string("Pure-MCTS-").append(std::to_string(d));
     } else if (type1 == 3) {
         g1 = &player5;
+        name1 = std::string("Human");
     } else {
         std::cerr << "player 1 type must be within {1, 2, 3}" << std::endl;
         return 1;
@@ -76,21 +81,24 @@ int main(int argc, char *argv[]) {
         std::cout << "please input the searching depth: ";
         std::cin >> d;
         config2.Set_alpha_beta_depth(d >= 3 ? d : 3);
+        name2 = std::string("Alpha-Beta-d-").append(std::to_string(d));
     } else if (type2 == 2) {
         g2 = &player4;
         std::cout << "please input the number of MCTS iteration: ";
         std::cin >> d;
         config2.Set_mcts_play_iteration(d >= 10000 ? d : 10000).Set_c_puct(5);
+        name2 = std::string("Pure-MCTS-").append(std::to_string(d));
     } else if (type2 == 3) {
         g2 = &player6;
+        name2 = std::string("Human");
     } else {
         std::cerr << "player 2 type must be within {1, 2, 3}" << std::endl;
         return 1;
     }
 
-    //config1.Set_alpha_beta_depth(11);
-    //config2.Set_mcts_play_iteration(500000);
-    play_group_of_games(10, g1, g2, "Alpha-Beta-d-11", "MCTS-500000", config1, config2);
+    std::cout << "please input the total number of games: ";
+    std::cin >> tolgame;
+    play_group_of_games(tolgame, g1, g2, name1, name2, config1, config2);
     return 0;
 }
 

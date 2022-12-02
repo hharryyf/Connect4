@@ -25,6 +25,31 @@ The project would consist of the following iterations:
 
     * be familiar with the C++ deep learning library
 
+At the moment, 2 players were implemented in C++: pure-MCTS-cpuct, and alpha-beta pruning (with transposition table) agent and the DeepQN-MCTS player
+were implemented in python.
+
+Game results:
+
+alpha-beta-depth-11 vs Pure-MCTS 
+
+Alpha-beta-depth | Pure-MCTS playout | Win | Loss | Draw | Winning rate
+--- | --- | --- | --- | --- | ---
+11 | 50,000 | 10 | 0 | 0 | 100%
+11 | 200,000 | 8 | 2 | 0 | 80%
+11 | 500,000 | 9 | 1 | 0 | 90%
+11 | 1,000,000 | 0 | 0 | 0 | N/A
+
+Pure-MCTS vs Pure-MCTS
+
+Pure-MCTS playout | Pure-MCTS playout | Win | Loss | Draw | Winning rate
+--- | --- | --- | --- | --- | ---
+200,000 | 50,000 | 0 | 0 | 0 | 0.0
+500,000| 50,000 | 0 | 0 | 0 | 0.0
+1,000,000| 50,000 | 0 | 0 | 0 | 0.0
+500,0000 | 50,000 | 0 | 0 | 0 | 0.0
+500,0000 | 200,000 | 0 | 0 | 0 | 0.0
+1,000,0000 | 500,000 | 0 | 0 | 0 | 0.0
+
 
 
 ## Reference

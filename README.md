@@ -19,16 +19,16 @@ The project would consist of the following iterations:
     
 3. - [ ] Translate the Python MCTS + Deep Reinforcement Learning agent to C++, the aim of this stage include
 
-    * review the CPUCT MCTS algorithm
+    * [x] review the CPUCT MCTS algorithm
     
-    * be familiar with the bit-board representation of connect-4 (I must thank my supervisor Abdallah Saffidine for introducing this)
+    * [x] be familiar with the bit-board representation of connect-4 (I must thank my supervisor Abdallah Saffidine for introducing this)
 
-    * be familiar with the C++ deep learning library
+    * [ ] be familiar with the C++ deep learning library
 
 Project status: 2 players were implemented in C++: pure-MCTS-cpuct, and alpha-beta pruning (with transposition table). The DeepQN-MCTS player
 were implemented in python.
 
-## Game results
+## Game results (C++ players)
 
 **Alpha-beta vs Pure-MCTS-CPUCT (10 games)** 
 
@@ -67,3 +67,4 @@ And I have also read the following papers to have a better understanding of the 
 
 [3] Mastering Chess and Shogi by Self-Play with a General Reinforcement Learning Algorithm https://arxiv.org/abs/1712.01815
 
+[4] Score Bounded Monte-Carlo Tree Search https://cgi.cse.unsw.edu.au/~abdallahs/Papers/2010/Score%20Bounded%20Monte-Carlo%20Tree%20Search.pdf

@@ -104,14 +104,6 @@ public:
             }
         }
         printf("\n");
-        int depth = 0;
-        auto curr = this->children[0];
-        while (curr != nullptr) {
-            depth++;
-            curr = curr->children[0];
-        }
-
-        printf("depth = %d\n", depth);
     }
 
 private:

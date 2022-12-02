@@ -62,6 +62,15 @@ int mcts_pure::play(int previous_move) {
         exit(1);
     }
 
+    if (previous_move == -1) {
+        // we play in the center for the first move
+        // this uses some expert knowledge
+        this->mcts.update_with_move(-1);
+        this->board.do_move(3);
+        return 3;
+    }
+
+    // general case
     int move = this->mcts.get_move(this->board);
     this->board.do_move(move);
     this->mcts.update_with_move(-1);

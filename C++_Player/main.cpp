@@ -39,9 +39,10 @@ void play_group_of_games(int T, gameplayer *player1, gameplayer *player2,
 
 int main(int argc, char *argv[]) {
     // run 10000 test-cases for bitboard
-    bit_board_unit_test(10000);
-    srand(time(NULL));
-    start_interactive_game();
+    //bit_board_unit_test(10000);
+    //srand(time(NULL));
+    //start_interactive_game();
+    tensor_test();
     return 0;
 }
 
@@ -214,8 +215,12 @@ void tensor_test() {
     // Copying into a tensor
     auto options = torch::TensorOptions().dtype(at::kDouble);
     torch::Tensor tensor = torch::zeros({n,m}, options);
-    for (int i = 0; i < n; i++)
-        tensor.slice(0, i,i+1) = torch::from_blob(vect[i].data(), {m}, options);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0 ; j < m; ++j) {
+            tensor[i][j] = vect[i][j];
+        }
+    }
+        //tensor.slice(0, i,i+1) = torch::from_blob(vect[i].data(), {m}, options);
     std::cout << tensor << std::endl;
     std::cout << tensor[0][2].item<double>() << std::endl;
     std::cout << "Pytorch start success" << std::endl;

@@ -150,6 +150,8 @@ public:
         printf("\ncurrent player = %d, status = %d, last_move = %d, num_move = %d\n", current_player, status, last_move, num_move);
     }
 
+    //std::vector<vector<vector<double>>> get_neural_state()
+
 protected:
     int col[7], current_player, status, last_move, num_move;
     unsigned long long x_board, o_board;

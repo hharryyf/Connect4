@@ -41,8 +41,8 @@ int main(int argc, char *argv[]) {
     // run 10000 test-cases for bitboard
     //bit_board_unit_test(10000);
     //srand(time(NULL));
-    //start_interactive_game();
-    tensor_test();
+    start_interactive_game();
+    //tensor_test();
     return 0;
 }
 

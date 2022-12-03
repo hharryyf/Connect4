@@ -28,7 +28,7 @@
 
 class pure_mcts_tree {
 public:
-    pure_mcts_tree(int c_puct=5, int n_playout=1000) {
+    pure_mcts_tree(int c_puct=3, int n_playout=1000) {
         this->root = std::make_shared<mcts_node>(mcts_node(nullptr, 1.0));
         this->num_playout = n_playout;
         this->c_puct = c_puct;

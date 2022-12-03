@@ -27,12 +27,9 @@ namespace AlphaBetaConfig {
 
     const int meaningful_depth = 5;
 
-    const int max_cache = 500000;
+    const int max_cache = 1000000;
 }
 
-namespace MCTSPureConfig {
-    const int cpuct = 2;
-}
 
 class ConfigObject {
 public:
@@ -77,5 +74,5 @@ private:
     int alpha_beta_max_depth = 11;
     int mcts_play_iteration = 10000;
     int mcts_train_iteration = 500;
-    int c_puct = 5;
+    int c_puct = 2;
 };

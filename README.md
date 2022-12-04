@@ -28,20 +28,23 @@ The project would consist of the following iterations:
 Project status: 2 players were implemented in C++: pure-MCTS-cpuct, and alpha-beta pruning (with transposition table). The DeepQN-MCTS player
 were implemented in python.
 
+## Connect-4 bitboard representation speed test
+![alt text](https://github.com/hharryyf/Connect4/images/bitboard_time.png)
+
 ## Game results (C++ players)
 
-**Alpha-beta vs Pure-MCTS-CPUCT (10 games)** 
+**Alpha-beta vs Pure-MCTS-CPUCT (20 games)** 
 
 Alpha-beta-depth | Pure-MCTS-CPUCT playout | Win | Loss | Draw | Winning rate
 --- | --- | --- | --- | --- | ---
-7 | 50,000 | 8 | 2 | 0 | 80%
-7 | 200,000 | 6 | 4 | 0 | 60%
-7 | 500,000 | 6 | 4 | 0 | 60%
-7 | 1,000,000 | 8 | 2 | 0 | 80%
-11 | 50,000 | 10 | 0 | 0 | 100%
-11 | 200,000 | 8 | 2 | 0 | 80%
-11 | 500,000 | 9 | 1 | 0 | 90%
-11 | 1,000,000 | 7 | 3 | 0 | 70%
+7 | 50,000 | 16 | 4 | 0 | 80%
+7 | 200,000 | 12 | 8 | 0 | 60%
+7 | 500,000 | 12 | 8 | 0 | 60%
+7 | 1,000,000 | 16 | 4 | 0 | 80%
+11 | 50,000 | 20 | 0 | 0 | 100%
+11 | 200,000 | 18 | 2 | 0 | 90%
+11 | 500,000 | 19 | 1 | 0 | 95%
+11 | 1,000,000 | 17 | 3 | 0 | 85%
 
 **Pure-MCTS-CPUCT vs Pure-MCTS-CPUCT (10 games)**
 
@@ -50,10 +53,9 @@ Pure-MCTS-CPUCT playout | Pure-MCTS-CPUCT playout | Win | Loss | Draw | Winning 
 200,000 | 50,000 | 10 | 0 | 0 | 100%
 500,000| 50,000 | 7 | 2 | 1 | 75%
 1,000,000| 50,000 | 9 | 1 | 0 | 90%
-500,0000 | 200,000 | 7 | 3 | 0 | 70%
-1,000,0000 | 200,000 | 7 | 3 | 0 | 70%
-1,000,0000 | 500,000 | 7 | 3 | 0 | 70%
-
+500,000 | 200,000 | 7 | 3 | 0 | 70%
+1,000,000 | 200,000 | 7 | 3 | 0 | 70%
+1,000,000 | 500,000 | 7 | 3 | 0 | 70%
 
 
 ## Reference

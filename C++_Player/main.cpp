@@ -38,11 +38,11 @@ void play_group_of_games(int T, gameplayer *player1, gameplayer *player2,
     ConfigObject config1, ConfigObject config2);
 
 int main(int argc, char *argv[]) {
-    // run 10000 test-cases for bitboard
-    //bit_board_unit_test(10000);
-    //srand(time(NULL));
+    // run test-cases for bitboard
+    // bit_board_unit_test(1000000);
+    // srand(time(NULL));
     start_interactive_game();
-    //tensor_test();
+    // tensor_test();
     return 0;
 }
 
@@ -231,6 +231,7 @@ void bit_board_unit_test(int T) {
     int npass = 0, nfail = 0;
     clock_t judge_time = 0, fast_time = 0;
     srand(time(NULL));
+    std::vector<std::pair<double, double>> consume;
     for (int i = 1 ; i <= T; ++i) {
         connect4_board judge;
         bit_board board = bit_board();
@@ -299,6 +300,7 @@ void bit_board_unit_test(int T) {
         } 
 
         npass++;
+        if (i % 1000 == 0) consume.emplace_back((double) judge_time / CLOCKS_PER_SEC, (double) fast_time / CLOCKS_PER_SEC);
     }
 
     printf("%d cases PASS, %d cases FAIL, brute force takes %.2lfs, bit-board takes %.2lfs\n", 
@@ -307,5 +309,12 @@ void bit_board_unit_test(int T) {
         printf("Unit test for bit_board\nOK!\n");
     } else {
         printf("Unit test for bit_board\nFAIL!\n");
+    }
+
+    // print the cumlative time
+    int i = 1000;
+    for (auto p : consume) {
+        printf("%d,%.2lf,%.2lf\n", i, p.first, p.second);
+        i = i + 1000;
     }
 }

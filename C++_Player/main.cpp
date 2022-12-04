@@ -10,6 +10,7 @@
 #include "connect4_board.h"
 #include "gameplayer.h"
 #include "alpha_beta/alphabeta.h"
+#include "alpha_beta/alphabeta_board.h"
 #include "human_play/humanplayer.h"
 #include "deepq_mcts/mcts_pure.h"
 #include "deepq_mcts/mcts_zero.h"
@@ -24,6 +25,8 @@
 #define ALPHA_BETA_O 3
 
 void tensor_test();
+
+void alpha_beta_board_unit_test(int T=1000000);
 
 void bit_board_unit_test(int T=1000000);
 
@@ -40,6 +43,7 @@ void play_group_of_games(int T, gameplayer *player1, gameplayer *player2,
 int main(int argc, char *argv[]) {
     // run test-cases for bitboard
     // bit_board_unit_test(1000000);
+    // alpha_beta_board_unit_test(1000000);
     // srand(time(NULL));
     start_interactive_game();
     // tensor_test();
@@ -309,6 +313,99 @@ void bit_board_unit_test(int T) {
         printf("Unit test for bit_board\nOK!\n");
     } else {
         printf("Unit test for bit_board\nFAIL!\n");
+    }
+
+    // print the cumlative time
+    int i = 1000;
+    for (auto p : consume) {
+        printf("%d,%.2lf,%.2lf\n", i, p.first, p.second);
+        i = i + 1000;
+    }
+}
+
+void alpha_beta_board_unit_test(int T) {
+    int npass = 0, nfail = 0;
+    clock_t judge_time = 0, fast_time = 0;
+    srand(time(NULL));
+    std::vector<std::pair<double, double>> consume;
+    for (int i = 1 ; i <= T; ++i) {
+        connect4_board judge;
+        alphabeta_board board = alphabeta_board(false);
+        std::vector<int> rec;
+        int curr = 1;
+        bool ok = true;
+        judge.init();
+        board.init();
+        while (judge.get_status() == 2) {
+            int nxt = rand() % 7;
+            if (judge.canplay(nxt) != board.can_move(nxt)) {
+                ok = false;
+                break;
+            }
+
+            if (judge.canplay(nxt)) {
+                rec.push_back(nxt);
+                clock_t start = clock();
+                judge.update(nxt, curr);
+                clock_t end = clock();
+                judge_time += end - start;
+                start = clock();
+                board.update(nxt, curr);
+                end = clock();
+                fast_time += end - start;
+                curr *= -1;
+            }
+            
+            bool answer, observe;
+            clock_t start = clock();
+            answer = judge.get_status();
+            clock_t end = clock();
+            judge_time += end - start;
+
+            start = clock();
+            observe = board.status();
+            end = clock();
+            fast_time += end - start;
+            if (answer != observe || judge.get_move() != board.get_move()) {
+                ok = false;
+                break;
+            }
+        }
+        
+        if (!ok) {
+            printf("-------- Test %d --------\n", i);
+            printf("FAIL\nMove details: [");
+            for (auto v : rec) {
+                printf("%d, ", v);
+            }
+            printf("]\n");
+
+            printf("judge status = %d, board status = %d\n", judge.get_status(), board.status());
+            printf("total move by judges = %d, total move by bitboard = %d, judge can move: ", judge.get_move(), board.get_move());
+            for (int j = 0 ; j < 7; ++j) {
+                if (judge.canplay(j)) printf("%d ", j);
+            }
+            printf("\n");
+            printf("bit board can move: ");
+            for (int j = 0 ; j < 7; ++j) {
+                if (board.can_move(j)) printf("%d ", j);
+            }
+            printf("\n");
+            judge.show_board();
+            nfail++;
+            break;
+        } 
+
+        npass++;
+        if (i % 1000 == 0) consume.emplace_back((double) judge_time / CLOCKS_PER_SEC, (double) fast_time / CLOCKS_PER_SEC);
+    }
+
+    printf("%d cases PASS, %d cases FAIL, brute force takes %.2lfs, alpha-beta takes %.2lfs\n", 
+                        npass, nfail, (double) judge_time / CLOCKS_PER_SEC, (double) fast_time / CLOCKS_PER_SEC);
+    if (!nfail) {
+        printf("Unit test for alpha-beta_board\nOK!\n");
+    } else {
+        printf("Unit test for alpha-beta_board\nFAIL!\n");
     }
 
     // print the cumlative time

@@ -20,15 +20,12 @@
 #include "config.h"
 #include <fstream>
 #include "lru_cache.h"
-/*
-    #pragma warning(push, 0)
-    #include <torch/torch.h>
-    #pragma warning(pop)
-*/
 
 class alphabeta_board {
 public:
-
+    alphabeta_board(bool cache=true) {
+        this->cache = cache;
+    }
     // initialize the data structure for alpha-beta player
     void init() {
         board.init();
@@ -36,14 +33,16 @@ public:
         col.init(AlphaBetaConfig::COL, board);
         diag.init(AlphaBetaConfig::DIAG, board);
         antidiag.init(AlphaBetaConfig::ANTIDIAG, board);
-        this->table = LRUCache<std::bitset<84>, std::pair<double, int>>(AlphaBetaConfig::max_cache);
-        this->move_table = LRUCache<std::bitset<84>, std::pair<double, int>>(AlphaBetaConfig::max_cache);
-        this->bound_table = LRUCache<std::bitset<84>, std::pair<double, int>>(AlphaBetaConfig::max_cache);
-        this->bitboard = std::bitset<84>();
-        this->store_cache(true);
+        if (this->cache) {
+            this->table = LRUCache<std::bitset<84>, std::pair<double, int>>(AlphaBetaConfig::max_cache);
+            this->move_table = LRUCache<std::bitset<84>, std::pair<double, int>>(AlphaBetaConfig::max_cache);
+            this->bound_table = LRUCache<std::bitset<84>, std::pair<double, int>>(AlphaBetaConfig::max_cache);
+            this->bitboard = std::bitset<84>();
+            this->store_cache(true);
 
-        std::cout << "transposition table maximum size " << table.max_size() << std::endl;
-        std::cout << "transposition table start size " << table.get_size() << std::endl;
+            std::cout << "transposition table maximum size " << table.max_size() << std::endl;
+            std::cout << "transposition table start size " << table.get_size() << std::endl;
+        }
     }
 
     // if we can take the current move
@@ -517,6 +516,7 @@ private:
     // if (r, c) has value 0, these index have value (0, 0)
     // if (r, c) has value -1, these index have value (1, 0)
     // if (r, c) has value 1, these index have value (0, 1)
+    bool cache;
     std::bitset<84> bitboard;
     LRUCache<std::bitset<84>, std::pair<double, int>> table = LRUCache<std::bitset<84>, std::pair<double, int>>(AlphaBetaConfig::max_cache);
     LRUCache<std::bitset<84>, std::pair<double, int>> move_table = LRUCache<std::bitset<84>, std::pair<double, int>>(AlphaBetaConfig::max_cache);

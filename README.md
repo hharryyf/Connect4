@@ -28,8 +28,11 @@ The project would consist of the following iterations:
 Project status: 2 players were implemented in C++: pure-MCTS-cpuct, and alpha-beta pruning (with transposition table). The DeepQN-MCTS player
 were implemented in python.
 
-## Connect-4 bitboard representation speed test
-![alt text](https://github.com/hharryyf/Connect4/blob/main/images/bitboard_time.png)
+## Connect-4 board representation speed test
+
+For these board representations, alpha-beta also supports heuristic calculation, hence it is the most computationally expensive one
+
+![alt text](https://github.com/hharryyf/Connect4/blob/main/images/board_time.png)
 
 ## Game results (C++ players)
 

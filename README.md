@@ -29,7 +29,7 @@ Project status: 2 players were implemented in C++: pure-MCTS-cpuct, and alpha-be
 were implemented in python.
 
 ## Connect-4 bitboard representation speed test
-![alt text](https://github.com/hharryyf/Connect4/images/bitboard_time.png)
+![alt text](https://github.com/hharryyf/Connect4/blob/main/images/bitboard_time.png)
 
 ## Game results (C++ players)
 

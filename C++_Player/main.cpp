@@ -1,5 +1,6 @@
 #pragma warning(push, 0)
 #include <torch/torch.h>
+#include <torch/script.h>
 #include <torch/csrc/autograd/generated/variable_factories.h>
 #pragma warning(pop)
 #include <iostream>
@@ -26,6 +27,8 @@
 
 void tensor_test();
 
+void test_load_model();
+
 void alpha_beta_board_unit_test(int T=1000000);
 
 void bit_board_unit_test(int T=1000000);
@@ -40,14 +43,53 @@ void play_group_of_games(int T, gameplayer *player1, gameplayer *player2,
     std::string player1_name, std::string player2_name, 
     ConfigObject config1, ConfigObject config2);
 
+
 int main(int argc, char *argv[]) {
     // run test-cases for bitboard
     // bit_board_unit_test(1000000);
     // alpha_beta_board_unit_test(1000000);
     // srand(time(NULL));
-    start_interactive_game();
+    // start_interactive_game();
     // tensor_test();
+    test_load_model();
     return 0;
+}
+
+void test_load_model() {
+    try {
+        // Deserialize the ScriptModule from a file using torch::jit::load().
+        // we load the model and do 1 iteration of backpropagation
+        auto module = torch::jit::load("../../model/resblock.pt");
+        std::vector<torch::jit::IValue> inputs;
+        std::vector<at::Tensor> parameters;
+        for (const auto& params : module.parameters()) {
+	        parameters.push_back(params);
+        }
+        torch::optim::Adam optimizer(parameters, /*lr=*/0.1);
+        auto t = torch::ones({10, 3, 6, 7});
+        auto target_p = torch::zeros({10, 7});
+        auto target_v = torch::ones({10, 1});
+        t[0][0][0][0] = 0.0;
+        inputs.push_back(t);
+        auto output = module.forward(inputs);
+        std::cout << output.toTuple()->elements()[0].toTensor() << std::endl;
+        std::cout << output.toTuple()->elements()[1].toTensor() << std::endl;
+        optimizer.zero_grad();
+        auto loss_v = torch::mse_loss(output.toTuple()->elements()[1].toTensor(), target_v);
+        auto loss_p = -torch::mean(torch::sum(target_p * output.toTuple()->elements()[0].toTensor(), 1));
+        auto loss = loss_v + loss_p;
+        loss.backward();
+        optimizer.step();
+        std::cout << module.forward(inputs).toTuple()->elements()[0].toTensor() << std::endl;
+        std::cout << module.forward(inputs).toTuple()->elements()[1].toTensor() << std::endl;
+    }
+    
+    catch (const c10::Error& e) {
+        std::cerr << "error loading the model\n";
+        return;
+    }
+
+    std::cout << "Model Load successfully\n";
 }
 
 void start_interactive_game() {

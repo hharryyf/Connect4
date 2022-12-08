@@ -1,7 +1,6 @@
 #add_library(deepq_mcts INTERFACE)
 
 add_library(deepq_mcts
-    policy_value_net.h
     mcts_zero.h
     mcts_zero.cpp
     mcts_pure.h

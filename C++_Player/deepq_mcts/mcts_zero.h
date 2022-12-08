@@ -21,6 +21,9 @@
 #include <torch/torch.h>
 #pragma warning(pop)
 
+class policy_value_net {
+
+};
 
 class mcts_zero {
 

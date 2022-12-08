@@ -49,9 +49,9 @@ int main(int argc, char *argv[]) {
     // bit_board_unit_test(1000000);
     // alpha_beta_board_unit_test(1000000);
     // srand(time(NULL));
-    // start_interactive_game();
+    start_interactive_game();
     // tensor_test();
-    test_load_model();
+    // test_load_model();
     return 0;
 }
 
@@ -80,6 +80,7 @@ void test_load_model() {
         auto loss = loss_v + loss_p;
         loss.backward();
         optimizer.step();
+        module.save("../../model/resblock.pt");
         std::cout << module.forward(inputs).toTuple()->elements()[0].toTensor() << std::endl;
         std::cout << module.forward(inputs).toTuple()->elements()[1].toTensor() << std::endl;
     }

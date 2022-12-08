@@ -45,13 +45,32 @@ void play_group_of_games(int T, gameplayer *player1, gameplayer *player2,
 
 
 int main(int argc, char *argv[]) {
-    // run test-cases for bitboard
-    // bit_board_unit_test(1000000);
-    // alpha_beta_board_unit_test(1000000);
-    // srand(time(NULL));
-    start_interactive_game();
-    // tensor_test();
-    // test_load_model();
+    if (argc != 2) {
+        printf("please run ./main -h for help\n");
+        return 0;
+    }
+
+    if (strcmp(argv[1], "-h") == 0) {
+        printf("-a for running unit test for alpha_beta_board\n");
+        printf("-b for running unit test for bit_board\n");
+        printf("-g for running games\n");
+        printf("-h for help\n");
+        printf("-t for running tests\n");
+        return 0;
+    }
+
+    if (strcmp(argv[1], "-t") == 0) {
+        tensor_test();
+        test_load_model();
+    } else if (strcmp(argv[1], "-a") == 0) {
+        alpha_beta_board_unit_test(1000000);
+    } else if (strcmp(argv[1], "-b") == 0) {
+        bit_board_unit_test(1000000);
+    } else if (strcmp(argv[1], "-g") == 0) {
+        start_interactive_game();
+    } else {
+        printf("command %s not supported\n", argv[1]);
+    }
     return 0;
 }
 
@@ -69,6 +88,9 @@ void test_load_model() {
         auto t = torch::ones({10, 3, 6, 7});
         auto target_p = torch::zeros({10, 7});
         auto target_v = torch::ones({10, 1});
+        auto target_v_e = torch::exp(target_v);
+        std::cout << "target_v = " << target_v << " target_v_exp = " << target_v_e << std::endl;
+        std::cout << target_v_e.dtype() << std::endl;
         t[0][0][0][0] = 0.0;
         inputs.push_back(t);
         auto output = module.forward(inputs);
@@ -270,7 +292,7 @@ void tensor_test() {
         //tensor.slice(0, i,i+1) = torch::from_blob(vect[i].data(), {m}, options);
     std::cout << tensor << std::endl;
     std::cout << tensor[0][2].item<double>() << std::endl;
-    std::cout << "Pytorch start success" << std::endl;
+    std::cout << "Pytorch start success!" << std::endl;
 }
 
 

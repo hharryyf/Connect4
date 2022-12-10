@@ -51,12 +51,12 @@ public:
 
 private:
 
-    std::vector<std::pair<int, float>> random_rollout(bit_board board) {
+    std::vector<std::pair<int, double>> random_rollout(bit_board board) {
         auto valid_move = board.get_available();
         int len = valid_move.size();
-        std::vector<std::pair<int, float>> ret(len);
+        std::vector<std::pair<int, double>> ret(len);
         for (int i = 0 ; i < len; ++i) {
-            //ret[i].second = (float) rand() / RAND_MAX;
+            //ret[i].second = (double) rand() / RAND_MAX;
             ret[i].second = distribution(rng);
             ret[i].first = valid_move[i];
         }
@@ -64,9 +64,9 @@ private:
         return ret;
     }
 
-    std::vector<std::pair<int, float>> policy_value_function(bit_board board) {
+    std::vector<std::pair<int, double>> policy_value_function(bit_board board) {
         auto vc = board.get_available();
-        std::vector<std::pair<int, float>> ret;
+        std::vector<std::pair<int, double>> ret;
         for (int i = 0 ; i < (int) vc.size(); ++i) {
             ret.emplace_back(vc[i], 1.0 / ((int) vc.size()));
         }
@@ -94,7 +94,7 @@ private:
     } 
 
     std::default_random_engine rng = std::default_random_engine {};
-    std::uniform_real_distribution<float> distribution = std::uniform_real_distribution<float>(0.0, 1.0);
+    std::uniform_real_distribution<double> distribution = std::uniform_real_distribution<double>(0.0, 1.0);
     std::shared_ptr<mcts_node> root;
     int num_playout;
     int c_puct;

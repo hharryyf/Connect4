@@ -20,15 +20,15 @@
 
 class mcts_node {
 public:
-    mcts_node(mcts_node* parent=nullptr, float prior=1.0) {
+    mcts_node(mcts_node* parent=nullptr, double prior=1.0) {
         this->parent = parent;
         this->prior = prior;
     }
 
-    void expansion(std::vector<std::pair<int, float>> &action_prior) {
+    void expansion(std::vector<std::pair<int, double>> &action_prior) {
         for (auto &p : action_prior) {
             int move = p.first;
-            float prob = p.second;
+            double prob = p.second;
             if (this->children[move] == nullptr) {
                 children[move] = std::make_shared<mcts_node>(nullptr, prob);
                 children[move]->set_parent(this);
@@ -36,7 +36,7 @@ public:
         }
     }
 
-    std::pair<int, std::shared_ptr<mcts_node>> selection(float c_puct) {
+    std::pair<int, std::shared_ptr<mcts_node>> selection(double c_puct) {
         std::pair<int, std::shared_ptr<mcts_node>> ret = {-1, nullptr};
         for (int i = 0 ; i < 7; ++i) {
             if (this->children[i] != nullptr) {
@@ -65,17 +65,17 @@ public:
         return move;
     }
 
-    float get_value(float c_puct) {
+    double get_value(double c_puct) {
         this->U = c_puct * this->prior * sqrt(1.0 * this->parent->N) / (1 + this->N);
         return this->U + this->Q;
     }
 
-    void update(float val) {
+    void update(double val) {
         this->N = this->N + 1;
         this->Q += (val - this->Q) / this->N;
     }
 
-    void update_recursive(float val) {
+    void update_recursive(double val) {
         if (this->parent != nullptr) this->parent->update_recursive(-val);
         update(val);
     }
@@ -107,7 +107,7 @@ public:
     }
 
 private:
-    float prior = 1.0, U = 0.0, Q = 0.0;
+    double prior = 1.0, U = 0.0, Q = 0.0;
     int N = 0;
     std::shared_ptr<mcts_node> children[7];    
     mcts_node* parent;

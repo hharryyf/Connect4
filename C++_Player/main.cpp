@@ -44,8 +44,10 @@ void play_group_of_games(int T, gameplayer *player1, gameplayer *player2,
     ConfigObject config1, ConfigObject config2);
 
 
+void start_training_game(int T);
+
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
+    if (argc < 2) {
         printf("please run ./main -h for help\n");
         return 0;
     }
@@ -56,6 +58,7 @@ int main(int argc, char *argv[]) {
         printf("-g for running games\n");
         printf("-h for help\n");
         printf("-t for running tests\n");
+        printf("-l [number of games] for training the deepQ network\n");
         return 0;
     }
 
@@ -68,11 +71,18 @@ int main(int argc, char *argv[]) {
         bit_board_unit_test(1000000);
     } else if (strcmp(argv[1], "-g") == 0) {
         start_interactive_game();
+    } else if (strcmp(argv[1], "-l") == 0) {
+        if (argc == 2) {
+            start_training_game(10000);
+        } else {
+            start_training_game(atoi(argv[2]));
+        }
     } else {
         printf("command %s not supported\n", argv[1]);
     }
     return 0;
 }
+
 
 void test_load_model() {
     try {
@@ -479,4 +489,9 @@ void alpha_beta_board_unit_test(int T) {
         printf("%d,%.2lf,%.2lf\n", i, p.first, p.second);
         i = i + 1000;
     }
+}
+
+void start_training_game(int tol_game) {
+    std::cout << "start training total " << tol_game << " games" << std::endl;
+    // TODO
 }

@@ -53,6 +53,21 @@ public:
         this->c_puct = c;
         return *this;
     }
+
+    ConfigObject &Set_dqn_lr(double lr) {
+        this->dqn_lr = lr;
+        return *this;
+    }
+
+    ConfigObject &Set_dqn_decay(double decay) {
+        this->dqn_decay = decay;
+        return *this;
+    }
+
+    ConfigObject &Set_reload(bool dqn_reload) {
+        this->dqn_reload = dqn_reload;
+        return *this;
+    }
     
     int get_alpha_beta_max_depth() {
         return alpha_beta_max_depth;
@@ -70,9 +85,24 @@ public:
         return c_puct;
     }
 
+    double get_lr() {
+        return dqn_lr;
+    }
+
+    double get_decay() {
+        return dqn_decay;
+    }
+
+    bool get_dqn_reload() {
+        return dqn_reload;
+    }
+
 private:
     int alpha_beta_max_depth = 11;
     int mcts_play_iteration = 10000;
     int mcts_train_iteration = 500;
     int c_puct = 2;
+    double dqn_lr = 0.002;
+    double dqn_decay = 0.0001;
+    bool dqn_reload = true;
 };

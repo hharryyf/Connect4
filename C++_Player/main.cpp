@@ -15,6 +15,7 @@
 #include "human_play/humanplayer.h"
 #include "deepq_mcts/mcts_pure.h"
 #include "deepq_mcts/mcts_zero.h"
+#include "dirichlet.h"
 #include <winsock2.h>
 #include <Windows.h>
 #include <ws2tcpip.h>
@@ -28,6 +29,8 @@
 void tensor_test();
 
 void test_load_model();
+
+void test_dirichlet();
 
 void alpha_beta_board_unit_test(int T=1000000);
 
@@ -55,6 +58,7 @@ int main(int argc, char *argv[]) {
     if (strcmp(argv[1], "-h") == 0) {
         printf("-a for running unit test for alpha_beta_board\n");
         printf("-b for running unit test for bit_board\n");
+        printf("-d for running unit test for dirichlet distribution\n");
         printf("-g for running games\n");
         printf("-h for help\n");
         printf("-t for running tests\n");
@@ -69,6 +73,8 @@ int main(int argc, char *argv[]) {
         alpha_beta_board_unit_test(1000000);
     } else if (strcmp(argv[1], "-b") == 0) {
         bit_board_unit_test(1000000);
+    } else if (strcmp(argv[1], "-d") == 0) {
+        test_dirichlet();
     } else if (strcmp(argv[1], "-g") == 0) {
         start_interactive_game();
     } else if (strcmp(argv[1], "-l") == 0) {
@@ -305,6 +311,38 @@ void tensor_test() {
     std::cout << "Pytorch start success!" << std::endl;
 }
 
+void test_dirichlet() {
+    std::default_random_engine rng = std::default_random_engine {};
+    rng.seed(std::chrono::system_clock::now().time_since_epoch().count());
+    std::vector<double> vc;
+    int sz;
+    printf("please input the size of the distribution vector [finish with new-line]: ");
+    scanf("%d", &sz);
+    printf("please input the input vector of the given size [separate with space & finish with new-line]: ");
+    while (sz-- > 0) {
+        double v;
+        scanf("%lf", &v);
+        vc.push_back(v);
+    }
+
+    dirichlet_distribution<std::default_random_engine> d(vc);
+    for (int i = 1; i <= 10; ++i) {
+        auto ret = d(rng);
+        double sm = 0.0;
+        for (auto &v : ret) sm = sm + v;
+        // we use the property of the distribution that the sum of the elements must be 1
+        printf("dirichlet vector number [%d] (sum=%.4lf) : ", i, sm);
+        for (auto &v : ret) printf("%.3lf ", v);
+        printf("\n");
+
+        if (fabs(sm - 1.0) > 1e-7) {
+            printf("sum of the distribution vector is far from 1, error!\n");
+            exit(1);
+        }
+    }
+
+    printf("dirichlet load success!\n");
+}
 
 void bit_board_unit_test(int T) {
     int npass = 0, nfail = 0;

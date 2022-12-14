@@ -21,6 +21,7 @@
 #include "bit_board.h"
 #include "gameplayer.h"
 #include "mcts_node.h"
+#include "dirichlet.h"
 #pragma warning(push, 0)
 #include <torch/torch.h>
 #include <torch/csrc/autograd/generated/variable_factories.h>

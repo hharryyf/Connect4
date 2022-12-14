@@ -64,6 +64,8 @@ Pure-MCTS-CPUCT playout | Pure-MCTS-CPUCT playout | Win | Loss | Draw | Winning 
 ## Reference
 The implementation heavily referenced https://github.com/junxiaosong/AlphaZero_Gomoku
 
+The C++ implementation of the dirichlet distribution is copied from https://github.com/gcant/dirichlet-cpp
+
 And I have also read the following papers to have a better understanding of the algorithm aspect of this project.
 
 [1] Monte-Carlo Graph Search for AlphaZero https://arxiv.org/pdf/2012.11045.pdf

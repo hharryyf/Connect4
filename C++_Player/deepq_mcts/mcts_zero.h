@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <iostream>
 #include <algorithm>
+#include <tuple>
 #include <cstring>
 #include <stack>
 #include <vector>
@@ -37,19 +38,41 @@ public:
         this->optimizer = std::make_shared<torch::optim::Adam>(this->parameters, torch::optim::AdamOptions(lr).weight_decay(decay));
     }
     
-    void evaluate_position(bit_board &board) {
-        
+    /**
+     * Evaluate a board position, used before the mcts expansion
+     * @board: bit_board, the current bit_board state
+     * @return: a tuple <vector of <move, move probablity> pair, winning probablity of the current player at this position>
+    */
+    std::tuple<std::vector<std::pair<int, double>>, double> evaluate_position(bit_board &board) {
+        // TODO
     }
 
-    void evaluate_batches(std::vector<std::vector<std::vector<std::vector<double>>>> &batch) {
+    /**
+     * Evaluate a batch, return the move probablity of a batch and also the position score of a batch
+     * @batch: a vector of 3 * 6 * 7 vector
+     * @return: a tuple <vector of size batch size * 7, vector of batch size * 1>
+    */
 
+    std::tuple<std::vector<std::vector<double>>, std::vector<double>> evaluate_batches(std::vector<std::vector<std::vector<std::vector<double>>>> &batch) {
+        // TODO
     }
 
-    void train_step(std::vector<std::vector<std::vector<std::vector<double>>>> &batch, std::vector<std::vector<double>> &mcts_probability, std::vector<double> &winner) {
+
+    /**
+     * @batch: a batch of board position vector
+     * @mcts_probablity: a batch of mcts_probablity
+     * @winner: a batch of reward {-1/0/1}
+     * @return: a tuple used for monitoring <loss, entropy>
+    */
+    std::tuple<double, double> train_step(std::vector<std::vector<std::vector<std::vector<double>>>> &batch, 
+                                         std::vector<std::vector<double>> &mcts_probability, 
+                                         std::vector<int> &winner) {
         if (batch.size() != mcts_probability.size() || mcts_probability.size() != winner.size()) {
             printf("batch size = %d, mcts_probability size = %d, winner size = %d not equal!\n", (int) batch.size(), (int) mcts_probability.size(), (int) winner.size());
             exit(1);
         }
+
+        // TODO
     }
 
     void save_model(std::string filename) {
@@ -70,10 +93,30 @@ private:
     std::shared_ptr<torch::optim::Optimizer> optimizer;
 };
 
+class mcts_zero_tree {
+public:
+    mcts_zero_tree(int c_puct=3, int n_playout=1000) {
+
+    }
+
+    void attach_policy_value_function(std::shared_ptr<policy_value_net> &net) {
+        this->network = net;
+    }
+    
+    void playout(bit_board board);
+    
+    std::tuple<std::vector<int>, std::vector<double>> get_move_probability(bit_board board, double temp=1e-3);
+    
+    void update_with_move(int move);
+
+private:
+    std::shared_ptr<policy_value_net> network;
+};
+
 class mcts_zero : public gameplayer {
 public:
     mcts_zero() {
-
+        
     }
     
     void init(int turn, std::string name, ConfigObject config);
@@ -98,8 +141,22 @@ public:
     void game_over(int result);
     /* used for debug, can do nothing */
     void debug();
+    /*
+        A self-play game, return a tuple of (winner of the game, (board state of each step, position probablity of each step, winning probablity of each step))
+    */
+    std::tuple<int, std::tuple<std::vector<std::vector<std::vector<std::vector<double>>>>, std::vector<std::vector<double>>, std::vector<double>>> self_play(double temp=1e-3);
+
+    void set_train(bool is_train);
+    
+protected:
+    /*
+        return (move, a vector of move probablity)
+    */
+    std::tuple<int, std::vector<double>> get_action(bit_board board, double temp=1e-3);
 
 private:
-    policy_value_net network;
+
+    void reset_player();
+    std::shared_ptr<policy_value_net> network;
     std::string name;
 };

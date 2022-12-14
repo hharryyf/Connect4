@@ -22,7 +22,7 @@ Optional task: A game player that allows game players of different language to c
 Project is created with:
 * LibTorch: >= 1.12.1
 * CMake: >= 3.24.1
-* C++ 14
+* C++ 14/17
 * OS: Windows 10/11
 	
 ## Setup
@@ -33,7 +33,7 @@ $ mkdir build
 $ cmake -DCMAKE_PREFIX_PATH=/the absolute path of /libtorch/ ..
 $ cmake --build . --config Release
 $ cd Release
-$ ./main
+$ ./main -h
 ```
 
 

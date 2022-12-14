@@ -67,6 +67,7 @@ class MCTSZero(object):
         # determine the value of the current state
         # very important: action probability's length is equal to the number of cols that are not filled
         action_probability, leaf_value = self.policy_value_function(board)
+        #print("leaf-value", leaf_value)
         game_over, winner = board.has_winner()
         # if the game does not end
         if not game_over:

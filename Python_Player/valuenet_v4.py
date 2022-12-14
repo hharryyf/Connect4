@@ -127,9 +127,13 @@ class ValueNet(object):
             move_probability = np.exp(log_probability.data.numpy().flatten())
 
         # get the move probability, a zip of valid positions and the move probability of these positions
+        #print("In evaluate position")
+        #print("valid position: ", valid_position, "move_probablity: ", move_probability[valid_position])
         move_probability = zip(valid_position, move_probability[valid_position])
         # the position score, a floating point number
+        #print("position_score ", position_score)
         position_score = position_score.data[0][0]
+        #print(*move_probability, "position score ", position_score)
         return move_probability, position_score
 
     # evaluate a batch
@@ -143,6 +147,8 @@ class ValueNet(object):
             batch = Variable(torch.FloatTensor(batch))
             log_probability_batch, position_score_batch = self.value_net(batch)
             move_probability = np.exp(log_probability_batch.data.numpy())
+            print("In evaluate batch")
+            print("move probability shape = ", move_probability.shape, "position score shape = ", position_score_batch.data.numpy().shape)
             return move_probability, position_score_batch.data.numpy()
 
     # a single training step, given a batch of state, mcts probability

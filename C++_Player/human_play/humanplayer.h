@@ -10,8 +10,6 @@ public:
         return this->name;
     }
 
-    int force_play(int position);
-
     void game_over(int result) {
         return;
     }

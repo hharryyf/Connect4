@@ -30,11 +30,6 @@ public:
     */ 
     virtual int play(int previous_move) = 0;
     /*
-      Must take a move at some position
-      return value is equal to position
-    */
-    virtual int force_play(int position) = 0;
-    /*
       @return: the name of the player
     */
     virtual std::string display_name() = 0;

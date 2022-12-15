@@ -150,7 +150,21 @@ public:
         printf("\ncurrent player = %d, status = %d, last_move = %d, num_move = %d\n", current_player, status, last_move, num_move);
     }
 
-    //std::vector<vector<vector<double>>> get_neural_state()
+    std::vector<std::vector<std::vector<double>>> get_neural_state() {
+        std::vector<std::vector<std::vector<double>>> ret = std::vector<std::vector<std::vector<double>>>(3, std::vector<std::vector<double>>(6, std::vector<double>(7, 0)));
+        if (this->current_player == 1) {
+            ret[2] = std::vector<std::vector<double>>(6, std::vector<double>(7, 1));
+        }
+
+        for (int i = 0 ; i < 6; ++i) {
+            for (int j = 0 ; j < 7; ++j) {
+                ret[0][i][j] = (this->x_board >> (i * 8 + j)) & 1ull;
+                ret[0][i][j] = (this->o_board >> (i * 8 + j)) & 1ull;
+            }
+        }
+
+        return ret;
+    }
 
 protected:
     int col[7], current_player, status, last_move, num_move;

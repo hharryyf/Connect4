@@ -40,11 +40,6 @@ void pure_mcts_tree::update_with_move(int move) {
     }
 }
 
-int mcts_pure::force_play(int position) {
-    this->board.do_move(position);
-    this->mcts.update_with_move(-1);
-    return position;
-}
 
 int mcts_pure::play(int previous_move) {    
     if (this->board.game_end()) {

@@ -44,9 +44,7 @@ public:
      * @board: bit_board, the current bit_board state
      * @return: a tuple <vector of <move, move probablity> pair, winning probablity of the current player at this position>
     */
-    std::tuple<std::vector<std::pair<int, double>>, double> evaluate_position(bit_board &board) {
-        // TODO
-    }
+    std::tuple<std::vector<std::pair<int, double>>, double> evaluate_position(bit_board &board);
 
     /**
      * Evaluate a batch, return the move probablity of a batch and also the position score of a batch
@@ -54,9 +52,7 @@ public:
      * @return: a tuple <vector of size batch size * 7, vector of batch size * 1>
     */
 
-    std::tuple<std::vector<std::vector<double>>, std::vector<double>> evaluate_batches(std::vector<std::vector<std::vector<std::vector<double>>>> &batch) {
-        // TODO
-    }
+    std::tuple<std::vector<std::vector<double>>, std::vector<double>> evaluate_batches(std::vector<std::vector<std::vector<std::vector<double>>>> &batch);
 
 
     /**
@@ -67,26 +63,13 @@ public:
     */
     std::tuple<double, double> train_step(std::vector<std::vector<std::vector<std::vector<double>>>> &batch, 
                                          std::vector<std::vector<double>> &mcts_probability, 
-                                         std::vector<int> &winner) {
-        if (batch.size() != mcts_probability.size() || mcts_probability.size() != winner.size()) {
-            printf("batch size = %d, mcts_probability size = %d, winner size = %d not equal!\n", (int) batch.size(), (int) mcts_probability.size(), (int) winner.size());
-            exit(1);
-        }
+                                         std::vector<int> &winner);
 
-        // TODO
-    }
+    void save_model(std::string filename);
 
-    void save_model(std::string filename) {
-        this->module.save(filename);
-    }
+    void set_train();
 
-    void set_train() {
-        this->module.train();
-    }
-
-    void set_eval() {
-        this->module.eval();
-    }
+    void set_eval();
 
 private:
     torch::jit::Module module;
@@ -97,7 +80,9 @@ private:
 class mcts_zero_tree {
 public:
     mcts_zero_tree(int c_puct=3, int n_playout=1000) {
-
+        this->num_playout = n_playout;
+        this->c_puct = c_puct;
+        this->root = std::make_shared<mcts_node>(mcts_node(nullptr, 1.0));
     }
 
     void attach_policy_value_function(std::shared_ptr<policy_value_net> &net) {
@@ -110,8 +95,19 @@ public:
     
     void update_with_move(int move);
 
+    void set_num_playout(int num) {
+        this->num_playout = num;
+    }
+
+    void set_cpuct(int c) {
+        this->c_puct = c;
+    }
+
 private:
     std::shared_ptr<policy_value_net> network;
+    std::shared_ptr<mcts_node> root;
+    int num_playout;
+    int c_puct;
 };
 
 class mcts_zero : public gameplayer {
@@ -128,11 +124,6 @@ public:
     */ 
     int play(int previous_move);
     /*
-      Must take a move at some position
-      return value is equal to position
-    */
-    int force_play(int position) = 0;
-    /*
       @return: the name of the player
     */
     std::string display_name();
@@ -147,7 +138,7 @@ public:
     */
     std::tuple<int, std::tuple<std::vector<std::vector<std::vector<std::vector<double>>>>, std::vector<std::vector<double>>, std::vector<double>>> self_play(double temp=1e-3);
 
-    void set_train(bool is_train);
+    void set_train(ConfigObject config, bool training);
     
 protected:
     /*
@@ -156,8 +147,12 @@ protected:
     std::tuple<int, std::vector<double>> get_action(bit_board board, double temp=1e-3);
 
 private:
-
+    
     void reset_player();
+    
+    bool is_train;
+    mcts_zero_tree mcts;
     std::shared_ptr<policy_value_net> network;
     std::string name;
+    bit_board board;
 };

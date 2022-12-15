@@ -6,12 +6,6 @@ void human_player::init(int turn, std::string n, ConfigObject config) {
     this->brd.init();
 }
 
-int human_player::force_play(int position) {
-    assert (this->brd.canplay(position));
-    this->brd.update(position, this->player);
-    return position;
-}
-
 int human_player::play(int previous_move) {
     if (previous_move != -1) {
         // add code here to mark the previous_move on the board

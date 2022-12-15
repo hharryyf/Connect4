@@ -21,9 +21,10 @@ target_link_libraries(main
 
 target_link_libraries(server 
   common
-  alpha_beta
-  human_play
 )
+#  alpha_beta
+#  human_play
+#)
 
 set_property(TARGET main PROPERTY CXX_STANDARD 14)
 

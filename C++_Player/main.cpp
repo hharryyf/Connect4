@@ -92,6 +92,7 @@ int main(int argc, char *argv[]) {
 
 void test_load_model() {
     try {
+        int sz = 2;
         // Deserialize the ScriptModule from a file using torch::jit::load().
         // we load the model and do 1 iteration of backpropagation
         auto module = torch::jit::load("../../model/resblock.pt");
@@ -101,20 +102,28 @@ void test_load_model() {
 	        parameters.push_back(params);
         }
         torch::optim::Adam optimizer(parameters, /*lr=*/0.1);
-        auto t = torch::ones({10, 3, 6, 7});
-        auto target_p = torch::zeros({10, 7});
-        auto target_v = torch::ones({10, 1});
+        auto t = torch::ones({sz, 3, 6, 7});
+        auto target_p = torch::zeros({sz, 7});
+        auto target_v = torch::ones({sz, 1});
         auto target_v_e = torch::exp(target_v);
         std::cout << "target_v = " << target_v << " target_v_exp = " << target_v_e << std::endl;
-        std::cout << target_v_e.dtype() << std::endl;
+        std::cout << "target v has type " << target_v.dtype() << std::endl;
         t[0][0][0][0] = 0.0;
         inputs.push_back(t);
         auto output = module.forward(inputs);
         std::cout << output.toTuple()->elements()[0].toTensor() << std::endl;
         std::cout << output.toTuple()->elements()[1].toTensor() << std::endl;
+        for (int i = 0 ; i < sz; ++i) {
+            std::cout << "item of score [" << i << "]" << output.toTuple()->elements()[1].toTensor()[i][0].item<float>() << std::endl;
+            for (int j = 0 ; j < 7; ++j) {
+                std::cout << "item of policy [" << j << "]" << output.toTuple()->elements()[0].toTensor()[i][j].item<float>() << std::endl;    
+            }
+        }
         optimizer.zero_grad();
         auto loss_v = torch::mse_loss(output.toTuple()->elements()[1].toTensor(), target_v);
+        std::cout << "value loss " <<  loss_v << std::endl;
         auto loss_p = -torch::mean(torch::sum(target_p * output.toTuple()->elements()[0].toTensor(), 1));
+        std::cout << "policy loss " <<  loss_p << " inner term " << torch::sum(target_p * output.toTuple()->elements()[0].toTensor(), 1) << std::endl;
         auto loss = loss_v + loss_p;
         loss.backward();
         optimizer.step();

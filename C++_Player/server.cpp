@@ -15,9 +15,7 @@
 #include <unordered_set>
 #include <bitset>
 #include <string>
-#include "gameplayer.h"
 #include "connect4_board.h"
-#include "human_play/humanplayer.h"
 #include <winsock2.h>
 #include <Windows.h>
 #include <ws2tcpip.h>

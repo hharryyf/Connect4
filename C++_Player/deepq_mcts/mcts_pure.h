@@ -116,11 +116,6 @@ public:
     */ 
     int play(int previous_move);
     /*
-      Must take a move at some position
-      return value is equal to position
-    */
-    int force_play(int position);
-    /*
       @return: the name of the player
     */
     std::string display_name() {

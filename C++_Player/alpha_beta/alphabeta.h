@@ -9,7 +9,6 @@ public:
     void init(int turn, std::string n, ConfigObject config);
     int play(int previous_move);
     
-    int force_play(int position);
     std::string display_name() {
         return this->name;
     }

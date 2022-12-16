@@ -64,6 +64,21 @@ public:
         return *this;
     }
 
+    ConfigObject &Set_dqn_temp(double tmp) {
+        this->dqn_temp = tmp;
+        return *this;
+    }
+
+    ConfigObject &Set_dirichlet_alpha(double alpha) {
+        this->dqn_alpha = alpha;
+        return *this;
+    }
+
+    ConfigObject &Set_dqn_noise_portion(double noise) {
+        this->dqn_noise_portion = noise;
+        return *this;
+    }
+
     ConfigObject &Set_reload(bool dqn_reload) {
         this->dqn_reload = dqn_reload;
         return *this;
@@ -93,6 +108,18 @@ public:
         return dqn_decay;
     }
 
+    double get_temp() {
+        return dqn_temp;
+    }
+
+    double get_noise_portion() {
+        return dqn_noise_portion;
+    }
+
+    double get_dirichlet_alpha() {
+        return dqn_alpha;
+    }
+
     bool get_dqn_reload() {
         return dqn_reload;
     }
@@ -104,5 +131,8 @@ private:
     int c_puct = 2;
     double dqn_lr = 0.002;
     double dqn_decay = 0.0001;
+    double dqn_temp = 0.001;
+    double dqn_noise_portion = 0.25;
+    double dqn_alpha = 0.3;
     bool dqn_reload = true;
 };

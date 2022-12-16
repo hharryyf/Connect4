@@ -88,6 +88,32 @@ public:
         return true;
     }
 
+    std::tuple<std::vector<int>, std::vector<double>> get_action_probability(double temp) {
+        std::vector<int> move;
+        std::vector<double> prob;
+        for (int i = 0 ; i < 7; ++i) {
+            if (this->children[i] != nullptr) {
+                move.push_back(i);
+                prob.push_back(1.0 * this->children[i]->N);
+            }
+        }
+
+        for (auto &p : prob) {
+            p = 1.0 / temp * log(p + 1e-10);
+        }
+
+        auto maxp = *std::max_element(prob.begin(), prob.end());
+        for (auto &p : prob) {
+            p = exp(p - maxp);
+        }
+
+        double sm = 0.0;
+        for (auto &p : prob) sm += p;
+        for (auto &p : prob) p = p / sm;
+
+        return std::make_tuple(move, prob);
+    }
+
     std::shared_ptr<mcts_node> get_children(int move) {
         if (move >= 0 && move <= 6 && this->children[move] != nullptr) return this->children[move];
         return nullptr;

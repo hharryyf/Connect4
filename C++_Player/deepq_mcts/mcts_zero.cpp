@@ -67,7 +67,7 @@ std::tuple<double, double> policy_value_net::train_step(std::vector<std::vector<
     int sz = winner.size();
     auto winner_tensor = torch::ones({sz, 1});
     auto policy_batch = torch::ones({sz, 7});
-    for (int i = 0 ; i < sz; ++i) winner_tensor[i][0] = winner[i];
+    for (int i = 0 ; i < sz; ++i) winner_tensor[i][0] = 1.0 * winner[i];
     for (int i = 0 ; i < sz; ++i) {
         for (int j = 0 ; j < 7; ++j) {
             policy_batch[i][j] = mcts_probability[i][j];
@@ -113,17 +113,48 @@ void policy_value_net::set_eval() {
 }
 
 void mcts_zero_tree::playout(bit_board board) {
+    auto curr = this->root;
+    while (curr != nullptr) {
+        if (curr->is_leaf()) break;
+        auto mpn = curr->selection(this->c_puct);
+        board.do_move(mpn.first);
+        curr = mpn.second;
+    }
 
+    auto eval = this->network->evaluate_position(board);
+    auto action_probablity = std::get<0>(eval);
+    auto reward = std::get<1>(eval);
+    auto result = board.has_winner();
+    if (result.first) {
+        if (result.second == 0) {
+            reward = 0;
+        } else {
+            reward = board.get_current_player() == result.second ? 1 : -1;
+        }
+    } else {
+        curr->expansion(action_probablity);
+    }
+
+    curr->update_recursive(-reward);
 }
 
 std::tuple<std::vector<int>, std::vector<double>> mcts_zero_tree::get_move_probability(bit_board board, double temp) {
-    std::vector<int> valid_move;
-    std::vector<double> move_probability;
-    return std::make_tuple(valid_move, move_probability);
+    for (int i = 0 ; i < this->num_playout; ++i) {
+        this->playout(board);
+    }
+
+
+    return this->root->get_action_probability(temp);
 }
 
 void mcts_zero_tree::update_with_move(int move) {
-
+    auto nxt = this->root->get_children(move);
+    if (nxt != nullptr) {
+        this->root = nxt;
+        this->root->set_parent(nullptr);
+    } else {
+        this->root = std::make_shared<mcts_node>(mcts_node(nullptr, 1.0));
+    }
 }
 
 void mcts_zero::init(int turn, std::string name, ConfigObject config) {
@@ -137,12 +168,41 @@ void mcts_zero::init(int turn, std::string name, ConfigObject config) {
         this->mcts.attach_policy_value_function(this->network);
     }
 
+    this->temp = config.get_temp();
+    this->alpha = config.get_dirichlet_alpha();
+    this->noise_portion = config.get_noise_portion();
     this->board = bit_board();
 }
 
 int mcts_zero::play(int previous_move) {
-    // TODO
-    return -1;
+    if (this->board.game_end()) {
+        printf("cannot play when the game ends!\n");
+        exit(1);
+    }
+
+    if (previous_move != -1) { 
+        this->board.do_move(previous_move);
+    }
+
+    
+    if (this->board.game_end()) {
+        printf("cannot play when the game ends!\n");
+        exit(1);
+    }
+
+    if (previous_move == -1) {
+        // we play in the center for the first move
+        // this uses some expert knowledge
+        this->mcts.update_with_move(-1);
+        this->board.do_move(3);
+        return 3;
+    }
+
+    // general case
+    int move = std::get<0>(this->get_action(this->board, this->temp, false));
+    this->board.do_move(move);
+    // no need to call: this->mcts.update_with_move(-1) because it has already been called in get_action
+    return move;
 }
 
 
@@ -150,18 +210,94 @@ std::string mcts_zero::display_name() {
     return this->name;
 }
 
-std::tuple<int, std::tuple<std::vector<std::vector<std::vector<std::vector<double>>>>, std::vector<std::vector<double>>, std::vector<double>>> mcts_zero::self_play(double temp) {
-    // TODO
+std::tuple<int, std::tuple<std::vector<std::vector<std::vector<std::vector<double>>>>, std::vector<std::vector<double>>, std::vector<int>>> mcts_zero::self_play(double temp) {
+    int winner = 0;
     std::vector<std::vector<std::vector<std::vector<double>>>> board_states;
     std::vector<std::vector<double>> move_probabilities;
-    std::vector<double> winners;
+    std::vector<int> current_players;
+    std::vector<int> winners;
+    this->reset_player();
+    while (1) {
+        auto act = this->get_action(this->board, temp);
+        int move = std::get<0>(act);
+        std::vector<double> move_prob = std::get<1>(act);
+        board_states.push_back(this->board.get_neural_state());
+        move_probabilities.push_back(move_prob);
+        current_players.push_back(this->board.get_current_player());
+        this->board.do_move(move);
+        auto result = this->board.has_winner();
+        if (result.first) {
+            winner = result.second;
+            winners = std::vector<int>(current_players.size(), 0);
+            if (winner != 0) {
+                for (int i = 0 ; i < (int) winners.size(); ++i) {
+                    winners[i] = current_players[i] == winner ? 1 : -1;
+                }
+            }
+            if (result.second == 0) {
+                printf("Draw!\n");
+            } else {
+                printf("Winner is player %d\n", result.second);
+            }
+
+            this->reset_player();
+            break;
+        }
+
+    }
     return std::make_tuple(-1, std::make_tuple(board_states, move_probabilities, winners));
 }
 
-std::tuple<int, std::vector<double>> mcts_zero::get_action(bit_board board, double temp) {
+std::tuple<int, std::vector<double>> mcts_zero::get_action(bit_board board, double temp, bool self_play) {
     // TODO
-    std::vector<double> move_prob;
-    return std::make_tuple(-1, move_prob);
+    int move = -1;
+    std::vector<double> move_prob = std::vector<double>(7, 0);
+    if (!this->board.has_winner().first) {
+        auto act = this->mcts.get_move_probability(board, temp);
+        auto valid_action = std::get<0>(act);
+        auto act_prob = std::get<1>(act);
+        for (int i = 0 ; i < (int) valid_action.size(); ++i) {
+            move_prob[valid_action[i]] = act_prob[i];
+        }
+
+        dirichlet_distribution<std::default_random_engine> d(std::vector<double>(move_prob.size(), this->alpha));
+        std::vector<double> noise = d(this->rng);
+        auto sample_prob = [&](std::vector<double> vc) -> int {
+            if (vc.empty()) {
+                printf("Error try to sample from an empty distribution!");
+                exit(1);
+            }
+
+            double sm = 0;
+            for (auto &p : vc) sm = sm + p;
+            for (auto &p : vc) p /= sm;
+            for (int i = 1; i < (int) vc.size(); ++i) vc[i] += vc[i-1];
+            double g = this->distribution(this->rng);
+            for (int i = 0 ; i < (int) vc.size(); ++i) {
+                if (g <= vc[i]) return i;
+            }
+
+            return (int) vc.size() - 1;
+        };
+
+        if (self_play) {    
+            // choose move based on the distribution of act_prob, add some dirichlet noise
+            for (int i = 0 ; i < (int) move_prob.size(); ++i) {
+                move_prob[i] = (1.0 - this->noise_portion) * move_prob[i] + this->noise_portion * noise[i];
+            }
+            
+            move = valid_action[sample_prob(move_prob)];
+            this->mcts.update_with_move(move);
+        } else {
+            // choose move based on the distribution of act_prob
+            move = valid_action[sample_prob(move_prob)];
+            this->mcts.update_with_move(-1);
+        }
+    } else {
+        printf("Warning! Call get action for end game position!\n");
+    }
+
+    return std::make_tuple(move, move_prob);
 }
 
 void mcts_zero::reset_player() {

@@ -113,7 +113,7 @@ private:
 class mcts_zero : public gameplayer {
 public:
     mcts_zero() {
-        
+        this->rng.seed(std::chrono::system_clock::now().time_since_epoch().count());
     }
     
     void init(int turn, std::string name, ConfigObject config);
@@ -136,7 +136,7 @@ public:
     /*
         A self-play game, return a tuple of (winner of the game, (board state of each step, position probablity of each step, winning probablity of each step))
     */
-    std::tuple<int, std::tuple<std::vector<std::vector<std::vector<std::vector<double>>>>, std::vector<std::vector<double>>, std::vector<double>>> self_play(double temp=1e-3);
+    std::tuple<int, std::tuple<std::vector<std::vector<std::vector<std::vector<double>>>>, std::vector<std::vector<double>>, std::vector<int>>> self_play(double temp=1e-3);
 
     void set_train(ConfigObject config, bool training);
     
@@ -144,12 +144,14 @@ protected:
     /*
         return (move, a vector of move probablity)
     */
-    std::tuple<int, std::vector<double>> get_action(bit_board board, double temp=1e-3);
+    std::tuple<int, std::vector<double>> get_action(bit_board board, double temp=1e-3, bool self_play=false);
 
 private:
     
     void reset_player();
-    
+    std::default_random_engine rng = std::default_random_engine {};
+    std::uniform_real_distribution<double> distribution = std::uniform_real_distribution<double>(0.0, 1.0);
+    double temp, alpha, noise_portion;
     bool is_train;
     mcts_zero_tree mcts;
     std::shared_ptr<policy_value_net> network;

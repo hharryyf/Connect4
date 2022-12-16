@@ -150,6 +150,9 @@ public:
         printf("\ncurrent player = %d, status = %d, last_move = %d, num_move = %d\n", current_player, status, last_move, num_move);
     }
 
+    /**
+     * return a 3 * 6 * 7 vector corresponds to the current state
+    */
     std::vector<std::vector<std::vector<double>>> get_neural_state() {
         std::vector<std::vector<std::vector<double>>> ret = std::vector<std::vector<std::vector<double>>>(3, std::vector<std::vector<double>>(6, std::vector<double>(7, 0)));
         for (int i = 0 ; i < 6; ++i) {

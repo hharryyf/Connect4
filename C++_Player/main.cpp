@@ -540,5 +540,13 @@ void alpha_beta_board_unit_test(int T) {
 
 void start_training_game(int tol_game) {
     std::cout << "start training total " << tol_game << " games" << std::endl;
-    // TODO
+    ConfigObject config;
+    mcts_zero player;
+    config = config.Set_c_puct(3).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_mcts_play_iteration(1000).Set_mcts_train_iteration(700).Set_reload(true);
+    player.init(1, "Mcts-Zero-Player", config);
+    config = config.Set_reload(false);
+    player.set_train(config, true);
+    for (int t = 1; t <= tol_game; ++t) {
+        
+    }
 }

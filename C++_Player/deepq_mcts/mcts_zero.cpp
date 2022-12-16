@@ -245,7 +245,7 @@ std::tuple<int, std::tuple<std::vector<std::vector<std::vector<std::vector<doubl
         }
 
     }
-    return std::make_tuple(-1, std::make_tuple(board_states, move_probabilities, winners));
+    return std::make_tuple(winner, std::make_tuple(board_states, move_probabilities, winners));
 }
 
 std::tuple<int, std::vector<double>> mcts_zero::get_action(bit_board board, double temp, bool self_play) {
@@ -314,6 +314,16 @@ void mcts_zero::set_train(ConfigObject config, bool training) {
         this->network->set_eval();
         this->mcts.set_num_playout(config.get_mcts_play_iteration());
     }
+}
+
+std::tuple<double, double> mcts_zero::train_step(std::vector<std::vector<std::vector<std::vector<double>>>> &batch, 
+                                        std::vector<std::vector<double>> &mcts_probability, 
+                                        std::vector<int> &winner) {
+    return this->network->train_step(batch, mcts_probability, winner);
+}
+
+void mcts_zero::save_model(std::string path) {
+    this->network->save_model(path);
 }
 
 void mcts_zero::game_over(int result) {

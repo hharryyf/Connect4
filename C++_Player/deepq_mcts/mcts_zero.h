@@ -138,7 +138,13 @@ public:
     */
     std::tuple<int, std::tuple<std::vector<std::vector<std::vector<std::vector<double>>>>, std::vector<std::vector<double>>, std::vector<int>>> self_play(double temp=1e-3);
 
+    std::tuple<double, double> train_step(std::vector<std::vector<std::vector<std::vector<double>>>> &batch, 
+                                        std::vector<std::vector<double>> &mcts_probability, 
+                                        std::vector<int> &winner);
+
     void set_train(ConfigObject config, bool training);
+
+    void save_model(std::string path);
     
 protected:
     /*

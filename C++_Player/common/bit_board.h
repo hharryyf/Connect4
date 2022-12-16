@@ -152,14 +152,16 @@ public:
 
     std::vector<std::vector<std::vector<double>>> get_neural_state() {
         std::vector<std::vector<std::vector<double>>> ret = std::vector<std::vector<std::vector<double>>>(3, std::vector<std::vector<double>>(6, std::vector<double>(7, 0)));
-        if (this->current_player == 1) {
-            ret[2] = std::vector<std::vector<double>>(6, std::vector<double>(7, 1));
-        }
-
         for (int i = 0 ; i < 6; ++i) {
             for (int j = 0 ; j < 7; ++j) {
-                ret[0][i][j] = (this->x_board >> (i * 8 + j)) & 1ull;
-                ret[0][i][j] = (this->o_board >> (i * 8 + j)) & 1ull;
+                if (this->current_player == 1) {
+                    ret[2][i][j] = 1;
+                    ret[0][i][j] = (this->x_board >> (i * 8 + j)) & 1ull;
+                    ret[1][i][j] = (this->o_board >> (i * 8 + j)) & 1ull;
+                } else {
+                    ret[1][i][j] = (this->x_board >> (i * 8 + j)) & 1ull;
+                    ret[0][i][j] = (this->o_board >> (i * 8 + j)) & 1ull;
+                }
             }
         }
 

@@ -10,6 +10,7 @@
 #include "bit_board.h"
 #include "connect4_board.h"
 #include "gameplayer.h"
+#include "memory_buffer.h"
 #include "alpha_beta/alphabeta.h"
 #include "alpha_beta/alphabeta_board.h"
 #include "human_play/humanplayer.h"
@@ -42,12 +43,14 @@ int play_game(gameplayer *player1, gameplayer *player2
     ,std::string player1_name, std::string player2_name, 
     ConfigObject config1, ConfigObject config2, bool detail);
 
-void play_group_of_games(int T, gameplayer *player1, gameplayer *player2,
+double play_group_of_games(int T, gameplayer *player1, gameplayer *player2,
     std::string player1_name, std::string player2_name, 
     ConfigObject config1, ConfigObject config2);
 
 
 void start_training_game(int T);
+
+void test_memory_buffer();
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -83,12 +86,43 @@ int main(int argc, char *argv[]) {
         } else {
             start_training_game(atoi(argv[2]));
         }
+    } else if (strcmp(argv[1], "-m") == 0) {
+        test_memory_buffer();   
     } else {
         printf("command %s not supported\n", argv[1]);
     }
     return 0;
 }
 
+void test_memory_buffer() {
+    printf("please input the size of the buffer: ");
+    int sz;
+    char s[3];
+    scanf("%d", &sz);
+    printf("+ [integer] to add an element\n? [number] to sample [number] many elements\n# to get the size of the buffer\n");
+    memset(s, 0, sizeof(s));
+    memory_buffer<int> buffer(sz);
+    while (scanf("%s", s) != EOF) {
+        if (s[0] == '+') {
+            int v;
+            scanf("%d", &v);
+            buffer.add(v);
+        } else if (s[0] == '?') {
+            int v;
+            scanf("%d", &v);
+            auto output = buffer.sample(v);
+            for (auto vv : output) {
+                printf("%d ", vv);
+            }
+            printf("\n");
+        } else if (s[0] == '#') {
+            printf("size = %d\n", (int) buffer.size());
+        } else {
+            printf("command not supported!\n");
+            break;
+        }
+    }
+}
 
 void test_load_model() {
     try {
@@ -203,7 +237,7 @@ void start_interactive_game() {
     play_group_of_games(tolgame, g1, g2, name1, name2, config1, config2);
 }
 
-void play_group_of_games(int T, gameplayer *player1, gameplayer *player2
+double play_group_of_games(int T, gameplayer *player1, gameplayer *player2
         ,std::string player1_name, std::string player2_name, 
         ConfigObject config1, ConfigObject config2) {
     int win = 0, lose = 0, draw = 0;
@@ -235,6 +269,7 @@ void play_group_of_games(int T, gameplayer *player1, gameplayer *player2
     printf("Final result of %d games <%s vs %s>\n %.1lf - %.1lf", 
         T, player1->display_name().c_str(), player2->display_name().c_str(),
         (1.0 * win + 0.5 * draw), (1.0 * lose + 0.5 * draw));
+    return (1.0 * win + 0.5 * draw) / T;
 }
 
 int play_game(gameplayer *player1, gameplayer *player2, 
@@ -541,12 +576,69 @@ void alpha_beta_board_unit_test(int T) {
 void start_training_game(int tol_game) {
     std::cout << "start training total " << tol_game << " games" << std::endl;
     ConfigObject config;
+    ConfigObject mcts_player_config;
     mcts_zero player;
-    config = config.Set_c_puct(3).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_mcts_play_iteration(1000).Set_mcts_train_iteration(700).Set_reload(true);
+    mcts_player_config = mcts_player_config.Set_c_puct(3).Set_mcts_play_iteration(1000);
+    double winning_rate = 0.0;
+    config = config.Set_c_puct(3).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_mcts_play_iteration(1000).Set_mcts_train_iteration(500).Set_reload(true);
     player.init(1, "Mcts-Zero-Player", config);
     config = config.Set_reload(false);
     player.set_train(config, true);
+    memory_buffer<std::tuple<std::vector<std::vector<std::vector<double>>>, std::vector<double>, int>> buffer(10000);
+    int mini_batch_sz = 512, epoch = 5;
     for (int t = 1; t <= tol_game; ++t) {
+        auto play_data = std::get<1>(player.self_play(config.get_temp()));
+        auto board_states = std::get<0>(play_data);
+        auto move_probabilities = std::get<1>(play_data);
+        auto winners = std::get<2>(play_data);
+        printf("batch %d has episode length %d\n", t, (int) board_states.size());
+        // add the self-play data + the augmented data to the memory buffer
+        for (int i = 0 ; i < (int) board_states.size(); ++i) {
+            buffer.add(std::make_tuple(board_states[i], move_probabilities[i], winners[i]));
+            for (int j = 0 ; j < 6; ++j) {
+                reverse(board_states[i][0][j].begin(), board_states[i][0][j].end());
+                reverse(board_states[i][1][j].begin(), board_states[i][1][j].end());
+            }
+            reverse(move_probabilities[i].begin(), move_probabilities[i].end());
+            buffer.add(std::make_tuple(board_states[i], move_probabilities[i], winners[i]));
+        }
+
+        if ((int) buffer.size() > mini_batch_sz) {
+            // train the neural network for the data buffer
+            auto training_data = buffer.sample(mini_batch_sz);
+            board_states.clear();
+            move_probabilities.clear();
+            winners.clear();
+            for (int i = 0 ; i < (int) training_data.size(); ++i) {
+                board_states.push_back(std::get<0>(training_data[i]));
+                move_probabilities.push_back(std::get<1>(training_data[i]));
+                winners.push_back(std::get<2>(training_data[i]));
+            }
+            for (int i = 0 ; i < epoch; ++i) {
+                auto p = player.train_step(board_states, move_probabilities, winners);
+                printf("loss: %lf, entropy: %lf\n", std::get<0>(p), std::get<1>(p));
+            }
+        }
+
+        // evaluate the current policy
+        if (t % 50 == 0) {
+            player.save_model("../../model/current_model.pt");
+            config = config.Set_mcts_play_iteration(mcts_player_config.get_mcts_play_iteration());
+            player.set_train(config, false);
+            mcts_pure player2;
+            player2.init(1, std::string("MCTS-Pure") + std::string(std::to_string(mcts_player_config.get_mcts_play_iteration())), mcts_player_config);
+            auto nxt_win = play_group_of_games(10, &player, &player2, player.display_name(), player2.display_name(), config, mcts_player_config);
+            if (nxt_win > winning_rate) {
+                printf("New best policy!\n");
+                player.save_model("../../model/best_model.pt");
+            }
+
+            if (nxt_win == 1.0) {
+                mcts_player_config = mcts_player_config.Set_mcts_play_iteration(mcts_player_config.get_mcts_play_iteration() + 1000);
+            }
+            player.set_train(config, true);
+            player.reset_player();
+        }
         
     }
 }

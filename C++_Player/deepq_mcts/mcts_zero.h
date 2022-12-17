@@ -146,6 +146,7 @@ public:
 
     void save_model(std::string path);
     
+    void reset_player();
 protected:
     /*
         return (move, a vector of move probablity)
@@ -154,7 +155,6 @@ protected:
 
 private:
     
-    void reset_player();
     std::default_random_engine rng = std::default_random_engine {};
     std::uniform_real_distribution<double> distribution = std::uniform_real_distribution<double>(0.0, 1.0);
     double temp, alpha, noise_portion;

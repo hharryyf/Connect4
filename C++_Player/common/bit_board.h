@@ -95,7 +95,10 @@ public:
     */
     bool do_move(int move) {
         assert(!game_end());
-        if (!can_move(move)) return false;  
+        if (!can_move(move)) {
+            printf("Warning! cannot move at position %d\n", move);
+            return false;
+        }  
         this->col[move]++;
         this->last_move = move;
         this->num_move++;

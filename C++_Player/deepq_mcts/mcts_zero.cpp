@@ -121,7 +121,9 @@ void mcts_zero_tree::playout(bit_board board) {
         curr = mpn.second;
     }
 
+    clock_t start = clock();
     auto eval = this->network->evaluate_position(board);
+    clock_t end = clock();
     auto action_probablity = std::get<0>(eval);
     auto reward = std::get<1>(eval);
     auto result = board.has_winner();
@@ -164,14 +166,12 @@ void mcts_zero::init(int turn, std::string name, ConfigObject config) {
     
     this->name = name;
     this->mcts = mcts_zero_tree(config.get_c_puct(), config.get_mcts_play_iteration());
-    if (config.get_dqn_reload()) {
-        this->mcts.attach_policy_value_function(this->network);
-    }
-
+    this->mcts.attach_policy_value_function(this->network);
     this->temp = config.get_temp();
     this->alpha = config.get_dirichlet_alpha();
     this->noise_portion = config.get_noise_portion();
     this->board = bit_board();
+    //printf("reload? = %d\n", config.get_dqn_reload());
 }
 
 int mcts_zero::play(int previous_move) {
@@ -193,7 +193,6 @@ int mcts_zero::play(int previous_move) {
     if (previous_move == -1) {
         // we play in the center for the first move
         // this uses some expert knowledge
-        this->mcts.update_with_move(-1);
         this->board.do_move(3);
         return 3;
     }
@@ -218,8 +217,9 @@ std::tuple<int, std::tuple<std::vector<std::vector<std::vector<std::vector<doubl
     std::vector<int> winners;
     this->reset_player();
     while (1) {
-        auto act = this->get_action(this->board, temp);
+        auto act = this->get_action(this->board, temp, true);
         int move = std::get<0>(act);
+        printf("self-play move = %d\n", move);
         std::vector<double> move_prob = std::get<1>(act);
         board_states.push_back(this->board.get_neural_state());
         move_probabilities.push_back(move_prob);
@@ -260,7 +260,7 @@ std::tuple<int, std::vector<double>> mcts_zero::get_action(bit_board board, doub
             move_prob[valid_action[i]] = act_prob[i];
         }
 
-        dirichlet_distribution<std::default_random_engine> d(std::vector<double>(move_prob.size(), this->alpha));
+        dirichlet_distribution<std::default_random_engine> d(std::vector<double>(valid_action.size(), this->alpha));
         std::vector<double> noise = d(this->rng);
         auto sample_prob = [&](std::vector<double> vc) -> int {
             if (vc.empty()) {
@@ -282,15 +282,15 @@ std::tuple<int, std::vector<double>> mcts_zero::get_action(bit_board board, doub
 
         if (self_play) {    
             // choose move based on the distribution of act_prob, add some dirichlet noise
-            for (int i = 0 ; i < (int) move_prob.size(); ++i) {
-                move_prob[i] = (1.0 - this->noise_portion) * move_prob[i] + this->noise_portion * noise[i];
+            for (int i = 0 ; i < (int) act_prob.size(); ++i) {
+                act_prob[i] = (1.0 - this->noise_portion) * act_prob[i] + this->noise_portion * noise[i];
             }
             
-            move = valid_action[sample_prob(move_prob)];
+            move = valid_action[sample_prob(act_prob)];
             this->mcts.update_with_move(move);
         } else {
             // choose move based on the distribution of act_prob
-            move = valid_action[sample_prob(move_prob)];
+            move = valid_action[sample_prob(act_prob)];
             this->mcts.update_with_move(-1);
         }
     } else {

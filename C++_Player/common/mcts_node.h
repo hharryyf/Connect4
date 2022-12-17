@@ -110,7 +110,17 @@ public:
         double sm = 0.0;
         for (auto &p : prob) sm += p;
         for (auto &p : prob) p = p / sm;
-
+        
+            printf("move vector: [");
+            for (auto p : move) {
+                printf("%d, ", p);
+            }
+            printf("] probability vector: [");
+            for (auto p : prob) {
+                printf("%lf, ", p);
+            }
+            printf("]\n");
+        
         return std::make_tuple(move, prob);
     }
 

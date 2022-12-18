@@ -161,7 +161,7 @@ void mcts_zero_tree::update_with_move(int move) {
 
 void mcts_zero::init(int turn, std::string name, ConfigObject config) {
     if (config.get_dqn_reload()) {
-        this->network = std::make_shared<policy_value_net>("../../model/resblock.pt", config.get_lr(), config.get_decay());
+        this->network = std::make_shared<policy_value_net>("../../model/best_model.pt", config.get_lr(), config.get_decay());
     }
     
     this->name = name;

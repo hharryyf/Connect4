@@ -580,6 +580,8 @@ void start_training_game(int tol_game) {
     mcts_zero player;
     mcts_player_config = mcts_player_config.Set_c_puct(3).Set_mcts_play_iteration(1000);
     double winning_rate = 0.0;
+    printf("please insert the start winning rate: ");
+    scanf("%lf", &winning_rate);
     config = config.Set_c_puct(3).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_mcts_play_iteration(1000).Set_mcts_train_iteration(500).Set_reload(true);
     player.init(1, "Mcts-Zero-Player", config);
     config = config.Set_reload(false);
@@ -631,6 +633,7 @@ void start_training_game(int tol_game) {
             if (nxt_win > winning_rate) {
                 printf("New best policy!\n");
                 player.save_model("../../model/best_model.pt");
+                winning_rate = nxt_win;
             }
 
             if (nxt_win == 1.0) {

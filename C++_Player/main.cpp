@@ -129,14 +129,16 @@ void test_load_model() {
         int sz = 2;
         // Deserialize the ScriptModule from a file using torch::jit::load().
         // we load the model and do 1 iteration of backpropagation
-        auto module = torch::jit::load("../../model/resblock.pt");
+        auto module = torch::jit::load("../../model/resblock_old.pt");
         std::vector<torch::jit::IValue> inputs;
         std::vector<at::Tensor> parameters;
         for (const auto& params : module.parameters()) {
 	        parameters.push_back(params);
         }
         torch::optim::Adam optimizer(parameters, /*lr=*/0.1);
-        auto t = torch::ones({sz, 3, 6, 7});
+        std::vector<int> state = std::vector<int>(sz * 3 * 6 * 7, 1);
+        std::cout << state.size() << std::endl;
+        auto t = torch::from_blob(state.data(), {sz, 3, 6, 7}).clone();
         auto target_p = torch::zeros({sz, 7});
         auto target_v = torch::ones({sz, 1});
         auto target_v_e = torch::exp(target_v);
@@ -161,7 +163,7 @@ void test_load_model() {
         auto loss = loss_v + loss_p;
         loss.backward();
         optimizer.step();
-        module.save("../../model/resblock.pt");
+        module.save("../../model/resblock_old.pt");
         std::cout << module.forward(inputs).toTuple()->elements()[0].toTensor() << std::endl;
         std::cout << module.forward(inputs).toTuple()->elements()[1].toTensor() << std::endl;
     }
@@ -360,8 +362,7 @@ void tensor_test() {
             vect[i][j] = i+j;
 
     // Copying into a tensor
-    auto options = torch::TensorOptions().dtype(at::kDouble);
-    torch::Tensor tensor = torch::zeros({n,m}, options);
+    torch::Tensor tensor = torch::zeros({n,m});
     for (int i = 0; i < n; i++) {
         for (int j = 0 ; j < m; ++j) {
             tensor[i][j] = vect[i][j];
@@ -370,6 +371,12 @@ void tensor_test() {
         //tensor.slice(0, i,i+1) = torch::from_blob(vect[i].data(), {m}, options);
     std::cout << tensor << std::endl;
     std::cout << tensor[0][2].item<double>() << std::endl;
+    std::vector<float> vc = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18};
+    auto tensor2 = torch::from_blob(vc.data(), {1, 2, 3, 3}).clone();
+    std::cout << tensor2 << std::endl;
+    vc.clear();
+    std::cout << "after delete the vector " << std::endl;
+    std::cout << tensor2 << std::endl;
     std::cout << "Pytorch start success!" << std::endl;
 }
 

@@ -181,14 +181,18 @@ void start_interactive_game() {
     mcts_pure player4;
     human_player player5;
     human_player player6;
+    mcts_zero player7;
+    mcts_zero player8;
     ConfigObject config1;
     ConfigObject config2;
+    config1.Set_c_puct(3).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_reload(true);
+    config2.Set_c_puct(3).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_reload(true);
     int type1, type2, d;
     gameplayer *g1;
     gameplayer *g2;
     std::string name1, name2;
     int tolgame = 10;
-    std::cout << "please input player 1\n1 for alpha-beta, 2 for pure-mcts, 3 for human: ";
+    std::cout << "please input player 1\n1 for alpha-beta, 2 for pure-mcts, 3 for human, 4 for mcts-zero: ";
     std::cin >> type1;
     if (type1 == 1) {
         g1 = &player1;
@@ -205,8 +209,15 @@ void start_interactive_game() {
     } else if (type1 == 3) {
         g1 = &player5;
         name1 = std::string("Human");
+    } else if (type1 == 4) {
+        config1.Set_mcts_play_iteration(10000).Set_c_puct(3);
+        name1 = std::string("MCTS-Zero");
+        player7.init(1, name1, config1);
+        config1.Set_reload(false);
+        player7.set_train(config1, false);
+        g1 = &player7;
     } else {
-        std::cerr << "player 1 type must be within {1, 2, 3}" << std::endl;
+        std::cerr << "player 1 type must be within {1, 2, 3, 4}" << std::endl;
         exit(1);
     }
 
@@ -227,8 +238,15 @@ void start_interactive_game() {
     } else if (type2 == 3) {
         g2 = &player6;
         name2 = std::string("Human");
+    } else if (type2 == 4) {
+        config2.Set_mcts_play_iteration(10000).Set_c_puct(3);
+        name2 = std::string("MCTS-Zero");
+        player8.init(1, name2, config2);
+        config2.Set_reload(false);
+        player8.set_train(config2, false);
+        g2 = &player8;
     } else {
-        std::cerr << "player 2 type must be within {1, 2, 3}" << std::endl;
+        std::cerr << "player 2 type must be within {1, 2, 3, 4}" << std::endl;
         exit(1);
     }
 

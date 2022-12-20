@@ -115,6 +115,8 @@ public:
       @return: a number between 0 and max_col - 1 represents the column of the current player is playing
     */ 
     int play(int previous_move);
+    
+    int force_move(int previous_move, int move);
     /*
       @return: the name of the player
     */

@@ -204,6 +204,14 @@ int mcts_zero::play(int previous_move) {
     return move;
 }
 
+int mcts_zero::force_move(int previous_move, int move) {
+    if (previous_move != -1) { 
+        this->board.do_move(previous_move);
+    }
+
+    this->board.do_move(move);
+    return move;
+}
 
 std::string mcts_zero::display_name() {
     return this->name;

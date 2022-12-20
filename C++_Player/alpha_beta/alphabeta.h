@@ -7,8 +7,11 @@ public:
     alphabeta_player(bool cache_result=false) : cache_result(cache_result) {}
 
     void init(int turn, std::string n, ConfigObject config);
+    
     int play(int previous_move);
     
+    int force_move(int previous_move, int move);
+
     std::string display_name() {
         return this->name;
     }

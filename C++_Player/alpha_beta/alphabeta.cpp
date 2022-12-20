@@ -90,7 +90,7 @@ std::pair<double, int> alphabeta_player::negamax(int current, int depth, double 
 std::pair<double, int> alphabeta_player::negamax_no_table(int current, int depth, double alpha, double beta) {
     auto status = this->board.status();
     if (status != 2) return std::make_pair(AlphaBetaConfig::four * status * current, AlphaBetaConfig::INVALID);
-        if (depth == 0) {
+    if (depth == 0) {
         return std::make_pair(this->board.heuristic() * current, AlphaBetaConfig::INVALID);
     }
 
@@ -240,6 +240,16 @@ int alphabeta_player::play(int previous) {
     this->board.update(p.second, this->player);
     std::cout << "cache size: " << this->board.get_cache_size() << std::endl;
     return p.second;
+}
+
+int alphabeta_player::force_move(int previous_move, int move) {
+    if (previous_move != -1) {
+        this->board.update(previous_move, -this->player);
+    }
+
+    this->board.update(move, this->player);
+
+    return move;
 }
 
 void alphabeta_player::game_over(int result) {

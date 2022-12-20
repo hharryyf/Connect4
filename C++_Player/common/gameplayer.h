@@ -29,6 +29,13 @@ public:
       @return: a number between 0 and max_col - 1 represents the column of the current player is playing
     */ 
     virtual int play(int previous_move) = 0;
+    /* 
+      @previous_move: integer between 0 and max_col - 1 represents the column the opponent moves, 
+                        -1 means the current move is the first move
+      @move: integer between 0 and max_col - 1 represents the column the player must play
+      @return: move
+    */
+    virtual int force_move(int previous_move, int move) = 0;
     /*
       @return: the name of the player
     */

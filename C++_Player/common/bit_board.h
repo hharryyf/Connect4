@@ -40,7 +40,6 @@ public:
         for (int i = 0 ; i < 7; ++i) this->col[i] = -1;
         this->current_player = 1;
         this->status = 2;
-        this->last_move = -1;
         this->x_board = this->o_board = 0;
         this->num_move = 0;
     }
@@ -79,14 +78,7 @@ public:
         return this->status != 2;
     }
 
-    /**
-     * the column of the last move
-    */
-    int get_last_move() {
-        return this->last_move;
-    }
-
-    
+      
     /**
      * take a move in column "move"
      * 0 <= move <= 6, and -1 <= col[move] < 6
@@ -100,7 +92,6 @@ public:
             return false;
         }  
         this->col[move]++;
-        this->last_move = move;
         this->num_move++;
         if (this->current_player == 1) {
             // if it is the turn of X-player, do some or operation on the x_board
@@ -120,6 +111,19 @@ public:
 
         this->current_player *= -1;
         return true;
+    }
+
+    void undo(int move) {
+        if (this->col[move] == -1) {
+            printf("Cannot undo a move at empty column!");
+            exit(1);
+        }
+
+        if (this->x_board & (1ull << (this->col[move] * 8 + move))) {
+            this->x_board ^= (1ull << (this->col[move] * 8 + move));
+        } else {
+            this->o_board ^= (1ull << (this->col[move] * 8 + move));
+        }
     }
 
     bit_board duplicate() {
@@ -150,7 +154,7 @@ public:
     void debug() {
         printf("column information: ");
         for (int i = 0 ; i < 7; ++i) printf("%d ", col[i]);
-        printf("\ncurrent player = %d, status = %d, last_move = %d, num_move = %d\n", current_player, status, last_move, num_move);
+        printf("\ncurrent player = %d, status = %d, num_move = %d\n", current_player, status, num_move);
     }
 
     /**
@@ -175,7 +179,7 @@ public:
     }
 
 protected:
-    int col[7], current_player, status, last_move, num_move;
+    int col[7], current_player, status, num_move;
     unsigned long long x_board, o_board;
     
     bool win_row(unsigned long long player_board) {

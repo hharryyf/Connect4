@@ -17,16 +17,18 @@ The project would consist of the following iterations:
 
     * the translation is a MUST do task, otherwise, we have no time to obtain a good model
     
-3. - [ ] Translate the Python MCTS + Deep Reinforcement Learning agent to C++, the aim of this stage include
+3. - [x] Translate the Python MCTS + Deep Reinforcement Learning agent to C++, the aim of this stage include
 
     * [x] review the CPUCT MCTS algorithm
     
     * [x] be familiar with the bit-board representation of connect-4 (I must thank my supervisor Abdallah Saffidine for introducing this)
 
-    * [ ] be familiar with the C++ deep learning library
+    * [x] be familiar with the C++ deep learning library
 
-Project status: 2 players were implemented in C++: pure-MCTS-cpuct, and alpha-beta pruning (with transposition table). The DeepQN-MCTS player
-were implemented in python.
+4. - [x] Try to improve the performance of the C++ MCTS + Deep Reinforcement Learning agent.
+
+Project status: 3 players were implemented in C++: pure-MCTS-cpuct, and alpha-beta pruning (with transposition table). The DeepQN-MCTS player
+were implemented in both Python and C++.
 
 ## Connect-4 board representation speed test
 
@@ -60,6 +62,12 @@ Pure-MCTS-CPUCT playout | Pure-MCTS-CPUCT playout | Win | Loss | Draw | Winning 
 1,000,000 | 200,000 | 7 | 3 | 0 | 70%
 1,000,000 | 500,000 | 7 | 3 | 0 | 70%
 
+**Connect-Zero (after 700 training games) vs Pure-MCTS-CPUCT (10 games)**
+Connect-Zero | Pure-MCTS-CPUCT playout | Win | Loss | Draw | Winning rate
+--- | --- | --- | --- | --- | ---
+1,000 | 1,000 | 9 | 1 | 0 | 90%
+5,000 | 50,000 | 5 | 4 | 1 | 55%
+5,000  | 200,000 | 1 | 9 | 0 | 10%
 
 ## Reference
 The implementation heavily referenced https://github.com/junxiaosong/AlphaZero_Gomoku

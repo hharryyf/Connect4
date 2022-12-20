@@ -206,13 +206,13 @@ void start_interactive_game() {
         g1 = &player3;
         std::cout << "please input the number of MCTS iteration: ";
         std::cin >> d;
-        config1.Set_mcts_play_iteration(d >= 10000 ? d : 10000).Set_c_puct(5);
+        config1.Set_mcts_play_iteration(d >= 1000 ? d : 1000).Set_c_puct(5);
         name1 = std::string("Pure-MCTS-").append(std::to_string(d));
     } else if (type1 == 3) {
         g1 = &player5;
         name1 = std::string("Human");
     } else if (type1 == 4) {
-        config1.Set_mcts_play_iteration(10000).Set_c_puct(3);
+        config1.Set_mcts_play_iteration(5000).Set_c_puct(3);
         name1 = std::string("MCTS-Zero");
         player7.init(1, name1, config1);
         config1.Set_reload(false);
@@ -223,7 +223,7 @@ void start_interactive_game() {
         exit(1);
     }
 
-    std::cout << "please input player 2\n1 for alpha-beta, 2 for pure-mcts, 3 for human: ";
+    std::cout << "please input player 2\n1 for alpha-beta, 2 for pure-mcts, 3 for human, 4 for mcts-zero: ";
     std::cin >> type2;
     if (type2 == 1) {
         g2 = &player2;
@@ -235,13 +235,13 @@ void start_interactive_game() {
         g2 = &player4;
         std::cout << "please input the number of MCTS iteration: ";
         std::cin >> d;
-        config2.Set_mcts_play_iteration(d >= 10000 ? d : 10000).Set_c_puct(5);
+        config2.Set_mcts_play_iteration(d >= 1000 ? d : 1000).Set_c_puct(5);
         name2 = std::string("Pure-MCTS-").append(std::to_string(d));
     } else if (type2 == 3) {
         g2 = &player6;
         name2 = std::string("Human");
     } else if (type2 == 4) {
-        config2.Set_mcts_play_iteration(10000).Set_c_puct(3);
+        config2.Set_mcts_play_iteration(5000).Set_c_puct(3);
         name2 = std::string("MCTS-Zero");
         player8.init(1, name2, config2);
         config2.Set_reload(false);
@@ -286,7 +286,7 @@ double play_group_of_games(int T, gameplayer *player1, gameplayer *player2
         printf("(%.1lf - %.1lf)\n", (1.0 * win + 0.5 * draw), (1.0 * lose + 0.5 * draw));
     }
 
-    printf("Final result of %d games <%s vs %s>\n %.1lf - %.1lf", 
+    printf("Final result of %d games <%s vs %s>\n %.1lf - %.1lf\n", 
         T, player1->display_name().c_str(), player2->display_name().c_str(),
         (1.0 * win + 0.5 * draw), (1.0 * lose + 0.5 * draw));
     return (1.0 * win + 0.5 * draw) / T;

@@ -72,6 +72,15 @@ int mcts_pure::play(int previous_move) {
     return move;
 }
 
+int mcts_pure::force_move(int previous_move, int move) {
+    if (previous_move != -1) {
+        this->board.do_move(previous_move);
+    }
+
+    this->board.do_move(move);
+    return move;
+}
+
 void mcts_pure::game_over(int result) {
 
 }

@@ -29,3 +29,14 @@ int human_player::play(int previous_move) {
 
     return -1;
 }
+
+int human_player::force_move(int previous_move, int move) {
+    if (previous_move != -1) {
+        // add code here to mark the previous_move on the board
+        this->brd.update(previous_move, -this->player);
+    }
+
+    this->brd.update(move, this->player);
+
+    return move;
+}

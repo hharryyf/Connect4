@@ -25,7 +25,10 @@ The project would consist of the following iterations:
 
     * [x] be familiar with the C++ deep learning library
 
-4. - [x] Try to improve the performance of the C++ MCTS + Deep Reinforcement Learning agent.
+4. - [ ] Try to improve the performance of the C++ MCTS + Deep Reinforcement Learning agent.
+    
+    * We have designed a player that combines 2 players such that the first several moves are played by the DQN player while the later moves are
+    played by the Alpha-Beta player 
 
 Project status: 3 players were implemented in C++: pure-MCTS-cpuct, and alpha-beta pruning (with transposition table). The DeepQN-MCTS player
 were implemented in both Python and C++.
@@ -47,7 +50,7 @@ Alpha-beta-depth | Pure-MCTS-CPUCT playout | Win | Loss | Draw | Winning rate
 7 | 500,000 | 12 | 8 | 0 | 60%
 7 | 1,000,000 | 16 | 4 | 0 | 80%
 11 | 50,000 | 20 | 0 | 0 | 100%
-11 | 200,000 | 18 | 2 | 0 | 90%
+11 | 200,000 | 17 | 3 | 0 | 85%
 11 | 500,000 | 19 | 1 | 0 | 95%
 11 | 1,000,000 | 17 | 3 | 0 | 85%
 
@@ -68,6 +71,11 @@ Connect-Zero | Pure-MCTS-CPUCT playout | Win | Loss | Draw | Winning rate
 1,000 | 1,000 | 9 | 1 | 0 | 90%
 5,000 | 50,000 | 5 | 4 | 1 | 55%
 5,000  | 200,000 | 1 | 9 | 0 | 10%
+
+**Connect-Zero (first 12 moves, after 700 training games) + Alpha-beta (depth=11) vs Pure-MCTS-CPUCT (20 games)**
+Connect-Zero | Pure-MCTS-CPUCT playout | Win | Loss | Draw | Winning rate
+--- | --- | --- | --- | --- | ---
+5,000 | 200,000 | 17 | 2 | 1 | 82.5%
 
 ## Reference
 The implementation heavily referenced https://github.com/junxiaosong/AlphaZero_Gomoku

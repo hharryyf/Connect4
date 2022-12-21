@@ -342,3 +342,101 @@ void mcts_zero::debug() {
 
 }
 
+void alpha_beta_neural::init(int turn, std::string name, ConfigObject config) {
+    this->player = turn;
+    this->name = name;
+    this->board = bit_board();
+    this->rng.seed(std::chrono::system_clock::now().time_since_epoch().count());
+    if (this->network == nullptr) {
+        this->network = std::make_shared<policy_value_net>("../../model/best_model.pt", config.get_lr(), config.get_decay());
+        this->network->set_eval();
+    }
+}
+
+int alpha_beta_neural::play(int previous_move) {
+    if (previous_move != -1) {
+        this->board.do_move(previous_move);
+    }
+
+    int move = -1;
+    if (previous_move == -1) {
+        move = 3;
+    } else {
+        auto nxt = this->negamax_no_table(board, this->player, 5, -1e8, 1e8);
+        move = nxt.second;
+        std::cout << display_name() << " search depth: " << 5 << " score: " << nxt.first * this->player << std::endl;
+    }
+   
+    this->board.do_move(move);
+    return move;
+}
+
+int alpha_beta_neural::force_move(int previous_move, int move) {
+    if (previous_move != -1) {
+        this->board.do_move(previous_move);
+    }
+    this->board.do_move(move);
+    return move;
+}
+
+std::pair<double, int> alpha_beta_neural::negamax_no_table(bit_board current_board, int current, int depth, double alpha, double beta) {
+    if (current_board.has_winner().first) return std::make_pair(1e8 * current_board.has_winner().second * current, -1);
+    if (depth == 0) {
+        return this->heuristic(current_board);
+    }
+
+    std::vector<int> valid_move;
+    for (int i = 0 ; i < 7; ++i) {
+        if (current_board.can_move(i)) {
+            valid_move.push_back(i);
+        }
+    }
+
+    std::shuffle(valid_move.begin(), valid_move.end(), rng);
+
+
+    std::pair<double, int> nextmove = {-1e8, -1};
+    for (auto p : valid_move) {
+        auto nxt_board = current_board.duplicate();
+        nxt_board.do_move(p);
+        auto nxt = negamax_no_table(nxt_board, -current, depth - 1, -beta, -alpha);
+        nxt.first *= -1;
+        if (nxt.first >= nextmove.first || nextmove.second == -1) {
+            nextmove.second = p;
+            nextmove.first = nxt.first;
+        }
+
+        alpha = std::max(alpha, nextmove.first);
+
+        if (alpha >= beta) {
+            break;
+        }
+    }
+
+    return nextmove;
+}
+
+std::pair<double, int> alpha_beta_neural::heuristic(bit_board &current_board) {
+    if (current_board.has_winner().first) return std::make_pair(1e8 * current_board.has_winner().second, -1);
+    auto tup = this->network->evaluate_position(current_board);
+    auto move_vec = std::get<0>(tup);
+    double score = std::get<1>(tup);
+    int idx = 0;
+    for (int i = 0 ; i < (int) move_vec.size(); ++i) {
+        if (move_vec[idx].second < move_vec[i].second) idx = i;
+    }
+
+    return std::make_pair(score * 30000, move_vec[idx].first);
+}
+
+std::string alpha_beta_neural::display_name() {
+    return this->name;
+}
+
+void alpha_beta_neural::game_over(int result) {
+
+}
+
+void alpha_beta_neural::debug() {
+
+}

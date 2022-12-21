@@ -16,6 +16,7 @@
 #include "human_play/humanplayer.h"
 #include "deepq_mcts/mcts_pure.h"
 #include "deepq_mcts/mcts_zero.h"
+#include "combine_play/combine_player.h"
 #include "dirichlet.h"
 #include <winsock2.h>
 #include <Windows.h>
@@ -185,6 +186,10 @@ void start_interactive_game() {
     human_player player6;
     mcts_zero player7;
     mcts_zero player8;
+    alpha_beta_neural player9;
+    alpha_beta_neural player10;
+    combine_player player11;
+    combine_player player12;
     ConfigObject config1;
     ConfigObject config2;
     config1.Set_c_puct(3).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_reload(true);
@@ -194,7 +199,7 @@ void start_interactive_game() {
     gameplayer *g2;
     std::string name1, name2;
     int tolgame = 10;
-    std::cout << "please input player 1\n1 for alpha-beta, 2 for pure-mcts, 3 for human, 4 for mcts-zero: ";
+    std::cout << "please input player 1\n1 for alpha-beta, 2 for pure-mcts, 3 for human, 4 for mcts-zero, 5 for neural-alpha-beta: ";
     std::cin >> type1;
     if (type1 == 1) {
         g1 = &player1;
@@ -218,12 +223,21 @@ void start_interactive_game() {
         config1.Set_reload(false);
         player7.set_train(config1, false);
         g1 = &player7;
+    } else if (type1 == 5) {
+        config1.Set_mcts_play_iteration(5000).Set_c_puct(3);
+        name1 = std::string("Neural-Alpha-Beta");
+        player7.init(1, name1, config1);
+        config1.Set_reload(false);
+        player7.set_train(config1, false);
+        player11.set_players(&player7, &player1);
+        player11.init(1, name1, config1);
+        g1 = &player11;
     } else {
-        std::cerr << "player 1 type must be within {1, 2, 3, 4}" << std::endl;
+        std::cerr << "player 1 type must be within {1, 2, 3, 4, 5}" << std::endl;
         exit(1);
     }
 
-    std::cout << "please input player 2\n1 for alpha-beta, 2 for pure-mcts, 3 for human, 4 for mcts-zero: ";
+    std::cout << "please input player 2\n1 for alpha-beta, 2 for pure-mcts, 3 for human, 4 for mcts-zero, 5 for neural-alpha-beta: ";
     std::cin >> type2;
     if (type2 == 1) {
         g2 = &player2;
@@ -247,8 +261,17 @@ void start_interactive_game() {
         config2.Set_reload(false);
         player8.set_train(config2, false);
         g2 = &player8;
+    } else if (type2 == 5) {
+        config2.Set_mcts_play_iteration(5000).Set_c_puct(3);
+        name2 = std::string("Neural-Alpha-Beta");
+        player8.init(-1, name2, config2);
+        config2.Set_reload(false);
+        player8.set_train(config2, false);
+        player12.set_players(&player8, &player2);
+        player12.init(-1, name2, config2);
+        g1 = &player12;
     } else {
-        std::cerr << "player 2 type must be within {1, 2, 3, 4}" << std::endl;
+        std::cerr << "player 2 type must be within {1, 2, 3, 4, 5}" << std::endl;
         exit(1);
     }
 

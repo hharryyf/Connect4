@@ -113,19 +113,6 @@ public:
         return true;
     }
 
-    void undo(int move) {
-        if (this->col[move] == -1) {
-            printf("Cannot undo a move at empty column!");
-            exit(1);
-        }
-
-        if (this->x_board & (1ull << (this->col[move] * 8 + move))) {
-            this->x_board ^= (1ull << (this->col[move] * 8 + move));
-        } else {
-            this->o_board ^= (1ull << (this->col[move] * 8 + move));
-        }
-    }
-
     bit_board duplicate() {
         bit_board new_board = bit_board();
         new_board.x_board = this->x_board;

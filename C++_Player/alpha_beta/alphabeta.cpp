@@ -223,9 +223,11 @@ int alphabeta_player::play(int previous) {
             return 2 + this->max_depth;
         } else if (piece < 16) {
             return 4 + this->max_depth;
+        } else if (piece < 20) {
+            return 8 + this->max_depth;
         }
 
-        return 8 + this->max_depth;
+        return 10 + this->max_depth;
     };
 
     this->board.clear_middle_game_cache();
@@ -255,7 +257,7 @@ int alphabeta_player::force_move(int previous_move, int move) {
 void alphabeta_player::game_over(int result) {
     if (result == -1) {
         //std::cout << "game over " << display_name() << " start caching" << std::endl;
-        this->board.store_cache();
+        // this->board.store_cache();
     } else {
         //std::cout << "game over " << display_name() << " discard caching" << std::endl;
     }

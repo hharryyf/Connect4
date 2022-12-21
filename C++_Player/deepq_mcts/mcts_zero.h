@@ -167,3 +167,47 @@ private:
     std::string name;
     bit_board board;
 };
+
+class alpha_beta_neural : public gameplayer {
+public:
+    // this init method would let the player to initialize the board
+    // turn: integer 1/-1 represents whether the player plays first or second
+    void init(int turn, std::string name, ConfigObject config);
+    /* 
+      @previous_move: integer between 0 and max_col - 1 represents the column the opponent moves, 
+                        -1 means the current move is the first move
+      @return: a number between 0 and max_col - 1 represents the column of the current player is playing
+    */ 
+    int play(int previous_move);
+    /* 
+      @previous_move: integer between 0 and max_col - 1 represents the column the opponent moves, 
+                        -1 means the current move is the first move
+      @move: integer between 0 and max_col - 1 represents the column the player must play
+      @return: move
+    */
+    int force_move(int previous_move, int move);
+    /*
+      @return: the name of the player
+    */
+    std::string display_name();
+    /*
+      do something when the game is over, in many cases the player does nothing here
+    */
+    void game_over(int result);
+    /* used for debug, can do nothing */
+    void debug();
+
+protected:
+
+    std::pair<double, int> negamax_no_table(bit_board current_board, int current, int depth, double alpha, double beta);
+
+private:
+
+    std::pair<double, int> heuristic(bit_board &current_board);
+
+    std::default_random_engine rng = std::default_random_engine {};
+    std::string name;
+    bit_board board;
+    std::shared_ptr<policy_value_net> network;
+    int player;
+};

@@ -75,7 +75,7 @@ Connect-Zero | Pure-MCTS-CPUCT playout | Win | Loss | Draw | Winning rate
 **Connect-Zero (first 12 moves, after 700 training games) + Alpha-beta (depth=11) vs Pure-MCTS-CPUCT (20 games)**
 Connect-Zero | Pure-MCTS-CPUCT playout | Win | Loss | Draw | Winning rate
 --- | --- | --- | --- | --- | ---
-5,000 | 200,000 | 17 | 2 | 1 | 82.5%
+5,000 | 200,000 | 16 | 3 | 1 | 82.5%
 
 ## Reference
 The implementation heavily referenced https://github.com/junxiaosong/AlphaZero_Gomoku

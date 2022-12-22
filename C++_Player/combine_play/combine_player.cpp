@@ -10,7 +10,7 @@ void combine_player::init(int turn, std::string name, ConfigObject config) {
 
 int combine_player::play(int previous_move) {
     if (previous_move != -1) this->num_move++;
-    if (this->num_move <= 12) {
+    if (this->num_move < 12) {
         this->num_move++;
         return this->g2->force_move(previous_move, this->g1->play(previous_move));
     }

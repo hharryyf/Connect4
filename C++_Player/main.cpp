@@ -205,7 +205,7 @@ void start_interactive_game() {
         g1 = &player1;
         std::cout << "please input the searching depth: ";
         std::cin >> d;
-        config1.Set_alpha_beta_depth(d >= 3 ? d : 3);
+        config1.Set_alpha_beta_depth(d >= 3 ? d : 3).Set_alpha_beta_cache_lost(true);
         name1 = std::string("Alpha-Beta-d-").append(std::to_string(d));
     } else if (type1 == 2) {
         g1 = &player3;
@@ -224,7 +224,7 @@ void start_interactive_game() {
         player7.set_train(config1, false);
         g1 = &player7;
     } else if (type1 == 5) {
-        config1.Set_mcts_play_iteration(5000).Set_c_puct(3);
+        config1.Set_mcts_play_iteration(5000).Set_c_puct(3).Set_alpha_beta_cache_lost(false);
         name1 = std::string("Neural-Alpha-Beta");
         player7.init(1, name1, config1);
         config1.Set_reload(false);
@@ -243,7 +243,7 @@ void start_interactive_game() {
         g2 = &player2;
         std::cout << "please input the searching depth: ";
         std::cin >> d;
-        config2.Set_alpha_beta_depth(d >= 3 ? d : 3);
+        config2.Set_alpha_beta_depth(d >= 3 ? d : 3).Set_alpha_beta_cache_lost(true);
         name2 = std::string("Alpha-Beta-d-").append(std::to_string(d));
     } else if (type2 == 2) {
         g2 = &player4;
@@ -262,7 +262,7 @@ void start_interactive_game() {
         player8.set_train(config2, false);
         g2 = &player8;
     } else if (type2 == 5) {
-        config2.Set_mcts_play_iteration(5000).Set_c_puct(3);
+        config2.Set_mcts_play_iteration(5000).Set_c_puct(3).Set_alpha_beta_cache_lost(false);
         name2 = std::string("Neural-Alpha-Beta");
         player8.init(-1, name2, config2);
         config2.Set_reload(false);
@@ -626,11 +626,15 @@ void start_training_game(int tol_game) {
     ConfigObject config;
     ConfigObject mcts_player_config;
     mcts_zero player;
-    mcts_player_config = mcts_player_config.Set_c_puct(3).Set_mcts_play_iteration(1000);
     double winning_rate = 0.0;
     printf("please insert the start winning rate: ");
     scanf("%lf", &winning_rate);
+    printf("please insert the mcts pure iterations when testing: ");
+    int iter;
+    scanf("%d", &iter);
+    if (iter < 1000) iter = 1000;
     config = config.Set_c_puct(3).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_mcts_play_iteration(1000).Set_mcts_train_iteration(500).Set_reload(true);
+    mcts_player_config = mcts_player_config.Set_c_puct(3).Set_mcts_play_iteration(iter);
     player.init(1, "Mcts-Zero-Player", config);
     config = config.Set_reload(false);
     player.set_train(config, true);
@@ -673,7 +677,7 @@ void start_training_game(int tol_game) {
         // evaluate the current policy
         if (t % 50 == 0) {
             player.save_model("../../model/current_model.pt");
-            config = config.Set_mcts_play_iteration(mcts_player_config.get_mcts_play_iteration());
+            config = config.Set_mcts_play_iteration(1000);
             player.set_train(config, false);
             mcts_pure player2;
             player2.init(1, std::string("MCTS-Pure") + std::string(std::to_string(mcts_player_config.get_mcts_play_iteration())), mcts_player_config);

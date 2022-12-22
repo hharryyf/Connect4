@@ -5,6 +5,7 @@ void alphabeta_player::init(int turn, std::string n, ConfigObject config) {
     this->name = n;
     this->board.init();
     this->max_depth = config.get_alpha_beta_max_depth();
+    this->cache_lost = config.get_alpha_beta_cache_lost();
 }
 
 std::pair<double, int> alphabeta_player::negamax(int current, int depth, double alpha, double beta) {
@@ -256,9 +257,8 @@ int alphabeta_player::force_move(int previous_move, int move) {
 
 void alphabeta_player::game_over(int result) {
     if (result == -1) {
-        //std::cout << "game over " << display_name() << " start caching" << std::endl;
-        // this->board.store_cache();
-    } else {
-        //std::cout << "game over " << display_name() << " discard caching" << std::endl;
+        if (this->cache_lost) {
+            this->board.store_cache();
+        }
     }
 }

@@ -83,6 +83,11 @@ public:
         this->dqn_reload = dqn_reload;
         return *this;
     }
+
+    ConfigObject &Set_alpha_beta_cache_lost(bool cache) {
+        this->alpha_beta_cache_lost = cache;
+        return *this;
+    }
     
     int get_alpha_beta_max_depth() {
         return alpha_beta_max_depth;
@@ -124,6 +129,10 @@ public:
         return dqn_reload;
     }
 
+    bool get_alpha_beta_cache_lost() {
+        return alpha_beta_cache_lost;
+    }
+
 private:
     int alpha_beta_max_depth = 11;
     int mcts_play_iteration = 10000;
@@ -135,4 +144,5 @@ private:
     double dqn_noise_portion = 0.25;
     double dqn_alpha = 0.3;
     bool dqn_reload = true;
+    bool alpha_beta_cache_lost = true;
 };

@@ -41,6 +41,7 @@ protected:
     std::pair<double, int> negamax_no_table(int current_player, int depth, double alpha, double beta);
     
 private:
+    bool cache_lost = true;
     std::default_random_engine rng = std::default_random_engine {};
     int player = 0;
     int max_depth = 11;

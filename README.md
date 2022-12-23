@@ -81,7 +81,7 @@ Training games | Connect-Zero playout | Pure-MCTS-CPUCT playout | Win | Loss | D
 **Connect-Zero (first 12 moves) + Alpha-beta (depth>=11) vs Pure-MCTS-CPUCT (10 games)**
 
 Training games | Connect-Zero playout | Pure-MCTS-CPUCT playout | Win | Loss | Draw | Winning rate
---- | --- | --- | --- | --- | ---
+--- | --- | --- | --- | --- | --- | ---
 700 | 5,000 | 200,000 | 7 | 2 | 1 | 75%
 850 | 5,000 | 200,000 | 8 | 2 | 0 | 80%
 1,000 | 5,000 | 200,000 | 10 | 0 | 0 | **100%**

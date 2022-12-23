@@ -66,6 +66,7 @@ Pure-MCTS-CPUCT playout | Pure-MCTS-CPUCT playout | Win | Loss | Draw | Winning 
 1,000,000 | 500,000 | 7 | 3 | 0 | 70%
 
 **Connect-Zero vs Pure-MCTS-CPUCT (10 games)**
+
 Training games | Connect-Zero playout | Pure-MCTS-CPUCT playout | Win | Loss | Draw | Winning rate
 --- | --- | --- | --- | --- | --- | ---
 100 | 1,000 | 1,000 | 4 | 5 | 1 | 45%

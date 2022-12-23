@@ -65,17 +65,26 @@ Pure-MCTS-CPUCT playout | Pure-MCTS-CPUCT playout | Win | Loss | Draw | Winning 
 1,000,000 | 200,000 | 7 | 3 | 0 | 70%
 1,000,000 | 500,000 | 7 | 3 | 0 | 70%
 
-**Connect-Zero (after 700 training games) vs Pure-MCTS-CPUCT (10 games)**
-Connect-Zero | Pure-MCTS-CPUCT playout | Win | Loss | Draw | Winning rate
---- | --- | --- | --- | --- | ---
-1,000 | 1,000 | 9 | 1 | 0 | 90%
-5,000 | 50,000 | 5 | 4 | 1 | 55%
-5,000  | 200,000 | 1 | 9 | 0 | 10%
+**Connect-Zero vs Pure-MCTS-CPUCT (10 games)**
+Training games | Connect-Zero playout | Pure-MCTS-CPUCT playout | Win | Loss | Draw | Winning rate
+--- | --- | --- | --- | --- | --- | ---
+100 | 1,000 | 1,000 | 4 | 5 | 1 | 45%
+400 | 1,000 | 1,000 | 7 | 2 | 1 | 75%
+700 | 1,000 | 1,000 | 9 | 1 | 0 | 90%
+700 | 5,000 | 50,000 | 5 | 4 | 1 | 55%
+700 | 5,000  | 200,000 | 1 | 9 | 0 | 10%
+750 | 1,000 | 1,000 | 10 | 0 | 0 | **100%**
+850 | 1,000 | 2,000 | 5 | 5 | 0 | 50%
+1,000 | 1,000 | 2,000 | 7 | 2 | 1 | 75%   
 
-**Connect-Zero (first 12 moves, after 700 training games) + Alpha-beta (depth=11) vs Pure-MCTS-CPUCT (20 games)**
-Connect-Zero | Pure-MCTS-CPUCT playout | Win | Loss | Draw | Winning rate
+**Connect-Zero (first 12 moves) + Alpha-beta (depth>=11) vs Pure-MCTS-CPUCT (10 games)**
+Training games | Connect-Zero playout | Pure-MCTS-CPUCT playout | Win | Loss | Draw | Winning rate
 --- | --- | --- | --- | --- | ---
-5,000 | 200,000 | 16 | 3 | 1 | 82.5%
+700 | 5,000 | 200,000 | 7 | 2 | 1 | 75%
+850 | 5,000 | 200,000 | 8 | 2 | 0 | 80%
+1,000 | 5,000 | 200,000 | 10 | 0 | 0 | **100%**
+
+Observation: The Connect-Zero player is pretty good at the starting phase of the game, but it is not good after 20 moves. I have used alpha-beta-depth-21 to monitor the connect-zero player's performance for the last 20 moves, it always makes mistakes that could change the game state from winning to losing. 
 
 ## Reference
 The implementation heavily referenced https://github.com/junxiaosong/AlphaZero_Gomoku

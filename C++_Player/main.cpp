@@ -639,6 +639,36 @@ void start_training_game(int tol_game) {
     config = config.Set_reload(false);
     player.set_train(config, true);
     memory_buffer<std::tuple<std::vector<std::vector<std::vector<double>>>, std::vector<double>, int>> buffer(10000);
+    FILE *fp = fopen("../../model/batch.txt", "r");
+    if (fp != NULL) {
+        printf("start loading previous memory buffer...\n");
+        int N;
+        fscanf(fp, "%d", &N);
+        for (int i = 0 ; i < N; ++i) {
+            std::vector<std::vector<std::vector<double>>> st = 
+                std::vector<std::vector<std::vector<double>>>(3, std::vector<std::vector<double>>(6, std::vector<double>(7, 0))); 
+            std::vector<double> pro = std::vector<double>(7, 0);
+            int wi;
+            for (int j = 0; j < 3; ++j) {
+                for (int k = 0 ; k < 6; ++k) {
+                    for (int l = 0 ; l < 7; ++l) {
+                        fscanf(fp, "%lf", &st[j][k][l]);
+                    }
+                }
+            }
+            for (int j = 0 ; j < 7; ++j) {
+                fscanf(fp, "%lf", &pro[j]);
+            }
+            fscanf(fp, "%d", &wi);
+            buffer.add(std::make_tuple(st, pro, wi));
+        }
+
+        printf("load memory buffer of size %d\n", N);
+        fclose(fp);
+    } else {
+        printf("start from an empty memory buffer\n");
+    }
+    
     int mini_batch_sz = 512, epoch = 5;
     for (int t = 1; t <= tol_game; ++t) {
         auto play_data = std::get<1>(player.self_play(config.get_temp()));
@@ -693,7 +723,35 @@ void start_training_game(int tol_game) {
             }
             player.set_train(config, true);
             player.reset_player();
-        }
-        
+        }       
     }
+
+    fp = fopen("../../model/batch.txt", "w");
+    auto data = buffer.sample(buffer.size());
+    printf("start saving memory buffer...\n");
+    fprintf(fp, "%d\n", (int) data.size());
+    for (int i = 0 ; i < (int) data.size(); ++i) {
+        auto state = std::get<0>(data[i]);
+        auto prob = std::get<1>(data[i]);
+        auto win = std::get<2>(data[i]);
+        for (int j = 0; j < 3; ++j) {
+            for (int k = 0 ; k < 6; ++k) {
+                for (int l = 0 ; l < 7; ++l) {
+                    fprintf(fp, "%lf ", state[j][k][l]);
+                }
+                fprintf(fp, "\n");
+            }
+        }
+
+        for (int j = 0 ; j < 7; ++j) {
+            fprintf(fp, "%lf ", prob[j]);
+        }
+
+        fprintf(fp, "\n");
+        
+        fprintf(fp, "%d\n", win);
+    }
+
+    printf("saving memory buffer of size %d\n", (int) data.size());
+    fclose(fp);
 }

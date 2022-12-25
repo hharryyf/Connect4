@@ -228,7 +228,7 @@ int alphabeta_player::play(int previous) {
             return 8 + this->max_depth;
         }
 
-        return 10 + this->max_depth;
+        return 12 + this->max_depth;
     };
 
     this->board.clear_middle_game_cache();
@@ -236,8 +236,12 @@ int alphabeta_player::play(int previous) {
     //auto p = minimax(this->player, d, -AlphaBetaConfig::four, AlphaBetaConfig::four);
     auto p = negamax(this->player, d, -AlphaBetaConfig::four, AlphaBetaConfig::four);
     if (p.first == -AlphaBetaConfig::four) {
-        auto q = negamax_no_table(this->player, 3, -AlphaBetaConfig::four, AlphaBetaConfig::four);
+        auto q = negamax_no_table(this->player, 7, -AlphaBetaConfig::four, AlphaBetaConfig::four);
         p.second = q.second;
+        if (q.first == -AlphaBetaConfig::four) {
+            q = negamax_no_table(this->player, 3, -AlphaBetaConfig::four, AlphaBetaConfig::four);
+            p.second = q.second;
+        }
     }
     std::cout << display_name() << " search depth: " << d << " score: " << p.first * this->player << std::endl;
     this->board.update(p.second, this->player);

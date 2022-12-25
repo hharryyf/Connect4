@@ -112,7 +112,7 @@ void policy_value_net::set_eval() {
     this->module.eval();
 }
 
-void mcts_zero_tree::playout(bit_board board) {
+void mcts_zero_tree::playout(bit_board board, bool call_minmax) {
     auto curr = this->root;
     while (curr != nullptr) {
         if (curr->is_leaf()) break;
@@ -121,9 +121,7 @@ void mcts_zero_tree::playout(bit_board board) {
         curr = mpn.second;
     }
 
-    clock_t start = clock();
     auto eval = this->network->evaluate_position(board);
-    clock_t end = clock();
     auto action_probablity = std::get<0>(eval);
     auto reward = std::get<1>(eval);
     auto result = board.has_winner();
@@ -134,15 +132,32 @@ void mcts_zero_tree::playout(bit_board board) {
             reward = board.get_current_player() == result.second ? 1 : -1;
         }
     } else {
+        if (call_minmax) {
+            auto best = this->negamax_no_table(board, board.get_current_player(), 5, -2, 2);
+            if (best.first == 2 || best.first == 0 || best.first == -2) {
+                // printf("we fix the reward from %lf to %lf\n", reward, 0.5 * best.first);
+                reward = 0.5 * best.first;
+            }
+            if (best.first == 2 || best.first == 0) {
+                for (auto &prob : action_probablity) {
+                    if (prob.first == best.second) {
+                        prob.second = 1.0;
+                    } else {
+                        prob.second = 0.0;
+                    }
+                }
+            }
+        }
+
         curr->expansion(action_probablity);
     }
 
     curr->update_recursive(-reward);
 }
 
-std::tuple<std::vector<int>, std::vector<double>> mcts_zero_tree::get_move_probability(bit_board board, double temp) {
+std::tuple<std::vector<int>, std::vector<double>> mcts_zero_tree::get_move_probability(bit_board board, double temp, bool call_minmax) {
     for (int i = 0 ; i < this->num_playout; ++i) {
-        this->playout(board);
+        this->playout(board, call_minmax);
     }
 
 
@@ -161,7 +176,7 @@ void mcts_zero_tree::update_with_move(int move) {
 
 void mcts_zero::init(int turn, std::string name, ConfigObject config) {
     if (config.get_dqn_reload()) {
-        this->network = std::make_shared<policy_value_net>("../../model/best_model.pt", config.get_lr(), config.get_decay());
+        this->network = std::make_shared<policy_value_net>(config.get_model_path(), config.get_lr(), config.get_decay());
     }
     
     this->name = name;
@@ -170,6 +185,7 @@ void mcts_zero::init(int turn, std::string name, ConfigObject config) {
     this->temp = config.get_temp();
     this->alpha = config.get_dirichlet_alpha();
     this->noise_portion = config.get_noise_portion();
+    this->call_minmax = config.get_dqn_call_minmax();
     this->board = bit_board();
     //printf("reload? = %d\n", config.get_dqn_reload());
 }
@@ -261,7 +277,7 @@ std::tuple<int, std::vector<double>> mcts_zero::get_action(bit_board board, doub
     int move = -1;
     std::vector<double> move_prob = std::vector<double>(7, 0);
     if (!this->board.has_winner().first) {
-        auto act = this->mcts.get_move_probability(board, temp);
+        auto act = this->mcts.get_move_probability(board, temp, this->call_minmax);
         auto valid_action = std::get<0>(act);
         auto act_prob = std::get<1>(act);
         for (int i = 0 ; i < (int) valid_action.size(); ++i) {
@@ -315,6 +331,7 @@ void mcts_zero::reset_player() {
 
 void mcts_zero::set_train(ConfigObject config, bool training) {
     this->is_train = training;
+    this->call_minmax = config.get_dqn_call_minmax();
     if (this->is_train) {
         this->network->set_train();
         this->mcts.set_num_playout(config.get_mcts_train_iteration());
@@ -339,104 +356,5 @@ void mcts_zero::game_over(int result) {
 }
 
 void mcts_zero::debug() {
-
-}
-
-void alpha_beta_neural::init(int turn, std::string name, ConfigObject config) {
-    this->player = turn;
-    this->name = name;
-    this->board = bit_board();
-    this->rng.seed(std::chrono::system_clock::now().time_since_epoch().count());
-    if (this->network == nullptr) {
-        this->network = std::make_shared<policy_value_net>("../../model/best_model.pt", config.get_lr(), config.get_decay());
-        this->network->set_eval();
-    }
-}
-
-int alpha_beta_neural::play(int previous_move) {
-    if (previous_move != -1) {
-        this->board.do_move(previous_move);
-    }
-
-    int move = -1;
-    if (previous_move == -1) {
-        move = 3;
-    } else {
-        auto nxt = this->negamax_no_table(board, this->player, 5, -1e8, 1e8);
-        move = nxt.second;
-        std::cout << display_name() << " search depth: " << 5 << " score: " << nxt.first * this->player << std::endl;
-    }
-   
-    this->board.do_move(move);
-    return move;
-}
-
-int alpha_beta_neural::force_move(int previous_move, int move) {
-    if (previous_move != -1) {
-        this->board.do_move(previous_move);
-    }
-    this->board.do_move(move);
-    return move;
-}
-
-std::pair<double, int> alpha_beta_neural::negamax_no_table(bit_board current_board, int current, int depth, double alpha, double beta) {
-    if (current_board.has_winner().first) return std::make_pair(1e8 * current_board.has_winner().second * current, -1);
-    if (depth == 0) {
-        return this->heuristic(current_board);
-    }
-
-    std::vector<int> valid_move;
-    for (int i = 0 ; i < 7; ++i) {
-        if (current_board.can_move(i)) {
-            valid_move.push_back(i);
-        }
-    }
-
-    std::shuffle(valid_move.begin(), valid_move.end(), rng);
-
-
-    std::pair<double, int> nextmove = {-1e8, -1};
-    for (auto p : valid_move) {
-        auto nxt_board = current_board.duplicate();
-        nxt_board.do_move(p);
-        auto nxt = negamax_no_table(nxt_board, -current, depth - 1, -beta, -alpha);
-        nxt.first *= -1;
-        if (nxt.first >= nextmove.first || nextmove.second == -1) {
-            nextmove.second = p;
-            nextmove.first = nxt.first;
-        }
-
-        alpha = std::max(alpha, nextmove.first);
-
-        if (alpha >= beta) {
-            break;
-        }
-    }
-
-    return nextmove;
-}
-
-std::pair<double, int> alpha_beta_neural::heuristic(bit_board &current_board) {
-    if (current_board.has_winner().first) return std::make_pair(1e8 * current_board.has_winner().second, -1);
-    auto tup = this->network->evaluate_position(current_board);
-    auto move_vec = std::get<0>(tup);
-    double score = std::get<1>(tup);
-    int idx = 0;
-    for (int i = 0 ; i < (int) move_vec.size(); ++i) {
-        if (move_vec[idx].second < move_vec[i].second) idx = i;
-    }
-
-    return std::make_pair(score * 30000, move_vec[idx].first);
-}
-
-std::string alpha_beta_neural::display_name() {
-    return this->name;
-}
-
-void alpha_beta_neural::game_over(int result) {
-
-}
-
-void alpha_beta_neural::debug() {
 
 }

@@ -15,8 +15,6 @@ This project consists of a bunch of connect4 players. The project is still under
 3) a MCTS player with Deep Learning enhancement 
 
 We also support: human play mode in a terminal window
-
-Optional task: A game player that allows game players of different language to compete accross a socket  
 	
 ## Technologies
 Project is created with:

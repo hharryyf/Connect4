@@ -30,8 +30,9 @@
 
 class policy_value_net {
 public:
-    policy_value_net(std::string filename="../../model/resblock.pt", double lr=0.002, double decay=0.0001) {
+    policy_value_net(std::string filename, double lr=0.002, double decay=0.0001) {
         this->module = torch::jit::load(filename);
+        printf("load the jit model from path: %s\n", filename.c_str());
         for (const auto& params : module.parameters()) {
 	        this->parameters.push_back(params);
         }
@@ -72,6 +73,7 @@ public:
     void set_eval();
 
 private:
+
     torch::jit::Module module;
     std::vector<at::Tensor> parameters;
     std::shared_ptr<torch::optim::Optimizer> optimizer;
@@ -89,9 +91,9 @@ public:
         this->network = net;
     }
     
-    void playout(bit_board board);
+    void playout(bit_board board, bool call_minimax);
     
-    std::tuple<std::vector<int>, std::vector<double>> get_move_probability(bit_board board, double temp=1e-3);
+    std::tuple<std::vector<int>, std::vector<double>> get_move_probability(bit_board board, double temp, bool call_minmax);
     
     void update_with_move(int move);
 
@@ -104,6 +106,41 @@ public:
     }
 
 private:
+
+    std::pair<int, int> negamax_no_table(bit_board current_board, int current, int depth, int alpha, int beta) {
+        if (current_board.has_winner().first) return std::make_pair(2 * current_board.has_winner().second * current, -1);
+        if (depth == 0) {
+            return std::make_pair(1, -1);
+        }
+
+        std::vector<int> valid_move;
+        for (int i = 0 ; i < 7; ++i) {
+            if (current_board.can_move(i)) {
+                valid_move.push_back(i);
+            }
+        }
+
+        std::pair<int, int> nextmove = {-2, -1};
+        for (auto p : valid_move) {
+            auto nxt_board = current_board.duplicate();
+            nxt_board.do_move(p);
+            auto nxt = negamax_no_table(nxt_board, -current, depth - 1, -beta, -alpha);
+            nxt.first *= -1;
+            if (nxt.first >= nextmove.first || nextmove.second == -1) {
+                nextmove.second = p;
+                nextmove.first = nxt.first;
+            }
+
+            alpha = std::max(alpha, nextmove.first);
+
+            if (alpha >= beta) {
+                break;
+            }
+        }
+
+        return nextmove;
+    }
+
     std::shared_ptr<policy_value_net> network;
     std::shared_ptr<mcts_node> root;
     int num_playout;
@@ -161,53 +198,9 @@ private:
     std::default_random_engine rng = std::default_random_engine {};
     std::uniform_real_distribution<double> distribution = std::uniform_real_distribution<double>(0.0, 1.0);
     double temp, alpha, noise_portion;
-    bool is_train;
+    bool is_train, call_minmax;
     mcts_zero_tree mcts;
     std::shared_ptr<policy_value_net> network;
     std::string name;
     bit_board board;
-};
-
-class alpha_beta_neural : public gameplayer {
-public:
-    // this init method would let the player to initialize the board
-    // turn: integer 1/-1 represents whether the player plays first or second
-    void init(int turn, std::string name, ConfigObject config);
-    /* 
-      @previous_move: integer between 0 and max_col - 1 represents the column the opponent moves, 
-                        -1 means the current move is the first move
-      @return: a number between 0 and max_col - 1 represents the column of the current player is playing
-    */ 
-    int play(int previous_move);
-    /* 
-      @previous_move: integer between 0 and max_col - 1 represents the column the opponent moves, 
-                        -1 means the current move is the first move
-      @move: integer between 0 and max_col - 1 represents the column the player must play
-      @return: move
-    */
-    int force_move(int previous_move, int move);
-    /*
-      @return: the name of the player
-    */
-    std::string display_name();
-    /*
-      do something when the game is over, in many cases the player does nothing here
-    */
-    void game_over(int result);
-    /* used for debug, can do nothing */
-    void debug();
-
-protected:
-
-    std::pair<double, int> negamax_no_table(bit_board current_board, int current, int depth, double alpha, double beta);
-
-private:
-
-    std::pair<double, int> heuristic(bit_board &current_board);
-
-    std::default_random_engine rng = std::default_random_engine {};
-    std::string name;
-    bit_board board;
-    std::shared_ptr<policy_value_net> network;
-    int player;
 };

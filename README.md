@@ -25,7 +25,7 @@ The project would consist of the following iterations:
 
     * [x] be familiar with the C++ deep learning library
 
-4. - [ ] Try to improve the performance of the C++ MCTS + Deep Reinforcement Learning agent.
+4. - [x] Try to improve the performance of the C++ MCTS + Deep Reinforcement Learning agent.
     
     * We have designed a player that combines 2 players such that the first several moves are played by the DQN player while the later moves are
     played by the Alpha-Beta player 
@@ -86,7 +86,13 @@ Training games | Connect-Zero playout | Pure-MCTS-CPUCT playout | Win | Loss | D
 850 | 5,000 | 200,000 | 8 | 2 | 0 | 80%
 1,000 | 5,000 | 200,000 | 10 | 0 | 0 | **100%**
 
-Observation: The Connect-Zero player is pretty good at the starting phase of the game, but it is not good after 20 moves. I have used alpha-beta-depth-21 to monitor the connect-zero player's performance for the last 20 moves, it always makes mistakes that could change the game state from winning to losing. 
+Observation: The Connect-Zero player is pretty good at the starting phase of the game, but it is not good after 20 moves. I have used alpha-beta-depth-23 to monitor the connect-zero player's performance for the last 20 moves, it always makes mistakes that could change the game state from winning to losing. 
+
+**Conclusion and Future Work**
+
+We have designed a set of connect-4 players that use different search algorithms to play the game of connect-4. For the Connect-Zero player, after
+1000 training games, the model can beat an MCTS player with the same playout level by 10-0. However, due to the lack of computing resources (I have
+no GPU/TPU for training), on average, only 250 training games can be played per day with the current model (a residual network with 13 residual blocks) which limits probability of obtaining highly accurate model in feasible amount of training time. In the future, if I have access to a better laptop, I would try to train a deeper neural network (e.g. with 18~20 residual blocks) and increase the performance of connect-zero.
 
 ## Reference
 The implementation heavily referenced https://github.com/junxiaosong/AlphaZero_Gomoku

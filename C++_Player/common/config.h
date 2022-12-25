@@ -88,6 +88,16 @@ public:
         this->alpha_beta_cache_lost = cache;
         return *this;
     }
+
+    ConfigObject &Set_dqn_call_minmax(bool cmn) {
+        this->dqn_call_minmax = cmn;
+        return *this;
+    }
+
+    ConfigObject &Set_file_path(std::string path) {
+        this->dqn_file_path = path;
+        return *this;
+    }
     
     int get_alpha_beta_max_depth() {
         return alpha_beta_max_depth;
@@ -133,7 +143,16 @@ public:
         return alpha_beta_cache_lost;
     }
 
+    bool get_dqn_call_minmax() {
+        return dqn_call_minmax;
+    }
+
+    std::string get_model_path() {
+        return dqn_file_path;
+    }
+
 private:
+    std::string dqn_file_path = "../../model/best_model_rs_13.pt";
     int alpha_beta_max_depth = 11;
     int mcts_play_iteration = 10000;
     int mcts_train_iteration = 500;
@@ -145,4 +164,5 @@ private:
     double dqn_alpha = 0.3;
     bool dqn_reload = true;
     bool alpha_beta_cache_lost = true;
+    bool dqn_call_minmax = false;
 };

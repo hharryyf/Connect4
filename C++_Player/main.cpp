@@ -136,7 +136,11 @@ void test_load_model() {
         for (const auto& params : module.parameters()) {
 	        parameters.push_back(params);
         }
-        torch::optim::Adam optimizer(parameters, /*lr=*/0.1);
+        //torch::optim::Adam optimizer(parameters, /*lr=*/0.1);
+        std::shared_ptr<torch::optim::Optimizer> optimizer;
+        //torch::load(optimizer, "../../model/resblock_old_optimizer.pt");
+        optimizer = std::make_shared<torch::optim::Adam>(parameters, torch::optim::AdamOptions(0.1).weight_decay(0.02));
+        torch::load(*optimizer, "../../model/resblock_old_optimizer.pt");
         std::vector<int> state = std::vector<int>(sz * 3 * 6 * 7, 1);
         std::cout << state.size() << std::endl;
         auto t = torch::from_blob(state.data(), {sz, 3, 6, 7}).clone();
@@ -156,20 +160,22 @@ void test_load_model() {
                 std::cout << "item of policy [" << j << "]" << output.toTuple()->elements()[0].toTensor()[i][j].item<float>() << std::endl;    
             }
         }
-        optimizer.zero_grad();
+        optimizer->zero_grad();
         auto loss_v = torch::mse_loss(output.toTuple()->elements()[1].toTensor(), target_v);
         std::cout << "value loss " <<  loss_v << std::endl;
         auto loss_p = -torch::mean(torch::sum(target_p * output.toTuple()->elements()[0].toTensor(), 1));
         std::cout << "policy loss " <<  loss_p << " inner term " << torch::sum(target_p * output.toTuple()->elements()[0].toTensor(), 1) << std::endl;
         auto loss = loss_v + loss_p;
         loss.backward();
-        optimizer.step();
+        optimizer->step();
         module.save("../../model/resblock_old.pt");
+        torch::save(*optimizer, "../../model/resblock_old_optimizer.pt");
         std::cout << module.forward(inputs).toTuple()->elements()[0].toTensor() << std::endl;
         std::cout << module.forward(inputs).toTuple()->elements()[1].toTensor() << std::endl;
     }
     
     catch (const c10::Error& e) {
+        std::cerr << e.msg() << std::endl;
         std::cerr << "error loading the model\n";
         return;
     }
@@ -631,7 +637,7 @@ void start_training_game(int tol_game) {
     int iter;
     scanf("%d", &iter);
     if (iter < 1000) iter = 1000;
-    config = config.Set_c_puct(3).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_mcts_play_iteration(1000).Set_mcts_train_iteration(500).Set_reload(true).Set_dqn_call_minmax(false).Set_file_path("../../model/best_model_rs_19.pt");
+    config = config.Set_c_puct(3).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_mcts_play_iteration(1000).Set_mcts_train_iteration(500).Set_reload(true).Set_dqn_call_minmax(false).Set_file_path("../../model/current_model.pt").Set_opt_path("../../model/current_model_opt.pt");
     mcts_player_config = mcts_player_config.Set_c_puct(3).Set_mcts_play_iteration(iter);
     player.init(1, "Mcts-Zero-Player", config);
     config = config.Set_reload(false);
@@ -675,15 +681,16 @@ void start_training_game(int tol_game) {
 
         // evaluate the current policy
         if (t % 50 == 0 || t == tol_game) {
-            player.save_model("../../model/current_model.pt");
+            player.save_model("../../model/current_model.pt", "../../model/current_model_opt.pt");
             config = config.Set_mcts_play_iteration(1000);
             player.set_train(config, false);
             mcts_pure player2;
-            player2.init(1, std::string("MCTS-Pure") + std::string(std::to_string(mcts_player_config.get_mcts_play_iteration())), mcts_player_config);
-            auto nxt_win = play_group_of_games(10, &player, &player2, player.display_name(), player2.display_name(), config, mcts_player_config);
+            player2.init(10, std::string("MCTS-Pure") + std::string(std::to_string(mcts_player_config.get_mcts_play_iteration())), mcts_player_config);
+            auto nxt_win = play_group_of_games(1, &player, &player2, player.display_name(), player2.display_name(), config, mcts_player_config);
             if (nxt_win > winning_rate) {
                 printf("New best policy!\n");
-                player.save_model(config.get_model_path());
+                config = config.Set_file_path("../../model/best_model_rs_19.pt").Set_opt_path("../../model/best_model_opt.pt");
+                player.save_model(config.get_model_path(), config.get_opt_path());
                 winning_rate = nxt_win;
             }
 

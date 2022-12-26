@@ -98,6 +98,11 @@ public:
         this->dqn_file_path = path;
         return *this;
     }
+
+    ConfigObject &Set_opt_path(std::string path) {
+        this->dqn_opt_path = path;
+        return *this;
+    }
     
     int get_alpha_beta_max_depth() {
         return alpha_beta_max_depth;
@@ -151,8 +156,13 @@ public:
         return dqn_file_path;
     }
 
+    std::string get_opt_path() {
+        return dqn_opt_path;
+    }
+
 private:
     std::string dqn_file_path = "../../model/best_model_rs_13.pt";
+    std::string dqn_opt_path = "";
     int alpha_beta_max_depth = 11;
     int mcts_play_iteration = 10000;
     int mcts_train_iteration = 500;

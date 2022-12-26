@@ -30,7 +30,7 @@
 
 class policy_value_net {
 public:
-    policy_value_net(std::string filename, double lr=0.002, double decay=0.0001) {
+    policy_value_net(std::string filename, std::string optname, double lr=0.002, double decay=0.0001) {
         this->module = torch::jit::load(filename);
         printf("load the jit model from path: %s\n", filename.c_str());
         for (const auto& params : module.parameters()) {
@@ -38,6 +38,9 @@ public:
         }
         
         this->optimizer = std::make_shared<torch::optim::Adam>(this->parameters, torch::optim::AdamOptions(lr).weight_decay(decay));
+        if (optname != "") {
+             torch::load(*this->optimizer, optname);
+        }
     }
     
     /**
@@ -66,7 +69,7 @@ public:
                                          std::vector<std::vector<double>> &mcts_probability, 
                                          std::vector<int> &winner);
 
-    void save_model(std::string filename);
+    void save_model(std::string filename, std::string optname);
 
     void set_train();
 
@@ -184,7 +187,7 @@ public:
 
     void set_train(ConfigObject config, bool training);
 
-    void save_model(std::string path);
+    void save_model(std::string path, std::string optpath);
     
     void reset_player();
 protected:

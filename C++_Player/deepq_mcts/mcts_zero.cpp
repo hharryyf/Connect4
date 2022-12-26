@@ -100,8 +100,9 @@ std::tuple<double, double> policy_value_net::train_step(std::vector<std::vector<
     return std::make_tuple(loss.item<float>(), entropy.item<float>());
 }
 
-void policy_value_net::save_model(std::string filename) {
+void policy_value_net::save_model(std::string filename, std::string optname) {
     this->module.save(filename);
+    torch::save(*this->optimizer, optname);
 }
 
 void policy_value_net::set_train() {
@@ -176,7 +177,7 @@ void mcts_zero_tree::update_with_move(int move) {
 
 void mcts_zero::init(int turn, std::string name, ConfigObject config) {
     if (config.get_dqn_reload()) {
-        this->network = std::make_shared<policy_value_net>(config.get_model_path(), config.get_lr(), config.get_decay());
+        this->network = std::make_shared<policy_value_net>(config.get_model_path(), config.get_opt_path(), config.get_lr(), config.get_decay());
     }
     
     this->name = name;
@@ -347,8 +348,8 @@ std::tuple<double, double> mcts_zero::train_step(std::vector<std::vector<std::ve
     return this->network->train_step(batch, mcts_probability, winner);
 }
 
-void mcts_zero::save_model(std::string path) {
-    this->network->save_model(path);
+void mcts_zero::save_model(std::string path, std::string optpath) {
+    this->network->save_model(path, optpath);
 }
 
 void mcts_zero::game_over(int result) {

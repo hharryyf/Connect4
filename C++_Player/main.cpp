@@ -634,7 +634,7 @@ void start_training_game(int tol_game) {
     printf("please insert the start winning rate: ");
     scanf("%lf", &winning_rate);
     printf("please insert the mcts pure iterations when testing: ");
-    int iter;
+    int iter, start_batch = 0;
     scanf("%d", &iter);
     if (iter < 1000) iter = 1000;
     config = config.Set_c_puct(5).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_mcts_play_iteration(1000).Set_mcts_train_iteration(500).Set_reload(true).Set_dqn_call_minmax(false).Set_file_path("../../model/current_model.pt").Set_opt_path("../../model/current_model_opt.pt");
@@ -668,13 +668,14 @@ void start_training_game(int tol_game) {
         }
 
         printf("load memory buffer of size %d\n", N);
+        fscanf(fp, "%d", &start_batch);
         fclose(fp);
     } else {
         printf("start from an empty memory buffer\n");
     }
 
     int mini_batch_sz = 512, epoch = 5;
-    for (int t = 1; t <= tol_game; ++t) {
+    for (int t = 1 + start_batch; t <= tol_game + start_batch; ++t) {
         auto play_data = std::get<1>(player.self_play(config.get_temp()));
         auto board_states = std::get<0>(play_data);
         auto move_probabilities = std::get<1>(play_data);
@@ -754,7 +755,7 @@ void start_training_game(int tol_game) {
 
         fprintf(fp, "\n");
 
-        fprintf(fp, "%d\n", win);
+        fprintf(fp, "%d\n%d\n", win, start_batch + tol_game);
     }
 
     printf("saving memory buffer of size %d\n", (int) data.size());

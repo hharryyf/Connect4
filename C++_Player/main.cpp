@@ -196,8 +196,8 @@ void start_interactive_game() {
     combine_player player12;
     ConfigObject config1;
     ConfigObject config2;
-    config1.Set_c_puct(3).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_reload(true).Set_dqn_call_minmax(false);
-    config2.Set_c_puct(3).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_reload(true).Set_dqn_call_minmax(false);
+    config1.Set_c_puct(5).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_reload(true).Set_dqn_call_minmax(false);
+    config2.Set_c_puct(5).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_reload(true).Set_dqn_call_minmax(false);
     int type1, type2, d;
     gameplayer *g1;
     gameplayer *g2;
@@ -221,14 +221,14 @@ void start_interactive_game() {
         g1 = &player5;
         name1 = std::string("Human");
     } else if (type1 == 4) {
-        config1.Set_mcts_play_iteration(5000).Set_c_puct(3).Set_dqn_call_minmax(true);
+        config1.Set_mcts_play_iteration(5000).Set_c_puct(5).Set_dqn_call_minmax(true);
         name1 = std::string("MCTS-Zero");
         player7.init(1, name1, config1);
         config1.Set_reload(false);
         player7.set_train(config1, false);
         g1 = &player7;
     } else if (type1 == 5) {
-        config1.Set_mcts_play_iteration(5000).Set_c_puct(3).Set_alpha_beta_cache_lost(false).Set_dqn_call_minmax(true);
+        config1.Set_mcts_play_iteration(5000).Set_c_puct(5).Set_alpha_beta_cache_lost(false).Set_dqn_call_minmax(true);
         name1 = std::string("Neural-Alpha-Beta");
         player7.init(1, name1, config1);
         config1.Set_reload(false);
@@ -259,14 +259,14 @@ void start_interactive_game() {
         g2 = &player6;
         name2 = std::string("Human");
     } else if (type2 == 4) {
-        config2.Set_mcts_play_iteration(5000).Set_c_puct(3).Set_dqn_call_minmax(true);
+        config2.Set_mcts_play_iteration(5000).Set_c_puct(5).Set_dqn_call_minmax(true);
         name2 = std::string("MCTS-Zero");
         player8.init(1, name2, config2);
         config2.Set_reload(false);
         player8.set_train(config2, false);
         g2 = &player8;
     } else if (type2 == 5) {
-        config2.Set_mcts_play_iteration(5000).Set_c_puct(3).Set_alpha_beta_cache_lost(false).Set_dqn_call_minmax(true);
+        config2.Set_mcts_play_iteration(5000).Set_c_puct(5).Set_alpha_beta_cache_lost(false).Set_dqn_call_minmax(true);
         name2 = std::string("Neural-Alpha-Beta");
         player8.init(-1, name2, config2);
         config2.Set_reload(false);
@@ -637,13 +637,42 @@ void start_training_game(int tol_game) {
     int iter;
     scanf("%d", &iter);
     if (iter < 1000) iter = 1000;
-    config = config.Set_c_puct(3).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_mcts_play_iteration(1000).Set_mcts_train_iteration(500).Set_reload(true).Set_dqn_call_minmax(false).Set_file_path("../../model/current_model.pt").Set_opt_path("../../model/current_model_opt.pt");
-    mcts_player_config = mcts_player_config.Set_c_puct(3).Set_mcts_play_iteration(iter);
+    config = config.Set_c_puct(5).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_mcts_play_iteration(1000).Set_mcts_train_iteration(500).Set_reload(true).Set_dqn_call_minmax(false).Set_file_path("../../model/current_model.pt").Set_opt_path("../../model/current_model_opt.pt");
+    mcts_player_config = mcts_player_config.Set_c_puct(5).Set_mcts_play_iteration(iter);
     player.init(1, "Mcts-Zero-Player", config);
     config = config.Set_reload(false);
     player.set_train(config, true);
-    memory_buffer<std::tuple<std::vector<std::vector<std::vector<double>>>, std::vector<double>, int>> buffer(10000);
-       
+    memory_buffer<std::tuple<std::vector<std::vector<std::vector<double>>>, std::vector<double>, int>> buffer(8192);
+    FILE *fp = fopen("../../model/batch.txt", "r");
+    if (fp != NULL) {
+        printf("start loading previous memory buffer...\n");
+        int N;
+        fscanf(fp, "%d", &N);
+        for (int i = 0 ; i < N; ++i) {
+            std::vector<std::vector<std::vector<double>>> st = 
+                std::vector<std::vector<std::vector<double>>>(3, std::vector<std::vector<double>>(6, std::vector<double>(7, 0))); 
+            std::vector<double> pro = std::vector<double>(7, 0);
+            int wi;
+            for (int j = 0; j < 3; ++j) {
+                for (int k = 0 ; k < 6; ++k) {
+                    for (int l = 0 ; l < 7; ++l) {
+                        fscanf(fp, "%lf", &st[j][k][l]);
+                    }
+                }
+            }
+            for (int j = 0 ; j < 7; ++j) {
+                fscanf(fp, "%lf", &pro[j]);
+            }
+            fscanf(fp, "%d", &wi);
+            buffer.add(std::make_tuple(st, pro, wi));
+        }
+
+        printf("load memory buffer of size %d\n", N);
+        fclose(fp);
+    } else {
+        printf("start from an empty memory buffer\n");
+    }
+
     int mini_batch_sz = 512, epoch = 5;
     for (int t = 1; t <= tol_game; ++t) {
         auto play_data = std::get<1>(player.self_play(config.get_temp()));
@@ -685,11 +714,11 @@ void start_training_game(int tol_game) {
             config = config.Set_mcts_play_iteration(1000);
             player.set_train(config, false);
             mcts_pure player2;
-            player2.init(10, std::string("MCTS-Pure") + std::string(std::to_string(mcts_player_config.get_mcts_play_iteration())), mcts_player_config);
-            auto nxt_win = play_group_of_games(1, &player, &player2, player.display_name(), player2.display_name(), config, mcts_player_config);
+            player2.init(1, std::string("MCTS-Pure") + std::string(std::to_string(mcts_player_config.get_mcts_play_iteration())), mcts_player_config);
+            auto nxt_win = play_group_of_games(10, &player, &player2, player.display_name(), player2.display_name(), config, mcts_player_config);
             if (nxt_win > winning_rate) {
                 printf("New best policy!\n");
-                config = config.Set_file_path("../../model/best_model_rs_19.pt").Set_opt_path("../../model/best_model_opt.pt");
+                config = config.Set_file_path("../../model/best_model_rs_13_new.pt").Set_opt_path("../../model/best_model_opt.pt");
                 player.save_model(config.get_model_path(), config.get_opt_path());
                 winning_rate = nxt_win;
             }
@@ -701,4 +730,33 @@ void start_training_game(int tol_game) {
             player.reset_player();
         }       
     }
+
+    fp = fopen("../../model/batch.txt", "w");
+    auto data = buffer.sample(buffer.size());
+    printf("start saving memory buffer...\n");
+    fprintf(fp, "%d\n", (int) data.size());
+    for (int i = 0 ; i < (int) data.size(); ++i) {
+        auto state = std::get<0>(data[i]);
+        auto prob = std::get<1>(data[i]);
+        auto win = std::get<2>(data[i]);
+        for (int j = 0; j < 3; ++j) {
+            for (int k = 0 ; k < 6; ++k) {
+                for (int l = 0 ; l < 7; ++l) {
+                    fprintf(fp, "%lf ", state[j][k][l]);
+                }
+                fprintf(fp, "\n");
+            }
+        }
+
+        for (int j = 0 ; j < 7; ++j) {
+            fprintf(fp, "%lf ", prob[j]);
+        }
+
+        fprintf(fp, "\n");
+
+        fprintf(fp, "%d\n", win);
+    }
+
+    printf("saving memory buffer of size %d\n", (int) data.size());
+    fclose(fp);
 }

@@ -76,15 +76,19 @@ Training games | Connect-Zero playout | Pure-MCTS-CPUCT playout | Win | Loss | D
 700 | 5,000  | 200,000 | 1 | 9 | 0 | 10%
 750 | 1,000 | 1,000 | 10 | 0 | 0 | **100%**
 850 | 1,000 | 2,000 | 5 | 5 | 0 | 50%
-1,000 | 1,000 | 2,000 | 7 | 2 | 1 | 75%   
+1,000 | 1,000 | 2,000 | 7 | 2 | 1 | 75% 
+1,600 | 1,000 | 2,000 | 8 | 2 | 0 | 80%   
 
-**Connect-Zero (first 12 moves) + Alpha-beta (depth>=11) vs Pure-MCTS-CPUCT (10 games)**
+**Connect-Zero (first 12 moves) + Alpha-beta (depth >= 11) vs Pure-MCTS-CPUCT (10 games)**
 
 Training games | Connect-Zero playout | Pure-MCTS-CPUCT playout | Win | Loss | Draw | Winning rate
 --- | --- | --- | --- | --- | --- | ---
 700 | 5,000 | 200,000 | 7 | 2 | 1 | 75%
 850 | 5,000 | 200,000 | 8 | 2 | 0 | 80%
 1,000 | 5,000 | 200,000 | 10 | 0 | 0 | **100%**
+1,600 | 5,000 | 200,000 | 9 | 1 | 0 | 90%
+1,600 | 5,000 | 500,000 | 10 | 0 | 0 | **100%**
+1,600 | 5,000 | 1,000,000 | 10 | 0 | 0 | **100%**
 
 Observation: The Connect-Zero player is pretty good at the starting phase of the game, but it is not good after 20 moves. I have used alpha-beta-depth-23 to monitor the connect-zero player's performance for the last 20 moves, it always makes mistakes that could change the game state from winning to losing. 
 
@@ -92,7 +96,7 @@ Observation: The Connect-Zero player is pretty good at the starting phase of the
 
 We have designed a set of connect-4 players that use different search algorithms to play the game of connect-4. For the Connect-Zero player, after
 1000 training games, the model can beat an MCTS player with the same playout level by 10-0. However, due to the lack of computing resources (I have
-no GPU/TPU for training), on average, only 250 training games can be played per day with the current model (a residual network with 13 residual blocks) which limits probability of obtaining highly accurate model in feasible amount of training time. In the future, if I have access to a better laptop, I would try to train a deeper neural network (e.g. with 18~20 residual blocks) and increase the performance of connect-zero.
+no GPU/TPU for training), on average, only 250 training games can be played per day with the current model (a residual network with 13 residual blocks) which limits probability of obtaining highly accurate model in feasible amount of training time. In the future, if I have access to a better laptop, I would try to train a deeper neural network (e.g. with 18~20 residual blocks) with more training games (~1e5) to increase the performance of connect-zero.
 
 ## Reference
 The implementation heavily referenced https://github.com/junxiaosong/AlphaZero_Gomoku

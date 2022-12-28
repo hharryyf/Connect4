@@ -18,15 +18,7 @@
 #include "deepq_mcts/mcts_zero.h"
 #include "combine_play/combine_player.h"
 #include "dirichlet.h"
-#include <winsock2.h>
-#include <Windows.h>
-#include <ws2tcpip.h>
-#pragma comment(lib, "ws2_32.lib")
 
-#define ALPHA_BETA_X 0
-#define MCTS_DEEP_X 1
-#define MCTS_DEEP_O 2
-#define ALPHA_BETA_O 3
 
 void tensor_test();
 
@@ -196,8 +188,8 @@ void start_interactive_game() {
     combine_player player12;
     ConfigObject config1;
     ConfigObject config2;
-    config1.Set_c_puct(5).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_reload(true).Set_dqn_call_minmax(false);
-    config2.Set_c_puct(5).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_reload(true).Set_dqn_call_minmax(false);
+    config1.Set_c_puct(5).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_reload(true).Set_dqn_call_minmax(false).Set_file_path("../../model/best_model_rs_13_new.pt");
+    config2.Set_c_puct(5).Set_dqn_decay(0.0001).Set_dqn_lr(0.002).Set_dqn_noise_portion(0.25).Set_dqn_temp(1e-3).Set_dirichlet_alpha(0.3).Set_reload(true).Set_dqn_call_minmax(false).Set_file_path("../../model/best_model_rs_13_new.pt");
     int type1, type2, d;
     gameplayer *g1;
     gameplayer *g2;
@@ -710,7 +702,7 @@ void start_training_game(int tol_game) {
         }
 
         // evaluate the current policy
-        if (t % 50 == 0 || t == tol_game) {
+        if (t % 50 == 0 || t == tol_game + start_batch) {
             player.save_model("../../model/current_model.pt", "../../model/current_model_opt.pt");
             config = config.Set_mcts_play_iteration(1000);
             player.set_train(config, false);
@@ -755,9 +747,9 @@ void start_training_game(int tol_game) {
 
         fprintf(fp, "\n");
 
-        fprintf(fp, "%d\n%d\n", win, start_batch + tol_game);
+        fprintf(fp, "%d\n", win);
     }
-
+    fprintf(fp, "%d\n", start_batch + tol_game);
     printf("saving memory buffer of size %d\n", (int) data.size());
     fclose(fp);
 }

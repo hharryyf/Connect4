@@ -75,7 +75,6 @@ Training games | Connect-Zero playout | Pure-MCTS-CPUCT playout | Win | Loss | D
 700 | 5,000 | 50,000 | 5 | 4 | 1 | 55%
 700 | 5,000  | 500,000 | 1 | 9 | 0 | 10%
 750 | 1,000 | 1,000 | 10 | 0 | 0 | **100%**
-850 | 1,000 | 2,000 | 5 | 5 | 0 | 50%
 1,000 | 1,000 | 2,000 | 7 | 2 | 1 | 75% 
 1,600 | 1,000 | 2,000 | 8 | 2 | 0 | 80%  
 1,600 | 5,000 | 50,000 | 10 | 0 | 0 | **100%**
@@ -92,7 +91,17 @@ Training games | Connect-Zero playout | Pure-MCTS-CPUCT playout | Win | Loss | D
 1,600 | 5,000 | 500,000 | 10 | 0 | 0 | **100%**
 1,600 | 5,000 | 1,000,000 | 10 | 0 | 0 | **100%**
 
-Observation: The Connect-Zero player is pretty good at the starting phase of the game, but it is not good after 20 moves. I have used alpha-beta-depth-23 to monitor the connect-zero player's performance for the last 20 moves, it always makes mistakes that could change the game state from winning to losing. 
+**Connect-Zero (5000 playout) vs Alpha-beta (depth >= 11) (2 games)**
+Training games | Win | Loss | Draw | Winning rate
+--- | --- | --- | --- | ---
+700 | 0 | 2 | 0 | 0%
+1,000 | 0 | 2 | 0 | 0%
+1,600 | 0 | 1 | 1 | 25%
+
+We only run 2 games because our current version of Connect-Zero and Alpha-beta players have no randomness. 
+
+
+Observation: The Connect-Zero player is pretty good at the starting phase of the game, but it is not good after 20 moves. I have used alpha-beta-depth-23 to monitor the connect-zero player's performance for the last 20 moves, it always makes mistakes that could change the game state from winning to losing/draw. 
 
 **Conclusion and Future Work**
 

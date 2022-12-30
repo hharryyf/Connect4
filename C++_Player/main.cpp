@@ -201,7 +201,7 @@ void start_interactive_game() {
         g1 = &player1;
         std::cout << "please input the searching depth: ";
         std::cin >> d;
-        config1.Set_alpha_beta_depth(d >= 3 ? d : 3).Set_alpha_beta_cache_lost(true);
+        config1.Set_alpha_beta_depth(d >= 3 ? d : 3).Set_alpha_beta_cache_lost(false);
         name1 = std::string("Alpha-Beta-d-").append(std::to_string(d));
     } else if (type1 == 2) {
         g1 = &player3;
@@ -239,7 +239,7 @@ void start_interactive_game() {
         g2 = &player2;
         std::cout << "please input the searching depth: ";
         std::cin >> d;
-        config2.Set_alpha_beta_depth(d >= 3 ? d : 3).Set_alpha_beta_cache_lost(true);
+        config2.Set_alpha_beta_depth(d >= 3 ? d : 3).Set_alpha_beta_cache_lost(false);
         name2 = std::string("Alpha-Beta-d-").append(std::to_string(d));
     } else if (type2 == 2) {
         g2 = &player4;

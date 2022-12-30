@@ -157,6 +157,11 @@ public:
     }
     
     void init(int turn, std::string name, ConfigObject config);
+
+    int winning_move(int previous_move) {
+        return -1;
+    }
+    
     /* 
       @previous_move: integer between 0 and max_col - 1 represents the column the opponent moves, 
                         -1 means the current move is the first move

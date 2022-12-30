@@ -8,6 +8,8 @@ public:
 
     void init(int turn, std::string n, ConfigObject config);
     
+    int winning_move(int previous_move);
+
     int play(int previous_move);
     
     int force_move(int previous_move, int move);

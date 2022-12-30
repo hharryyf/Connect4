@@ -34,6 +34,8 @@ public:
         this->c_puct = c_puct;
         this->rng.seed(std::chrono::system_clock::now().time_since_epoch().count());
     }
+
+
     /**
      * MCTS-Playout given the current board state
     */
@@ -109,6 +111,11 @@ public:
         this->board = bit_board();
         this->mcts = pure_mcts_tree(config.get_c_puct(), config.get_mcts_play_iteration());      
     }
+
+    int winning_move(int previous_move) {
+        return -1;
+    }
+
     /* 
       @previous_move: integer between 0 and max_col - 1 represents the column the opponent moves, 
                         -1 means the current move is the first move

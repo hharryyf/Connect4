@@ -212,6 +212,37 @@ std::pair<double, int> alphabeta_player::minimax(int current, int depth, double 
     }
 }
 
+int alphabeta_player::winning_move(int previous_move) {
+    if (previous_move != -1) {
+        this->board.update(previous_move, -this->player);
+    }
+
+    auto get_depth = [&](int piece) -> int {
+        if (piece < 8) {
+            return this->max_depth;
+        } else if (piece < 14) {
+            return 2 + this->max_depth;
+        } else if (piece < 16) {
+            return 4 + this->max_depth;
+        } else if (piece < 20) {
+            return 8 + this->max_depth;
+        }
+
+        return 12 + this->max_depth;
+    };
+
+    this->board.clear_middle_game_cache();
+    int d = get_depth(this->board.get_move());
+    auto p = negamax(this->player, d, -AlphaBetaConfig::four, AlphaBetaConfig::four);
+    
+    if (previous_move != -1) {
+        this->board.update(previous_move, 0);
+    }
+
+    if (p.first == AlphaBetaConfig::four || p.first == 0) return p.second;
+    return -1;
+}
+
 int alphabeta_player::play(int previous) {
     if (previous != -1) {
         this->board.update(previous, -this->player);

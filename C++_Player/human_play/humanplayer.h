@@ -5,6 +5,10 @@
 class human_player : public gameplayer {
 public:
     void init(int turn, std::string n, ConfigObject config);
+    int winning_move(int previous_move) {
+        return -1;
+    }
+    
     int play(int previous_move);
     int force_move(int previous_move, int move);
     std::string display_name() {

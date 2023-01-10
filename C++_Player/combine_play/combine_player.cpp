@@ -10,29 +10,22 @@ void combine_player::init(int turn, std::string name, ConfigObject config) {
 
 int combine_player::play(int previous_move) {
     if (previous_move != -1) this->num_move++;
-    int win = this->g2->winning_move(previous_move);
-    if (win != -1) {
+    int win_move = this->g2->winning_move(previous_move);
+    if (win_move != -1) {
         this->num_move++;
-        this->g1->force_move(previous_move, win);
-        this->g2->force_move(previous_move, win);
+        this->g1->force_move(previous_move, win_move);
+        this->g2->force_move(previous_move, win_move);
     } else {
-        if (this->num_move < 18) {
+        if (this->num_move < 16) {
             this->num_move++;
-            win = this->g2->force_move(previous_move, this->g1->play(previous_move));
+            win_move = this->g2->force_move(previous_move, this->g1->play(previous_move));
         } else {
             this->num_move++;
-            win = this->g1->force_move(previous_move, this->g2->play(previous_move));
+            win_move = this->g1->force_move(previous_move, this->g2->play(previous_move));
         }
     }
 
-    return win;
-    // if (this->num_move < 12) {
-    //     this->num_move++;
-    //     return this->g2->force_move(previous_move, this->g1->play(previous_move));
-    // }
-
-    // this->num_move++;
-    // return this->g1->force_move(previous_move, this->g2->play(previous_move));
+    return win_move;
 }
 
 int combine_player::force_move(int previous_move, int move) {

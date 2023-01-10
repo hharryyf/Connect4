@@ -10,7 +10,7 @@ add_subdirectory(human_play)
 add_subdirectory(combine_play)
 add_subdirectory(deepq_mcts)
 add_executable(main main.cpp)
-add_executable(server server.cpp)
+# add_executable(server server.cpp)
 
 target_link_libraries(main 
   "${TORCH_LIBRARIES}" 
@@ -21,16 +21,16 @@ target_link_libraries(main
   combine_play
 )
 
-target_link_libraries(server 
-  common
-)
+#target_link_libraries(server 
+#  common
+#)
 #  alpha_beta
 #  human_play
 #)
 
 set_property(TARGET main PROPERTY CXX_STANDARD 14)
 
-set_property(TARGET server PROPERTY CXX_STANDARD 14)
+# set_property(TARGET server PROPERTY CXX_STANDARD 14)
 
 # cmake -DCMAKE_PREFIX_PATH=/e/NNProject/libtorch-win-shared-with-deps-1.12.1+cpu/libtorch ..
 # cmake --build . --config Release
